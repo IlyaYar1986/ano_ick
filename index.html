@@ -1059,9 +1059,15 @@ function saveAudit() {
   scheduleSend();
 }
 
-/* Анонимная отправка в Google Таблицу автора курса (см. tools/audit_sheet/README.md).
-   Пустой адрес — отправка выключена. */
-const AUDIT_ENDPOINT = '';
+/* Анонимная отправка в Google Форму автора курса, ответы падают в таблицу «Ответы 1.1»
+   (см. tools/audit_sheet/README.md). Пустой адрес — отправка выключена.
+   Форма только добавляет строки, поэтому у одного участника их может быть несколько:
+   актуальна последняя строка с его номером. */
+const AUDIT_ENDPOINT = 'https://docs.google.com/forms/d/e/1FAIpQLSdgeSxnefShsLHqhOvAMgiFOBPGzTQfxCDm_qqCD5QOwYx5Rw/formResponse';
+const AUDIT_FIELDS = {
+  id: 'entry.1910359267', who: 'entry.270297146', ai: 'entry.1371561730', help: 'entry.527206453',
+  me: 'entry.248635769', custom: 'entry.482313376', data: 'entry.1474192262',
+};
 function participantId() {
   try {
     let id = localStorage.getItem('ick-audit-pid');
@@ -1072,12 +1078,24 @@ function participantId() {
   }
 }
 function auditPayload() {
-  return JSON.stringify({
-    id: participantId(),
-    who: audit.who || '',
-    tasks: allTasks().filter(t => audit.marks[t.id]).map(t => ({ text: t.text, topic: t.topic, group: t.group, v: audit.marks[t.id] })),
+  const marked = allTasks().filter(t => audit.marks[t.id]);
+  const list = v => marked.filter(t => audit.marks[t.id] === v).map(t => t.text).join('\n');
+  const data = {
+    tasks: marked.map(t => ({ text: t.text, topic: t.topic, group: t.group, v: audit.marks[t.id] })),
     custom: audit.custom,
-  });
+  };
+  const f = new URLSearchParams();
+  f.append(AUDIT_FIELDS.id, 'У-' + participantId().slice(0, 8));
+  f.append(AUDIT_FIELDS.who, audit.who || '');
+  f.append(AUDIT_FIELDS.ai, list('ai'));
+  f.append(AUDIT_FIELDS.help, list('help'));
+  f.append(AUDIT_FIELDS.me, list('me'));
+  f.append(AUDIT_FIELDS.custom, audit.custom.join('\n'));
+  f.append(AUDIT_FIELDS.data, JSON.stringify(data));
+  return f;
+}
+function auditIsEmpty() {
+  return !Object.values(audit.marks).some(Boolean) && !audit.custom.length && !audit.who;
 }
 let sendTimer = null, dirty = false;
 function setStatus(text, cls) {
@@ -1089,13 +1107,15 @@ function scheduleSend() {
   dirty = true;
   clearTimeout(sendTimer);
   setStatus('Сохраняем…');
-  sendTimer = setTimeout(sendAudit, 2000);
+  // Форма не умеет обновлять строку, поэтому ждём паузу в 20 секунд, чтобы не плодить строки
+  sendTimer = setTimeout(sendAudit, 20000);
 }
 async function sendAudit() {
   if (!AUDIT_ENDPOINT || !dirty) return;
   dirty = false;
+  if (auditIsEmpty()) { setStatus(''); return; }
   try {
-    // text/plain без заголовков — простой запрос без CORS-предпроверки, которую Apps Script не поддерживает
+    // Обычная отправка формы: простой запрос, ответ Google браузеру недоступен (no-cors)
     await fetch(AUDIT_ENDPOINT, { method: 'POST', mode: 'no-cors', body: auditPayload() });
     setStatus('Ответы отправлены ✓', 'ok');
   } catch (e) {
@@ -1105,9 +1125,9 @@ async function sendAudit() {
 }
 /* Если человек закрывает страницу до таймера — отправить сразу */
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden' && dirty && AUDIT_ENDPOINT) {
+  if (document.visibilityState === 'hidden' && dirty && AUDIT_ENDPOINT && !auditIsEmpty()) {
     clearTimeout(sendTimer); dirty = false;
-    navigator.sendBeacon(AUDIT_ENDPOINT, new Blob([auditPayload()], { type: 'text/plain' }));
+    navigator.sendBeacon(AUDIT_ENDPOINT, auditPayload());
   }
 });
 function allTasks() {
