@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Два ИИ-помощника в деле</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --green:#10b981;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 14px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{
+  padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.88rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.tab:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+.run{
+  padding:9px 20px;border-radius:10px;border:none;background:var(--green);color:#fff;
+  font-weight:700;font-size:.88rem;cursor:pointer;margin-left:auto;
+}
+.run:hover{filter:brightness(.94)}
+.run:disabled{opacity:.5;cursor:default}
+
+.panel[hidden]{display:none}
+
+/* Present Simple: слайд */
+.slide{
+  border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  box-shadow:0 14px 40px rgba(15,23,42,.1);max-width:760px;margin:0 auto;
+}
+.slide-head{padding:16px 24px 4px;background:linear-gradient(135deg,#eef2ff,#e0f7fa)}
+.slide-head h2{font-size:1.05rem;font-weight:800;color:var(--indigo-dk)}
+.slide-head p{font-size:.78rem;color:var(--muted)}
+.slide-body{padding:10px 24px 18px;background:linear-gradient(135deg,#eef2ff,#e0f7fa)}
+.chart{width:100%;height:auto;display:block}
+.bar{transform:scaleY(0);transform-origin:bottom;transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+.slide.play .bar{transform:scaleY(1)}
+.bar:nth-child(2){transition-delay:.1s}.bar:nth-child(3){transition-delay:.2s}
+.bar:nth-child(4){transition-delay:.3s}.bar:nth-child(5){transition-delay:.4s}
+.linepath{stroke-dasharray:640;stroke-dashoffset:640;transition:stroke-dashoffset 1.4s ease .2s}
+.slide.play .linepath{stroke-dashoffset:0}
+.ps-note{font-size:.8rem;color:var(--muted);text-align:center;margin-top:10px}
+.chart-type{display:flex;gap:8px;justify-content:center;margin:12px 0 2px}
+.ct-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer}
+.ct-btn.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+
+/* Claude: чат */
+.chat{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:86%;padding:11px 16px;border-radius:14px;font-size:.9rem;line-height:1.55}
+.msg.user{align-self:flex-end;background:var(--indigo);color:#fff;border-bottom-right-radius:4px}
+.msg.user .file{
+  display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);
+  border-radius:8px;padding:3px 10px;font-size:.8rem;margin-bottom:6px;
+}
+.msg.ai{align-self:flex-start;background:#f8fafc;border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg.hiddenmsg{display:none}
+.typing{color:var(--muted);font-style:italic}
+.ai-chart{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px;margin:8px 0}
+.caret{display:inline-block;width:8px;background:var(--muted);animation:blink 1s steps(1) infinite;height:1em;vertical-align:text-bottom}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .bar,.linepath{transition:none}
+  .caret{animation:none}
+}
+</style>
+</head>
+<body>
+
+<h1>Два ИИ-помощника в деле</h1>
+<p class="sub">Один и тот же чистый файл — два разных результата. Выберите инструмент и нажмите «Построить».</p>
+
+<div class="tabs">
+  <button type="button" class="tab active" data-tool="ps">Present Simple · дизайнер 🎨</button>
+  <button type="button" class="tab" data-tool="claude">Claude · аналитик 💬</button>
+  <button type="button" class="run" id="run">Построить ▶</button>
+</div>
+
+<div class="panel" data-panel="ps">
+  <div class="chart-type">
+    <button type="button" class="ct-btn active" data-ct="bar">Столбчатая</button>
+    <button type="button" class="ct-btn" data-ct="line">Линейная</button>
+  </div>
+  <div class="slide" id="slide">
+    <div class="slide-head">
+      <h2>Успеваемость группы за октябрь</h2>
+      <p>Средний балл по студентам · слайд сгенерирован за 30 секунд</p>
+    </div>
+    <div class="slide-body">
+      <svg class="chart" viewBox="0 0 640 250" id="ps-chart" role="img" aria-label="Диаграмма успеваемости группы"></svg>
+      <p class="ps-note">Цвета, шрифты и выравнивание ИИ подобрал сам — вручную это заняло бы 20–30 минут.</p>
+    </div>
+  </div>
+</div>
+
+<div class="panel" data-panel="claude" hidden>
+  <div class="chat">
+    <div class="msg user">
+      <span class="file">📎 uspevaemost_gruppy.xlsx</span><br>
+      Проанализируй, пожалуйста, прикреплённый файл. Построй столбчатую диаграмму, которая сравнивает средние баллы студентов.
+    </div>
+    <div class="msg ai hiddenmsg" id="ai-thinking"><span class="typing">Изучаю файл…</span></div>
+    <div class="msg ai hiddenmsg" id="ai-answer">
+      <div class="ai-chart">
+        <svg class="chart" viewBox="0 0 640 220" id="claude-chart" role="img" aria-label="Диаграмма средних баллов в чате"></svg>
+      </div>
+      <span id="ai-text"></span><span class="caret" id="ai-caret" hidden></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  {name: "Студент 1", value: 4.2},
+  {name: "Студент 2", value: 3.9},
+  {name: "Студент 3", value: 3.2},
+  {name: "Студент 4", value: 4.5},
+  {name: "Студент 5", value: 4.8},
+];
+const AI_TEXT = "Как видно из диаграммы, наивысшую успеваемость показывает Студент 5 со средним баллом 4,8. Студент 3 требует дополнительного внимания — его средний балл 3,2. Большинство студентов держатся в диапазоне 3,9–4,5: группа в целом стабильна, но разрыв между лидером и отстающим — полтора балла.";
+
+let tool = "ps";
+let chartType = "bar";
+const slide = document.getElementById("slide");
+const runBtn = document.getElementById("run");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function barsSvg(height, colorA, colorB) {
+  const max = 5;
+  const chartH = height - 46;
+  return DATA.map((d, i) => {
+    const h = (d.value / max) * (chartH - 22);
+    const x = 40 + i * 118;
+    return `<g class="bar">
+      <rect x="${x}" y="${chartH + 8 - h}" width="78" height="${h}" rx="8" fill="url(#g${colorA})"/>
+      <text x="${x + 39}" y="${chartH - h - 2}" text-anchor="middle" font-size="17" font-weight="800" fill="#312e81">${String(d.value).replace(".", ",")}</text>
+    </g>
+    <text x="${x + 39}" y="${height - 8}" text-anchor="middle" font-size="14" font-weight="600" fill="#64748b">${d.name}</text>`;
+  }).join("") + `<defs>
+    <linearGradient id="g${colorA}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${colorA}"/><stop offset="1" stop-color="${colorB}"/>
+    </linearGradient></defs>
+    <line x1="20" y1="${chartH + 8}" x2="620" y2="${chartH + 8}" stroke="#cbd5e1" stroke-width="2"/>`;
+}
+function lineSvg(height) {
+  const max = 5;
+  const chartH = height - 46;
+  const points = DATA.map((d, i) => `${79 + i * 118},${chartH + 8 - (d.value / max) * chartH}`).join(" ");
+  const labels = DATA.map((d, i) => `<text x="${79 + i * 118}" y="${height - 8}" text-anchor="middle" font-size="14" font-weight="600" fill="#64748b">${d.name}</text>`).join("");
+  const dots = DATA.map((d, i) => `<circle cx="${79 + i * 118}" cy="${chartH + 8 - (d.value / max) * chartH}" r="7" fill="#6366f1"/>`).join("");
+  return `<polyline class="linepath" points="${points}" fill="none" stroke="#6366f1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>${dots}${labels}
+    <line x1="20" y1="${chartH + 8}" x2="620" y2="${chartH + 8}" stroke="#cbd5e1" stroke-width="2"/>`;
+}
+
+function renderPs() {
+  const svg = document.getElementById("ps-chart");
+  slide.classList.remove("play");
+  svg.innerHTML = chartType === "bar" ? barsSvg(250, "#6366f1", "#818cf8") : lineSvg(250);
+}
+
+document.querySelectorAll(".ct-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".ct-btn").forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    chartType = button.dataset.ct;
+    renderPs();
+  });
+});
+
+document.querySelectorAll(".tab").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    tool = button.dataset.tool;
+    document.querySelectorAll(".panel").forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== tool;
+    });
+  });
+});
+
+async function runClaude() {
+  const thinking = document.getElementById("ai-thinking");
+  const answer = document.getElementById("ai-answer");
+  const textEl = document.getElementById("ai-text");
+  const caret = document.getElementById("ai-caret");
+  thinking.classList.remove("hiddenmsg");
+  answer.classList.add("hiddenmsg");
+  textEl.textContent = "";
+  await new Promise((resolve) => window.setTimeout(resolve, reduceMotion ? 0 : 900));
+  thinking.classList.add("hiddenmsg");
+  answer.classList.remove("hiddenmsg");
+  document.getElementById("claude-chart").innerHTML = barsSvg(220, "#94a3b8", "#cbd5e1");
+  window.requestAnimationFrame(() => answer.closest(".panel").querySelectorAll(".bar").forEach((bar) => { bar.style.transform = "scaleY(1)"; }));
+  caret.hidden = false;
+  if (reduceMotion) {
+    textEl.textContent = AI_TEXT;
+  } else {
+    for (let i = 0; i <= AI_TEXT.length; i += 3) {
+      textEl.textContent = AI_TEXT.slice(0, i);
+      await new Promise((resolve) => window.setTimeout(resolve, 18));
+    }
+    textEl.textContent = AI_TEXT;
+  }
+  caret.hidden = true;
+}
+
+runBtn.addEventListener("click", async () => {
+  runBtn.disabled = true;
+  if (tool === "ps") {
+    renderPs();
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => slide.classList.add("play")));
+    await new Promise((resolve) => window.setTimeout(resolve, 900));
+  } else {
+    await runClaude();
+  }
+  runBtn.disabled = false;
+});
+
+renderPs();
+window.requestAnimationFrame(() => window.requestAnimationFrame(() => slide.classList.add("play")));
+</script>
+</body>
+</html>

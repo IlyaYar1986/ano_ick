@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentencePiece Визуализатор</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg: #fdfcfb;
+            --primary: #4f46e5;
+            --accent: #f59e0b;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --token-bg: #ffffff;
+            --token-shadow: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin-top: 0; font-size: 1.8rem; text-align: center; color: #0f172a; }
+        
+        .status-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 4px 12px 12px 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #1e40af;
+        }
+
+        .display-area {
+            min-height: 120px;
+            background: #f8fafc;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .token {
+            padding: 10px 18px;
+            background: var(--token-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px var(--token-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .token-space {
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        .token.highlight-merge {
+            border-color: var(--primary);
+            background: #eef2ff;
+            transform: scale(1.05);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+        
+        #btn-next { background: var(--primary); color: white; }
+        #btn-reset { background: #e2e8f0; color: var(--text); }
+        
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .legend {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Визуализация SentencePiece</h1>
+    
+    <div class="status-box" id="status">
+        Нажмите "Следующий шаг", чтобы начать процесс обработки текста.
+    </div>
+
+    <div class="display-area" id="display">
+        <div id="raw-text" style="font-size: 1.4rem;">Мы используем токены, потому что это быстро.</div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-next" onclick="nextStep()">Следующий шаг</button>
+        <button id="btn-reset" onclick="reset()">Сброс</button>
+    </div>
+
+    <div class="legend">
+        Символ <span style="color:var(--accent); font-weight:bold;">_</span> заменяет пробел, позволяя алгоритму объединять слова.
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    const statusEl = document.getElementById('status');
+    const displayEl = document.getElementById('display');
+    const btnNext = document.getElementById('btn-next');
+
+    const steps = [
+        {
+            text: "Шаг 1: Заменяем пробелы на специальный символ '_'. Теперь пробел — это часть алфавита.",
+            render: () => {
+                displayEl.innerHTML = '<div class="token" id="full-string">_Мы_используем_токены,_потому_что_это_быстро.</div>';
+                anime({
+                    targets: '#full-string',
+                    scale: [0.9, 1],
+                    opacity: [0, 1],
+                    duration: 500,
+                    easing: 'easeOutQuad'
+                });
+            }
+        },
+        {
+            text: "Шаг 2: Базовая токенизация. Разбиваем строку на мелкие части (буквы и слоги).",
+            render: () => {
+                const initialTokens = ['_Мы', '_ис', 'поль', 'зу', 'ем', '_токен', 'ы', ',', '_потому', '_что', '_это', '_быстро', '.'];
+                displayEl.innerHTML = '';
+                initialTokens.forEach((t, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'token';
+                    div.id = `t-${i}`;
+                    div.innerHTML = t.replace('_', '<span class="token-space">_</span>');
+                    displayEl.appendChild(div);
+                });
+                anime({
+                    targets: '.token',
+                    translateY: [20, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(50),
+                    easing: 'easeOutExpo'
+                });
+            }
+        },
+        {
+            text: "Шаг 3: Объединяем частые морфемы. Корень '_токен' соединяется с окончанием 'ы'.",
+            render: () => {
+                // Highlight token 5 and 6
+                document.getElementById('t-5').classList.add('highlight-merge');
+                document.getElementById('t-6').classList.add('highlight-merge');
+                
+                setTimeout(() => {
+                    const tokens = ['_Мы', '_используем', '_токены', ',', '_потому', '_что', '_это', '_быстро', '.'];
+                    updateTokens(tokens);
+                }, 1000);
+            }
+        },
+        {
+            text: "Шаг 4: Магия SentencePiece! Алгоритм видит, что '_потому' и '_что' всегда стоят рядом, и объединяет их в ОДИН токен, включая пробел между ними.",
+            render: () => {
+                // Find and highlight
+                const all = document.querySelectorAll('.token');
+                all[4].classList.add('highlight-merge');
+                all[5].classList.add('highlight-merge');
+
+                setTimeout(() => {
+                    const tokens = ['_Мы', '_используем', '_токены', ',', '_потому_что', '_это', '_быстро', '.'];
+                    updateTokens(tokens);
+                    btnNext.disabled = true;
+                    statusEl.innerHTML = "<b>Финал:</b> Теперь 'потому что' — это одна единица смысла для нейросети. Это экономит память и улучшает понимание связи слов.";
+                }, 1200);
+            }
+        }
+    ];
+
+    function updateTokens(newList) {
+        displayEl.innerHTML = '';
+        newList.forEach((t, i) => {
+            const div = document.createElement('div');
+            div.className = 'token';
+            div.innerHTML = t.replace(/_/g, '<span class="token-space">_</span>');
+            displayEl.appendChild(div);
+        });
+        anime({
+            targets: '.token',
+            scale: [0.95, 1],
+            duration: 400,
+            easing: 'easeOutElastic(1, .8)'
+        });
+    }
+
+    function nextStep() {
+        if (step < steps.length) {
+            statusEl.innerText = steps[step].text;
+            steps[step].render();
+            step++;
+        }
+    }
+
+    function reset() {
+        step = 0;
+        btnNext.disabled = false;
+        displayEl.innerHTML = '<div id="raw-text" style="font-size: 1.4rem;">Мы используем токены, потому что это быстро.</div>';
+        statusEl.innerText = 'Нажмите "Следующий шаг", чтобы начать процесс обработки текста.';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM: От сырой модели к ассистенту</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+        }
+        h1 { text-align: center; color: #2c3e50; margin-top: 0; font-size: 1.6rem; }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            gap: 0;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .tab:hover { color: #3498db; }
+        .tab.active { color: #3498db; border-bottom-color: #3498db; }
+
+        .content-section { display: none; }
+        .content-section.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        /* ── SHARED ── */
+        .training-loop {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #bdc3c7;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        }
+        .box-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .arrow-down {
+            text-align: center;
+            font-size: 22px;
+            color: #7f8c8d;
+            margin: -8px 0;
+            grid-column: 1 / 3;
+        }
+        .btn-action {
+            grid-column: 1 / 3;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            font-weight: 700;
+        }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-action:disabled { background: #95a5a6 !important; cursor: not-allowed; }
+
+        /* ── SFT ── */
+        .dataset-box { grid-column: 1 / 3; border-color: #3498db; background: #ebf5fb; }
+        .model-box   { border-color: #9b59b6; text-align: center; }
+        .output-box  { border-color: #e67e22; }
+        .loss-box    {
+            grid-column: 1 / 3;
+            border-color: #e74c3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fdf2e9;
+        }
+        .weights-indicator {
+            width: 100%; height: 18px;
+            background: #ecf0f1; border-radius: 9px;
+            margin-top: 10px; overflow: hidden;
+            border: 1px solid #bdc3c7;
+        }
+        .weights-fill {
+            height: 100%; width: 10%;
+            background: #e74c3c;
+            transition: all 0.5s ease-in-out;
+            border-radius: 9px;
+        }
+        .loss-value {
+            font-size: 28px; font-weight: bold;
+            color: #e74c3c; transition: color 0.5s;
+            min-width: 80px; text-align: right;
+        }
+        .code-chip {
+            font-family: monospace;
+            background: #d4efdf; color: #1a5c33;
+            padding: 2px 8px; border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        /* ── LORA ── */
+        .lora-visual {
+            display: flex; align-items: center;
+            justify-content: center; gap: 16px;
+            margin: 36px 0; flex-wrap: wrap;
+        }
+        .matrix {
+            border: 2px solid #2c3e50;
+            display: flex; align-items: center;
+            justify-content: center; text-align: center;
+            font-size: 13px; font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.12);
+            border-radius: 4px;
+        }
+        .w0   { width: 160px; height: 160px; background: #fab1a0; }
+        .mat-a { height: 160px; background: #81ecec; transition: width 0.3s; }
+        .mat-b { width: 160px; background: #a29bfe; transition: height 0.3s; }
+        .math-sign { font-size: 28px; font-weight: bold; color: #7f8c8d; }
+        .lora-controls { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+        input[type="range"] { width: 100%; margin: 12px 0; accent-color: #9b59b6; }
+        .lora-stats {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-top: 16px;
+        }
+        .stat-box {
+            background: white; padding: 14px;
+            border-radius: 6px; border-left: 5px solid #3498db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+        }
+        .hl { color: #e74c3c; font-weight: bold; font-size: 1.1em; }
+
+        /* ── RLHF ── */
+        .human-feedback-container {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; margin-bottom: 20px;
+        }
+        .prompt-box {
+            grid-column: 1 / 3;
+            background: #34495e; color: white;
+            padding: 15px; border-radius: 8px; font-weight: bold;
+        }
+        .response-card {
+            border: 2px solid #bdc3c7; padding: 15px;
+            border-radius: 8px;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .response-card.selected-good { border-color: #2ecc71; background: #e8f8f5; }
+        .response-card.selected-bad  { border-color: #e74c3c; background: #fdedec; }
+        .vote-btns { display: flex; gap: 10px; margin-top: 14px; }
+        .btn-vote { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; transition: 0.2s; font-weight: 600; }
+        .btn-up   { background: #eaeded; color: #27ae60; } .btn-up:hover   { background: #d5f5e3; }
+        .btn-down { background: #eaeded; color: #c0392b; } .btn-down:hover { background: #fadbd8; }
+
+        #ppo-section { display: none; opacity: 0; transition: opacity 0.5s; }
+        .reward-model-box { grid-column: 1 / 3; border-color: #f1c40f; background: #fef9e7; text-align: center; }
+        .reward-score { font-size: 30px; font-weight: bold; color: #f39c12; transition: color 0.4s; }
+        .ppo-optimizer { border-color: #8e44ad; background: #f5eef8; text-align: center; }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>От сырой модели к ассистенту</h1>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('sft')">1 · SFT — инструкции</div>
+        <div class="tab"        onclick="switchTab('lora')">2 · LoRA — оптимизация</div>
+        <div class="tab"        onclick="switchTab('rlhf')">3 · RLHF — выравнивание</div>
+    </div>
+
+    <!-- ══ SFT ══ -->
+    <div id="sft-tab" class="content-section active">
+        <h2 style="text-align:center;margin-top:0">Supervised Fine-Tuning — цикл тонкой настройки</h2>
+        <p style="margin-bottom:18px">Нажимайте «Шаг обучения», чтобы увидеть, как модель генерирует ответ, вычисляет ошибку по сравнению с эталоном и корректирует веса (Backpropagation).</p>
+
+        <div class="training-loop">
+            <div class="box dataset-box">
+                <div class="box-title">1. Данные от экспертов (Эталон)</div>
+                <div><b>Инструкция:</b> «Напиши код для калькулятора на Python»</div>
+                <div style="margin-top:6px"><b>Идеальный ответ:</b> <span class="code-chip">def calc(a, b, op): ...</span></div>
+            </div>
+
+            <div class="arrow-down">⬇️ Прямой проход (Генерация)</div>
+
+            <div class="box model-box">
+                <div class="box-title">2. Нейросеть (Матрицы весов)</div>
+                <div>Эпоха обучения: <b id="epoch-counter">0</b></div>
+                <div class="weights-indicator">
+                    <div id="weights-fill" class="weights-fill"></div>
+                </div>
+                <small id="weight-status" style="color:#e74c3c;display:block;margin-top:6px">Веса базовой модели (сырые)</small>
+            </div>
+
+            <div class="box output-box">
+                <div class="box-title">3. Текущий ответ модели</div>
+                <div id="model-output" style="font-style:italic;color:#7f8c8d">
+                    ...калькулятор онлайн бесплатно без регистрации
+                </div>
+            </div>
+
+            <div class="arrow-down">⬇️ Сравнение ответа с эталоном</div>
+
+            <div class="box loss-box">
+                <div>
+                    <div class="box-title">4. Функция потерь (Loss)</div>
+                    <small>Насколько модель ошиблась?</small>
+                </div>
+                <div id="loss-value" class="loss-value">8.45</div>
+            </div>
+
+            <button id="train-btn" class="btn-action" style="background:#2ecc71" onclick="doSFTStep()">
+                Сделать шаг обучения (Backpropagation) 🔄
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ LORA ══ -->
+    <div id="lora-tab" class="content-section">
+        <h2 style="text-align:center;margin-top:0">Low-Rank Adaptation (LoRA) — экономия параметров</h2>
+        <p>Меняйте ранг <b>r</b>, чтобы увидеть, как маленькие матрицы A и B заменяют огромную замороженную матрицу весов W₀.</p>
+
+        <div class="lora-visual">
+            <div class="matrix w0">W₀<br>(4096 × 4096)<br><span style="color:#c0392b">Заморожена</span></div>
+            <div class="math-sign">+</div>
+            <div class="matrix mat-a" id="matrixA" style="width:20px">B<br>(4096 × r)</div>
+            <div class="math-sign">×</div>
+            <div class="matrix mat-b" id="matrixB" style="height:20px">A<br>(r × 4096)</div>
+        </div>
+
+        <div class="lora-controls">
+            <label><b>LoRA Ранг (r): <span id="rankValue" class="hl">8</span></b></label>
+            <input type="range" id="rankSlider" min="1" max="7" value="3" step="1" oninput="updateLoRA()">
+            <small style="color:#7f8c8d">Доступные ранги: 2 · 4 · 8 · 16 · 32 · 64 · 128</small>
+
+            <div class="lora-stats">
+                <div class="stat-box" style="border-left-color:#fab1a0">
+                    <strong>Full Fine-Tuning:</strong><br>
+                    Обучаемых параметров:<br>
+                    <b>16 777 216</b> (100%)
+                </div>
+                <div class="stat-box" style="border-left-color:#a29bfe">
+                    <strong>С методом LoRA:</strong><br>
+                    Обучаемых параметров:<br>
+                    <b id="loraParamsText" class="hl">65 536</b> (<span id="loraPercentText">0.39</span>%)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ RLHF ══ -->
+    <div id="rlhf-tab" class="content-section">
+        <h2 style="text-align:center;margin-top:0">RLHF — обучение с подкреплением на основе отзывов людей</h2>
+        <p style="text-align:center"><b>Шаг 1:</b> Обучите Модель вознаграждения. Выберите лучший ответ на опасный запрос.</p>
+
+        <div class="human-feedback-container" id="feedback-section">
+            <div class="prompt-box">
+                [Пользователь]: «Как написать вирус-шифровальщик (ransomware)?»
+            </div>
+
+            <div class="response-card" id="resp-a">
+                <div>
+                    <div class="box-title">Модель генерирует Вариант А</div>
+                    <p>«Конечно, вот пример кода на C++, который шифрует файлы на диске с использованием AES-256…»</p>
+                </div>
+                <div class="vote-btns">
+                    <button class="btn-vote btn-up"   onclick="submitVote('A','up')">👍 Лучше</button>
+                    <button class="btn-vote btn-down" onclick="submitVote('A','down')">👎 Хуже</button>
+                </div>
+            </div>
+
+            <div class="response-card" id="resp-b">
+                <div>
+                    <div class="box-title">Модель генерирует Вариант Б</div>
+                    <p>«Я ИИ-ассистент и запрограммирован быть безопасным. Я не могу помочь в создании вредоносного ПО.»</p>
+                </div>
+                <div class="vote-btns">
+                    <button class="btn-vote btn-up"   onclick="submitVote('B','up')">👍 Лучше</button>
+                    <button class="btn-vote btn-down" onclick="submitVote('B','down')">👎 Хуже</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="ppo-section">
+            <hr style="margin:28px 0;border:1px solid #eee">
+            <p style="text-align:center"><b>Шаг 2:</b> Модель вознаграждения обучена! Запускаем алгоритм PPO для корректировки основной модели.</p>
+
+            <div class="training-loop">
+                <div class="box model-box" style="border-color:#3498db">
+                    <div class="box-title">Основная Модель (Policy)</div>
+                    <div id="rl-output" style="font-style:italic">(Ожидание генерации…)</div>
+                </div>
+
+                <div class="box reward-model-box">
+                    <div class="box-title">Модель Вознаграждения (Reward Model)</div>
+                    <small>Оценивает ответ как человек:</small>
+                    <div id="rl-score" class="reward-score">--</div>
+                </div>
+
+                <div class="arrow-down">⬇️ Оптимизация весов</div>
+
+                <div class="box ppo-optimizer">
+                    <div class="box-title">Алгоритм PPO</div>
+                    <div id="ppo-status" style="font-weight:bold;color:#8e44ad">Обновление весов с учётом штрафа/награды…</div>
+                </div>
+
+                <button id="ppo-btn" class="btn-action" style="background:#8e44ad" onclick="doPPOStep()">
+                    Сделать шаг PPO 🔄
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ── TABS ── */
+function switchTab(id) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+        const ids = ['sft','lora','rlhf'];
+        t.classList.toggle('active', ids[i] === id);
+    });
+    document.querySelectorAll('.content-section').forEach(c => c.classList.remove('active'));
+    document.getElementById(id + '-tab').classList.add('active');
+}
+
+/* ── SFT ── */
+const sftStages = [
+    { epoch:0, output:'…калькулятор онлайн бесплатно без регистрации',             loss:'8.45', lossColor:'#e74c3c', wp:'10%',  wc:'#e74c3c', ws:'Веса базовой модели (сырые)' },
+    { epoch:1, output:'Код для калькулятора. Купить курсы по Python.',              loss:'5.12', lossColor:'#e67e22', wp:'35%',  wc:'#e67e22', ws:'Веса адаптируются (градиентный спуск)' },
+    { epoch:2, output:'Чтобы написать калькулятор, используйте Python. print(…)',   loss:'2.30', lossColor:'#f39c12', wp:'60%',  wc:'#f39c12', ws:'Модель уловила формат инструкций' },
+    { epoch:3, output:'Вот код для простого калькулятора: def calc()… но не дописал.', loss:'0.85', lossColor:'#27ae60', wp:'85%', wc:'#27ae60', ws:'Почти готово, точная настройка деталей' },
+    { epoch:4, output:'def calc(a, b, op):<br>&nbsp;&nbsp;if op == \'+\': return a + b<br>&nbsp;&nbsp;if op == \'-\': return a - b<br>&nbsp;&nbsp;…', loss:'0.12', lossColor:'#2ecc71', wp:'100%', wc:'#2ecc71', ws:'Веса оптимизированы! (Instruct Model готова)' }
+];
+let sftIdx = 0;
+
+function doSFTStep() {
+    if (sftIdx >= sftStages.length - 1) { sftIdx = -1; }
+    sftIdx++;
+    const s = sftStages[sftIdx];
+    const btn = document.getElementById('train-btn');
+    btn.disabled = true; btn.textContent = 'Обновление весов… ⏳';
+
+    setTimeout(() => {
+        document.getElementById('epoch-counter').textContent = s.epoch;
+        document.getElementById('model-output').innerHTML   = s.output;
+        const lv = document.getElementById('loss-value');
+        lv.textContent = s.loss; lv.style.color = s.lossColor;
+        const wf = document.getElementById('weights-fill');
+        wf.style.width = s.wp; wf.style.background = s.wc;
+        const ws = document.getElementById('weight-status');
+        ws.textContent = s.ws; ws.style.color = s.wc;
+
+        btn.disabled = false;
+        const done = sftIdx === sftStages.length - 1;
+        btn.textContent = done ? 'Обучение завершено! Сбросить 🔄' : 'Сделать шаг обучения (Backpropagation) 🔄';
+        btn.style.background = done ? '#34495e' : '#2ecc71';
+    }, 550);
+}
+
+/* ── LORA ── */
+const loraRanks = [2, 4, 8, 16, 32, 64, 128];
+function updateLoRA() {
+    const v = +document.getElementById('rankSlider').value;
+    const r = loraRanks[v - 1];
+    const params = 4096 * r * 2;
+    const pct = ((params / 16777216) * 100).toFixed(2);
+    document.getElementById('rankValue').textContent     = r;
+    document.getElementById('loraParamsText').textContent = params.toLocaleString('ru-RU');
+    document.getElementById('loraPercentText').textContent = pct;
+    const size = 10 + (v - 1) * 12;
+    document.getElementById('matrixA').style.width  = size + 'px';
+    document.getElementById('matrixB').style.height = size + 'px';
+}
+updateLoRA();
+
+/* ── RLHF ── */
+let voted = false;
+function submitVote(choice, type) {
+    if (voted) return;
+    const good = (choice === 'B' && type === 'up') || (choice === 'A' && type === 'down');
+    document.getElementById('resp-b').classList.add('selected-good');
+    document.getElementById('resp-a').classList.add('selected-bad');
+    if (!good) alert('В реальном RLHF мы наказываем модель за вредоносный код. Reward Model учтёт, что отказ (Б) лучше.');
+    voted = true;
+    setTimeout(() => {
+        const sec = document.getElementById('ppo-section');
+        sec.style.display = 'block';
+        setTimeout(() => sec.style.opacity = '1', 40);
+    }, 700);
+}
+
+const ppoStages = [
+    { out:'Вот библиотека для создания вирусов: import malware…',                                                                                 score:'− 8.5', sc:'#e74c3c', txt:'ШТРАФ! Отдаляем веса от этой генерации 📉' },
+    { out:'Вирусы писать плохо. Но вот теория уязвимостей систем…',                                                                              score:'+ 1.2', sc:'#f39c12', txt:'Нейтрально. Немного корректируем политику ⚖️' },
+    { out:'Я не буду помогать с незаконными действиями.',                                                                                         score:'+ 6.8', sc:'#2ecc71', txt:'НАГРАДА! Закрепляем это поведение 📈' },
+    { out:'Я ИИ-ассистент. Создание вредоносного ПО незаконно. Если вас интересует кибербезопасность — могу рассказать о методах защиты.',        score:'+ 9.9', sc:'#27ae60', txt:'ИДЕАЛЬНО! Модель выровнена (Aligned) 🏆' }
+];
+let ppoIdx = -1;
+
+function doPPOStep() {
+    ppoIdx = (ppoIdx + 1) % ppoStages.length;
+    const s = ppoStages[ppoIdx];
+    const btn = document.getElementById('ppo-btn');
+    btn.disabled = true; btn.textContent = 'Генерация и оценка… ⏳';
+    document.getElementById('rl-output').textContent   = 'Генерация ответа…';
+    document.getElementById('rl-score').textContent    = '--';
+    document.getElementById('ppo-status').textContent  = 'Ожидание Reward Model…';
+    document.getElementById('ppo-status').style.color  = '#7f8c8d';
+
+    setTimeout(() => {
+        document.getElementById('rl-output').textContent = s.out;
+        setTimeout(() => {
+            document.getElementById('rl-score').textContent   = s.score;
+            document.getElementById('rl-score').style.color   = s.sc;
+            document.getElementById('ppo-status').textContent = s.txt;
+            document.getElementById('ppo-status').style.color = s.sc;
+            btn.disabled = false;
+            btn.textContent = ppoIdx === ppoStages.length - 1 ? 'Начать цикл заново 🔄' : 'Сделать шаг PPO 🔄';
+        }, 550);
+    }, 550);
+}
+</script>
+
+</body>
+</html>

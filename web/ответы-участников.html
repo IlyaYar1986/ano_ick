@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ответы на вопросы участников — Локальный ИИ на предприятии</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;--card:#fff;--border:#e2e8f0;
+  --indigo:#6366f1;--indigo-dk:#4338ca;--indigo-lt:#eef2ff;
+  --text:#0f172a;--muted:#64748b;
+  --green:#10b981;--green-lt:#ecfdf5;
+  --amber:#f59e0b;--amber-lt:#fffbeb;
+  --red:#ef4444;--red-lt:#fef2f2;
+  --cyan:#0ea5e9;--cyan-lt:#f0f9ff;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,.06);display:flex;align-items:center;padding:0 20px;z-index:900;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nav-back{font-weight:700;font-size:.8rem;color:var(--muted);text-decoration:none;white-space:nowrap;margin-right:4px;padding:5px 10px;border-radius:6px;transition:color .2s,background .2s;flex-shrink:0}
+.nav-back:hover{color:var(--indigo);background:var(--indigo-lt)}
+.nav-logo{font-weight:900;font-size:.93rem;color:var(--indigo-dk);white-space:nowrap;margin-right:10px;flex-shrink:0}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-link{padding:5px 9px;border-radius:6px;font-size:.73rem;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;flex-shrink:0}
+.nav-link:hover{color:var(--indigo);background:var(--indigo-lt)}
+
+/* ── HERO ── */
+.hero{min-height:46vh;padding:calc(var(--nav-h) + 56px) 24px 64px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(150deg,#1e1b4b 0%,#312e81 40%,#1e3a5f 100%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(99,102,241,.25) 0%,transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(14,165,233,.15) 0%,transparent 55%)}
+.hero-inner{position:relative;z-index:1;max-width:700px}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:100px;font-size:.79rem;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:22px}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;line-height:1.1;letter-spacing:-1.5px;color:#fff;margin-bottom:16px}
+.hero h1 em{color:#a5b4fc;font-style:normal}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,.65);max-width:560px;margin:0 auto 32px;line-height:1.75}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{padding:6px 14px;border-radius:100px;font-size:.8rem;font-weight:700}
+.chip-green{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+.chip-indigo{background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+.chip-amber{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+
+/* ── PAGE BODY ── */
+.page{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+
+/* ── REFERENCE CARDS ── */
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:48px}
+@media(max-width:720px){.ref-grid{grid-template-columns:1fr}}
+
+/* ── SECTION CARD ── */
+.sec-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:28px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.05)}
+.sec-head{padding:28px 32px 0}
+.sec-num{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:14px}
+.n1{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.n2{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.n3{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+.n4{background:linear-gradient(135deg,#10b981,#34d399)}
+.n5{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.n6{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.n7{background:linear-gradient(135deg,#ef4444,#f87171)}
+.n8{background:linear-gradient(135deg,#14b8a6,#2dd4bf)}
+.n9{background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.sec-title{font-size:1.3rem;font-weight:800;margin-bottom:6px}
+.sec-question{font-size:.9rem;color:var(--muted);font-style:italic;padding:10px 14px;background:#f8fafc;border-left:3px solid var(--border);border-radius:0 8px 8px 0;margin:12px 0 20px}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+thead tr{background:#f8fafc}
+th{padding:9px 12px;text-align:left;font-weight:700;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+td strong{color:var(--indigo-dk)}
+.badge-cpu{display:inline-block;padding:2px 8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:100px;font-size:.73rem;font-weight:700;color:#0369a1}
+.badge-warn{display:inline-block;padding:2px 8px;background:#fffbeb;border:1px solid #fde68a;border-radius:100px;font-size:.73rem;font-weight:700;color:#92400e}
+.badge-no{display:inline-block;padding:2px 8px;background:#fef2f2;border:1px solid #fecaca;border-radius:100px;font-size:.73rem;font-weight:700;color:#b91c1c}
+
+/* ── ASSESSMENT BLOCK ── */
+.assessment{background:var(--amber-lt);border:1.5px solid #fde68a;border-radius:12px;padding:16px 20px;margin:0 32px 20px}
+.assessment-head{display:flex;align-items:center;gap:9px;font-size:.82rem;font-weight:800;color:#92400e;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.assessment-head span:first-child{font-size:1.1rem}
+.a-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.a-list li{font-size:.875rem;padding:6px 10px;border-radius:8px;line-height:1.55}
+.a-ok{background:#ecfdf5;color:#065f46}
+.a-ok::before{content:'✅ ';font-size:.9rem}
+.a-warn{background:#fffbeb;color:#78350f}
+.a-warn::before{content:'⚠️ ';font-size:.9rem}
+.a-bad{background:#fef2f2;color:#991b1b}
+.a-bad::before{content:'❌ ';font-size:.9rem}
+.a-verdict{background:#fff;border:1px solid #fde68a;color:#78350f;font-weight:700}
+.a-verdict::before{content:'→ ';font-weight:900}
+
+/* ── ONLINE SERVICES ── */
+.svc-section{padding:0 32px 20px}
+.svc-label{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:10px}
+.svc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.svc-list li{font-size:.87rem;padding:7px 12px;border-radius:8px;line-height:1.5}
+.svc-ru{background:#ecfdf5;border:1px solid #a7f3d0;color:#064e3b}
+.svc-ru::before{content:'🟢 '}
+.svc-global{background:#fffbeb;border:1px solid #fde68a;color:#451a03}
+.svc-global::before{content:'🟡 '}
+.svc-no{background:#fef2f2;border:1px solid #fecaca;color:#450a0a}
+.svc-no::before{content:'🔴 '}
+.svc-free{background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e}
+.svc-free::before{content:'🔵 '}
+
+/* ── SCENARIOS ── */
+.scenarios{border-top:1px solid var(--border)}
+.scenario-toggle{width:100%;padding:14px 32px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;font-family:inherit;font-size:.9rem;font-weight:700;color:var(--indigo);cursor:pointer;transition:background .2s}
+.scenario-toggle:hover{background:var(--indigo-lt)}
+.toggle-arrow{transition:transform .25s;font-size:.8rem}
+.toggle-arrow.open{transform:rotate(90deg)}
+.scenario-body{display:none;padding:0 32px 28px}
+.scenario-body.open{display:block}
+
+.scenario{margin-bottom:28px}
+.scenario-title{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:14px;padding-bottom:8px;border-bottom:1.5px solid var(--border)}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step-n{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--indigo-lt);border:1.5px solid #c7d2fe;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:var(--indigo);margin-top:2px}
+.step-body{flex:1;font-size:.87rem;line-height:1.6}
+.step-body strong{color:var(--indigo-dk)}
+
+/* ── CODE BLOCKS ── */
+.code-wrap{background:#1e293b;border-radius:10px;overflow:hidden;margin:10px 0}
+.code-bar{display:flex;align-items:center;padding:7px 14px;background:#0f172a;gap:8px}
+.code-dots{display:flex;gap:4px}
+.cd{width:9px;height:9px;border-radius:50%}
+.cdr{background:#ff5f57}.cdy{background:#febb2c}.cdg{background:#27c840}
+.code-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#64748b;flex:1}
+.copy-btn{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#94a3b8;cursor:pointer;transition:all .2s;font-family:inherit}
+.copy-btn:hover{background:rgba(99,102,241,.3);color:#a5b4fc;border-color:rgba(99,102,241,.4)}
+.code-wrap pre{padding:14px 16px;overflow-x:auto;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.82rem;line-height:1.7;color:#e2e8f0;white-space:pre-wrap;word-break:break-word}
+
+/* ── WARNING / INFO BOXES ── */
+.note{display:flex;gap:10px;padding:10px 14px;border-radius:10px;font-size:.84rem;line-height:1.55;margin:10px 0}
+.note-warn{background:#fffbeb;border:1px solid #fde68a;color:#78350f}
+.note-info{background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e}
+.note-danger{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.note-icon{flex-shrink:0;font-size:1rem;margin-top:1px}
+
+/* ── QUICK REFERENCE TABLE ── */
+.quick-table table{font-size:.83rem}
+.quick-table td:nth-child(2){color:var(--indigo-dk);font-weight:600}
+.quick-table td:nth-child(4){font-size:.78rem;color:var(--muted)}
+
+/* ── DIVIDER CARD ── */
+.ref-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.ref-card-title{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:14px}
+
+/* ── FOOTER ── */
+footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;border-top:1px solid var(--border);background:white}
+
+/* ── SCROLL FADE ── */
+.f{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.f.in{opacity:1;transform:none}
+
+@media(max-width:680px){
+  .sec-head{padding:20px 20px 0}
+  .assessment{margin:0 20px 20px}
+  .svc-section{padding:0 20px 20px}
+  .scenario-toggle{padding:14px 20px}
+  .scenario-body{padding:0 20px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a class="nav-back" href="../oglavlenie.html">← Оглавление</a>
+  <a class="nav-back" href="../index.html">← Лендинг</a>
+  <div class="nav-sep"></div>
+  <span class="nav-logo">Ответы участникам</span>
+  <div class="nav-sep"></div>
+  <a class="nav-link" href="#ref">Справочники</a>
+  <a class="nav-link" href="#s1">1. Критика</a>
+  <a class="nav-link" href="#s2">2. Обучение</a>
+  <a class="nav-link" href="#s3">3. ЛНА</a>
+  <a class="nav-link" href="#s4">4. Документы</a>
+  <a class="nav-link" href="#s5">5. Таблицы</a>
+  <a class="nav-link" href="#s6">6. Визуализация</a>
+  <a class="nav-link" href="#s7">7. CLI</a>
+  <a class="nav-link" href="#s8">8. Сеть</a>
+  <a class="nav-link" href="#s9">9. BPMN</a>
+  <a class="nav-link" href="#quick">Шпаргалка</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Алмаз-Антей · Пошаговые сценарии применения ИИ</div>
+    <h1>Локальный <em>ИИ</em><br>на предприятии</h1>
+    <p class="hero-sub">Конкретные инструменты, модели и промпты для каждой задачи.<br>Данные не покидают контур предприятия.</p>
+    <div class="hero-chips">
+      <span class="chip chip-green">🔒 Данные локально</span>
+      <span class="chip chip-indigo">💻 Работает на офисном ПК</span>
+      <span class="chip chip-amber">⚠️ Честные оценки моделей</span>
+    </div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ══ REFERENCE SECTION ══ -->
+<div id="ref" style="margin-bottom:20px;padding-top:8px">
+  <div style="font-size:1.1rem;font-weight:800;margin-bottom:16px;color:var(--text)">Справочники</div>
+</div>
+
+<div class="ref-grid f">
+
+  <!-- Hardware -->
+  <div class="ref-card">
+    <div class="ref-card-title">Требования к оборудованию (Q4_K_M)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Модель</th><th>VRAM</th><th>CPU (ОЗУ)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>4B</strong></td><td>~3 ГБ</td><td>8 ГБ</td></tr>
+          <tr><td><strong>7–8B</strong></td><td>5–6 ГБ</td><td>16 ГБ <span class="badge-cpu">офисный ПК</span></td></tr>
+          <tr><td><strong>14B</strong></td><td>9–10 ГБ</td><td>16–32 ГБ</td></tr>
+          <tr><td><strong>32B</strong></td><td>20–22 ГБ</td><td>32–64 ГБ</td></tr>
+          <tr><td><strong>70B</strong></td><td>40–45 ГБ</td><td>64–128 ГБ</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note note-info" style="margin-top:4px"><span class="note-icon">💡</span><span>7–8B на CPU: 3–10 ток/сек, ответ 30–90 сек. Для большинства текстовых задач — рабочая скорость.</span></div>
+  </div>
+
+  <!-- Services -->
+  <div class="ref-card">
+    <div class="ref-card-title">Онлайн-сервисы и безопасность данных</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat</strong> (Сбер), <strong>YandexGPT</strong> — данные в РФ, есть on-premise. Корпоративный тариф с отключённым обучением.</li>
+      <li class="svc-global"><strong>ChatGPT, Claude, Gemini</strong> — данные в США. Только для нечувствительных, публичных данных.</li>
+      <li class="svc-no"><strong>Любые облака</strong> — недопустимы для документов с грифом, ПДн, гостайны. Только локальные модели.</li>
+    </ul>
+    <div class="note note-warn" style="margin-top:10px"><span class="note-icon">⚠️</span><span>AnythingLLM хранит индексы в <code>%APPDATA%\anythingllm-desktop</code> — отключите синхронизацию с OneDrive/Яндекс.Диском.</span></div>
+  </div>
+
+</div>
+
+<div class="f" style="margin-bottom:48px">
+  <div class="ref-card-title" style="margin-bottom:12px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)">Шпаргалка: Q4_K_M и размеры моделей</div>
+  <a href="../png/ChatGPT Image 29 мая 2026 г., 13_21_03.webp" target="_blank" style="display:block;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='scale(1.005)';this.style.boxShadow='0 8px 32px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 16px rgba(0,0,0,.06)'">
+    <img src="../png/ChatGPT Image 29 мая 2026 г., 13_21_03.webp" alt="Q4_K_M и размеры моделей" style="width:100%;display:block">
+  </a>
+  <div style="margin-top:8px;font-size:.78rem;color:var(--muted);text-align:center">Нажмите для просмотра в полном размере</div>
+</div>
+
+<div class="f" style="margin-bottom:48px">
+  <div class="ref-card-title" style="margin-bottom:12px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)">Шпаргалка: LM Studio vs Ollama — зачем нужен и чем отличается</div>
+  <a href="../png/ChatGPT Image 29 мая 2026 г., 13_31_14.webp" target="_blank" style="display:block;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='scale(1.005)';this.style.boxShadow='0 8px 32px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 16px rgba(0,0,0,.06)'">
+    <img loading="lazy" decoding="async" src="../png/ChatGPT Image 29 мая 2026 г., 13_31_14.webp" alt="LM Studio vs Ollama" style="width:100%;display:block">
+  </a>
+  <div style="margin-top:8px;font-size:.78rem;color:var(--muted);text-align:center">Нажмите для просмотра в полном размере</div>
+</div>
+
+<div class="f" style="margin-bottom:48px">
+  <div class="ref-card-title" style="margin-bottom:12px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)">Шпаргалка: Open WebUI vs AnythingLLM — зачем нужен и чем отличается</div>
+  <a href="../png/ChatGPT Image 29 мая 2026 г., 14_43_08.webp" target="_blank" style="display:block;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='scale(1.005)';this.style.boxShadow='0 8px 32px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 16px rgba(0,0,0,.06)'">
+    <img loading="lazy" decoding="async" src="../png/ChatGPT Image 29 мая 2026 г., 14_43_08.webp" alt="Open WebUI vs AnythingLLM" style="width:100%;display:block">
+  </a>
+  <div style="margin-top:8px;font-size:.78rem;color:var(--muted);text-align:center">Нажмите для просмотра в полном размере</div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 1 — Критика и Сократ
+══════════════════════════════════ -->
+<div id="s1" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n1">1</div>
+    <div class="sec-title">Критика кода и сократический диалог</div>
+    <div class="sec-question">Как спровоцировать ИИ на критику? Как заставить задавать наводящие вопросы, чтобы вы сами пришли к решению? На примере рефакторинга кода.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Инструмент</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>LM Studio</td><td><strong>Qwen3-Coder-30B</strong> (MoE)</td><td>24 ГБ VRAM / 32 ГБ ОЗУ</td></tr>
+          <tr><td>LM Studio / Ollama</td><td><strong>Qwen2.5-Coder-14B</strong></td><td>12 ГБ VRAM / 16–32 ГБ ОЗУ</td></tr>
+          <tr><td>Ollama + Open WebUI</td><td><strong>Qwen2.5-Coder-7B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen2.5-Coder-7B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Сократический диалог по конкретной функции — работает хорошо: формат вопрос-ответ не требует анализа всего кода сразу.</li>
+      <li class="a-ok">Ревью простого кода (до 50 строк) — находит отсутствие валидации, дублирование, неочевидные имена.</li>
+      <li class="a-warn">Архитектурный ревью (SOLID, паттерны, межмодульные связи) — поверхностный, половину проблем пропускает.</li>
+      <li class="a-verdict">Для обучения и рефакторинга небольших функций — достаточно. Для code review перед релизом — GigaChat или 14B+.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat</strong> — есть режим для кода, данные в РФ.</li>
+      <li class="svc-ru"><strong>YandexGPT / Yandex Code Assistant</strong> — встроен в IDE, данные в РФ.</li>
+      <li class="svc-global"><strong>Claude</strong> — лучший для код-ревью и сократического диалога; только для открытого кода.</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+
+      <div class="scenario">
+        <div class="scenario-title">Режим А — Сократический диалог</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Запустить LM Studio или Open WebUI, выбрать модель.</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Вставить в поле <strong>System Prompt</strong>:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — опытный наставник по разработке ПО. Твоя единственная задача — помочь мне самому найти проблему в коде.
+Правила:
+1. Никогда не давай готового исправленного кода, пока я явно не попрошу.
+2. На каждый мой вопрос отвечай только вопросом — задавай наводящие вопросы по методу Сократа.
+3. Начни с самого широкого вопроса («Что, по-твоему, делает эта функция?»), затем сужай фокус.
+4. Если я иду в правильном направлении — скажи «Верно, продолжай» и задай следующий вопрос.
+5. Если я застрял после трёх попыток — дай подсказку, но не решение.</pre>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">3</div><div class="step-body">В чате: <em>«Вот мой код. Помоги разобрать по Сократу: [вставить код]»</em></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-body">Отвечать на вопросы ИИ до решения, затем: <em>«Теперь покажи правильный вариант».</em></div></div>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Режим Б — Жёсткая критика кода</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — ведущий архитектор ПО с 20-летним опытом код-ревью. Ты известен тем, что не щадишь плохой код.
+Задача: найди ВСЕ проблемы в предоставленном коде.
+Проверь: нарушения SOLID, потенциальные баги и граничные случаи, проблемы производительности,
+нечитаемые имена, отсутствие обработки ошибок, дублирование кода (DRY).
+Формат: пронумерованный список. Каждое замечание: [строка/место] → [проблема] → [почему это плохо].
+В конце задай 2 вопроса автору: почему был выбран именно такой подход.</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт в чат</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Проведи жёсткий код-ревью. Не щади:
+
+[вставить код]</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 2 — Планирование обучения
+══════════════════════════════════ -->
+<div id="s2" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n2">2</div>
+    <div class="sec-title">Планирование обучения и игровые задания</div>
+    <div class="sec-question">Планирование обучения работников, создание заданий в игровом формате.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Инструмент</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>LM Studio / Ollama</td><td><strong>Qwen3-32B</strong> (рассуждения)</td><td>24 ГБ VRAM / 32–64 ГБ ОЗУ</td></tr>
+          <tr><td>LM Studio</td><td><strong>Qwen3-14B</strong></td><td>12 ГБ VRAM / 16–32 ГБ ОЗУ</td></tr>
+          <tr><td>Ollama + Open WebUI</td><td><strong>Qwen3-8B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen3-8B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Структурированный план обучения по шаблону — справляется хорошо: расписание, компетенции, литература.</li>
+      <li class="a-warn">Игровые квесты — генерирует скелет сценария, но легенды банальные, механики упрощённые. Сырой черновик, нужна редактура.</li>
+      <li class="a-warn">Тест-вопросы — правильный вариант корректный, но «правдоподобные неправильные» варианты часто слишком очевидны.</li>
+      <li class="a-verdict">Для методических планов — достаточно. Для живых игровых сценариев — нужна доработка вручную или GigaChat.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat / YandexGPT</strong> — методические планы и тесты на русском, данные в РФ.</li>
+      <li class="svc-global"><strong>ChatGPT / Claude</strong> — сильнее в креативных игровых сценариях; для некритичного контента.</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий А — Составление плана обучения</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт-шаблон</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — корпоративный методист-эксперт. Составь программу обучения:
+
+Должность сотрудника: [например, инженер-технолог 3-й категории]
+Тема обучения: [например, безопасная работа с электрооборудованием]
+Текущий уровень знаний: [начальный / средний / продвинутый]
+Срок обучения: [например, 3 дня по 4 часа]
+Формат: [очное / онлайн / смешанное]
+Цель: [что сотрудник должен уметь делать после обучения]
+
+Выведи:
+1. Программу по часам с темами
+2. Ключевые компетенции для проверки
+3. Список литературы и ресурсов</pre>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Б — Игровые задания (геймификация)</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — разработчик образовательных игр и геймификации. Создаёшь обучающие квесты
+для промышленных предприятий. Твои квесты: реалистичны, основаны на реальных
+рабочих ситуациях, не содержат абстрактных примеров.</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт — квест</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Создай обучающий квест «Путь мастера» по теме: [тема].
+Структура:
+- 5 уровней с нарастающей сложностью
+- Каждый уровень: название + легенда из реальной работы + задание + критерий успеха + награда
+- Финальный уровень: командное испытание для 3–5 человек
+- Систему очков и таблицу лидеров
+
+Аудитория: [должность], [уровень опыта].</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт — тест-вопросы</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Для каждого уровня создай 3 вопроса с вариантами ответов
+(1 правильный, 3 правдоподобных неправильных).
+Неправильные ответы должны отражать типичные заблуждения новичков.</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 3 — ЛНА и презентации
+══════════════════════════════════ -->
+<div id="s3" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n3">3</div>
+    <div class="sec-title">Презентации и локально-нормативные акты</div>
+    <div class="sec-question">Создание презентаций, написание локально-нормативных актов.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Инструмент</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>ЛНА (документы)</td><td>LM Studio</td><td><strong>Qwen3-14B / 32B</strong></td><td>12 / 24 ГБ VRAM</td></tr>
+          <tr><td>ЛНА — офисный ПК</td><td>LM Studio</td><td><strong>Qwen3-8B</strong></td><td><span class="badge-cpu">16 ГБ ОЗУ CPU</span></td></tr>
+          <tr><td>Текст → слайды</td><td>LM Studio + <strong>Marp</strong></td><td>любая модель</td><td>любой ПК</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen3-8B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Структура ЛНА по шаблону — выдерживает: нумерация пунктов, разделы по ГОСТ Р 7.0.97-2016 в целом соблюдает.</li>
+      <li class="a-warn">Юридические формулировки — может допускать ошибки: нечёткие границы ответственности, неверные ссылки на НПА. Проверка обязательна.</li>
+      <li class="a-warn">Структура презентации — логику слайдов строит, но тезисы могут быть размытыми. Нужна содержательная редактура.</li>
+      <li class="a-verdict">Даёт черновик, сокращающий время с нуля на 60–70%. Финальную проверку смысла и юридической корректности делает человек.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat</strong> — деловая документация; данные в РФ.</li>
+      <li class="svc-ru"><strong>YandexGPT</strong> — встроен в Яндекс 360 (Документы); данные в РФ.</li>
+      <li class="svc-global"><strong>Gamma.app, Tome</strong> — автогенерация презентаций; данные в облаке (США).</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий А — Написание ЛНА</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — юрисконсульт и специалист по документообороту промышленного предприятия.
+Ты знаешь требования ГОСТ Р 7.0.97-2016 к оформлению организационно-распорядительной документации.
+Структура ЛНА: «Общие положения» → «Термины и определения» → «Основные положения»
+→ «Права и обязанности» → «Ответственность» → «Заключительные положения».</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Напиши [тип документа] по теме: «[название]».
+Контекст предприятия: [краткое описание, 1–2 предложения].
+Регулирует: [что именно].
+Участники процесса: [кто упоминается].
+Ключевые требования:
+- [требование 1]
+- [требование 2]
+
+Оформи по структуре ЛНА. Пронумеруй все пункты в формате 1.1, 1.2, 2.1 и т.д.</pre>
+        </div>
+        <div class="note note-warn"><span class="note-icon">⚠️</span><span>После генерации: «Найди в этом документе логические противоречия и неточные формулировки» — и затем ручная проверка юристом.</span></div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Б — Презентация через Marp (офлайн)</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Установить расширение <strong>Marp for VS Code</strong> (бесплатно, офлайн).</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Запросить у ИИ содержание в Marp Markdown:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Создай презентацию в формате Marp Markdown на тему: «[тема]».
+Аудитория: [кто будет смотреть]. Цель: [что должны вынести].
+Количество слайдов: 10–12. На каждый: заголовок + 3–5 тезисов в bullet-формате.
+Добавь слайд с выводами и слайд с вопросами.
+
+Начни файл с:
+---
+marp: true
+theme: default
+paginate: true
+---</pre>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">3</div><div class="step-body">Скопировать ответ в файл <code>presentation.md</code> в VS Code.</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-body"><kbd>Ctrl+Shift+P</kbd> → «Marp: Export Slide Deck» → PDF или PPTX.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 4 — Текстовые документы
+══════════════════════════════════ -->
+<div id="s4" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n4">4</div>
+    <div class="sec-title">Работа с текстовыми документами</div>
+    <div class="sec-question">Образовательные программы, отчёты, пояснительные записки, регламенты, инструкции, положения.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Инструмент</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>Вопросы по документам (RAG)</td><td><strong>AnythingLLM</strong> + Ollama</td><td><strong>Qwen3-8B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+          <tr><td>Переработка и редактура</td><td>LM Studio</td><td><strong>Qwen3-14B</strong></td><td>12 ГБ VRAM / 16–32 ГБ ОЗУ</td></tr>
+          <tr><td>Большие документы (50+ стр.)</td><td>Open WebUI</td><td><strong>Qwen3-32B</strong></td><td>24 ГБ VRAM</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen3-8B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Прямые фактические вопросы («Что написано в пункте 4.3?», «Перечисли ответственных») — надёжно. Сильная сторона RAG.</li>
+      <li class="a-warn">Синтез из нескольких разделов — 8B иногда пропускает фрагменты или добавляет от себя. Перепроверять.</li>
+      <li class="a-warn">Документы 50+ страниц — RAG режет текст на чанки; 8B хуже восстанавливает связь между удалёнными разделами, чем 14B+.</li>
+      <li class="a-warn">Редактура текста — на 8B заметно хуже 14B: смысл сохраняет, но точность и стиль формулировок страдают.</li>
+      <li class="a-verdict">Для поиска конкретных фактов в документе 8B рабочий. Для аналитики и редактуры — GigaChat или YandexGPT.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>YandexGPT «Нейроэксперт»</strong> — RAG по своим документам; данные в РФ.</li>
+      <li class="svc-ru"><strong>GigaChat</strong> — работа с приложенными файлами; данные в РФ.</li>
+      <li class="svc-global"><strong>NotebookLM (Google)</strong> — отличный RAG, бесплатный; данные у Google.</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+
+      <div class="scenario">
+        <div class="scenario-title">Установка AnythingLLM (один раз)</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Скачать <strong>AnythingLLM Desktop</strong> с <code>anythingllm.com</code> (установщик для Windows).</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">При первом запуске: «Local AI» → указать на запущенный Ollama (<code>http://localhost:11434</code>).</div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-body">Создать <strong>Workspace</strong> под каждую задачу.</div></div>
+        </div>
+        <div class="note note-warn"><span class="note-icon">⚠️</span><span>Индексы хранятся в <code>%APPDATA%\anythingllm-desktop</code>. Исключите эту папку из синхронизации OneDrive / Яндекс.Диска — иначе фрагменты текстов документов уйдут в облако.</span></div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий А — Вопросы по документу (RAG)</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">В AnythingLLM открыть Workspace → загрузить документ (PDF, DOCX, TXT).</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Дождаться индексирования (10–60 сек), затем задавать вопросы:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Примеры вопросов</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Какие требования к срокам хранения документов указаны в этом регламенте?
+Перечисли всех ответственных лиц, упомянутых в документе.
+Есть ли в документе требования, противоречащие друг другу?</pre>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Б — Переработка и улучшение текста</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — редактор корпоративных документов. Улучшай тексты:
+сохраняй смысл, убирай канцелярит, делай формулировки точными и однозначными.
+Не меняй структуру и нумерацию. Не добавляй информацию, которой нет в оригинале.</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпты под задачи</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre># Резюмирование
+Сделай краткое изложение на 1 страницу: цель, ключевые требования, выводы.
+[текст документа]
+
+# Упрощение
+Перепиши этот раздел понятным языком. Убери канцеляризмы, сохрани смысл:
+[текст раздела]
+
+# Проверка логики
+Найди: неточные формулировки, внутренние противоречия, отсутствующие ссылки на НПА.
+[текст документа]</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 5 — Таблицы
+══════════════════════════════════ -->
+<div id="s5" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n5">5</div>
+    <div class="sec-title">Работа с таблицами — анализ, прогноз, графики</div>
+    <div class="sec-question">Сравнение, анализ, прогноз, графики с трендами.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Инструмент</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>Генерация кода анализа</td><td>LM Studio · <strong>Qwen2.5-Coder-7B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+          <tr><td>Выполнение анализа</td><td>Python локально (pandas, matplotlib)</td><td>любой ПК</td></tr>
+          <tr><td>Интерактивная среда</td><td>Jupyter Notebook локально</td><td>любой ПК</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note note-info" style="margin:0 0 20px"><span class="note-icon">💡</span><span><strong>Принцип безопасности:</strong> ИИ генерирует только код — сами табличные данные в модель не передаются. Код запускается локально на вашем ПК.</span></div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen2.5-Coder-7B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Лучший сценарий применения 7B на офисном ПК — ИИ пишет только код, данные локальны. Скорость генерации не мешает.</li>
+      <li class="a-ok">Стандартные задачи pandas/matplotlib (сортировка, фильтрация, линейная регрессия, скользящее среднее) — корректно или с минимальными правками.</li>
+      <li class="a-warn">Сложные статистические алгоритмы и нестандартные форматы файлов — нужны итерации. Вернуть текст ошибки — ИИ исправит.</li>
+      <li class="a-verdict">Для типовых задач анализа Excel — достаточно. Ожидайте 1–3 итерации на скрипт, это норма.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>YandexGPT / GigaChat</strong> — генерация Python-кода для анализа; данные в РФ.</li>
+      <li class="svc-global"><strong>ChatGPT Advanced Data Analysis</strong> — загрузка Excel и анализ «под ключ»; данные уходят в облако.</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+      <div class="scenario">
+        <div class="scenario-title">Сценарий — Анализ Excel-таблицы</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Сохранить таблицу как <code>data.xlsx</code>, запомнить названия столбцов.</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Выбрать <strong>Qwen2.5-Coder-7B</strong> в LM Studio и описать задачу:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт-шаблон</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Напиши Python-скрипт для анализа Excel-файла data.xlsx.
+
+Структура файла:
+- Столбец A: «Месяц» (январь–декабрь)
+- Столбец B: «Производительность, шт/смена»
+- Столбец C: «Брак, %»
+- Столбец D: «Простои, часов»
+
+Задачи:
+1. Топ-3 лучших и худших месяца по производительности
+2. График тренда с линией регрессии за год
+3. Корреляция между браком и простоями
+4. Прогноз на следующие 3 месяца (скользящее среднее)
+5. Сохранить графики в ./charts/ как PNG
+
+Используй: pandas, matplotlib, numpy, scipy. Добавь русские подписи.</pre>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">3</div><div class="step-body">Скопировать скрипт в <code>analysis.py</code>, запустить: <code>python analysis.py</code></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-body">При ошибке — вставить текст ошибки обратно в ИИ: «Скрипт выдал ошибку. Исправь: [текст ошибки]»</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 6 — Визуализация
+══════════════════════════════════ -->
+<div id="s6" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n6">6</div>
+    <div class="sec-title">Визуализация без фото работников</div>
+    <div class="sec-question">Нельзя использовать изображения работников завода — нужна визуализация реалистичного контента для презентаций.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Подход</th><th>Инструмент</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Диаграммы / схемы</strong></td><td>ИИ + Mermaid (VS Code)</td><td><span class="badge-cpu">любой офисный ПК</span></td></tr>
+          <tr><td><strong>SVG-иллюстрации</strong></td><td>ИИ → SVG-код</td><td><span class="badge-cpu">любой офисный ПК</span></td></tr>
+          <tr><td><strong>Онлайн-генерация фото</strong></td><td>Шедеврум, Kandinsky</td><td>без GPU, данные в РФ</td></tr>
+          <tr><td>Иллюстрации локально</td><td>ComfyUI + SD WebUI Forge</td><td>NVIDIA GPU от 8 ГБ VRAM</td></tr>
+          <tr><td>Высокое качество локально</td><td>FLUX.1-schnell</td><td>от 12 ГБ VRAM</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note note-warn" style="margin:0 0 20px"><span class="note-icon">⚠️</span><span><strong>Для офисного ПК без видеокарты:</strong> локальная генерация изображений нереалистична (часы ожидания). Используйте Mermaid-схемы и SVG — работают мгновенно. Для фотоиллюстраций — Шедеврум / Kandinsky: текстовый запрос не раскрывает корпоративных данных.</span></div>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>Шедеврум (Яндекс)</strong> — генерация изображений; данные в РФ; бесплатно.</li>
+      <li class="svc-ru"><strong>Kandinsky (Сбер)</strong> — российский генератор; есть API.</li>
+      <li class="svc-free"><strong>Freepik, Flaticon</strong> — готовые лицензионные иконки и иллюстрации промышленной тематики (без ИИ, мгновенно).</li>
+      <li class="svc-global"><strong>Midjourney / DALL·E</strong> — лучшее качество; данные в облаке (США).</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий А — Диаграммы через Mermaid (без GPU)</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Установить VS Code + расширение <strong>«Mermaid Preview»</strong> (бесплатно, работает офлайн).</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Попросить ИИ создать схему:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Нарисуй схему производственного процесса в формате Mermaid:
+Этапы: Входной контроль → Заготовительный цех → Механообработка →
+       Сборка → ОТК → Упаковка → Отгрузка.
+Добавь ответвление: если ОТК выявил брак → Ремонт → Повторный ОТК.</pre>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">3</div><div class="step-body">Скопировать код в файл <code>diagram.md</code> в VS Code → Preview → Export PNG/SVG.</div></div>
+        </div>
+        <div class="note note-danger"><span class="note-icon">🚫</span><span>Не используйте <code>mermaid.live</code> — это облачный сервис, диаграмма отправляется на внешний сервер.</span></div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Б — SVG-иллюстрации через ИИ (без GPU)</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Создай SVG-иллюстрацию: современный промышленный цех, вид изометрически.
+Только оборудование: станки, конвейер, роботизированная рука, стеллажи.
+Без людей. Цвета: синий (#1a56db) и серый (#374151).
+Размер: viewBox="0 0 800 600". Выведи только SVG-код.</pre>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">2</div><div class="step-body">Скопировать SVG-код в файл <code>illustration.svg</code> — открывается в браузере, Word, PowerPoint.</div></div>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий В — Промпты для Шедеврум / Kandinsky (без людей)</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промышленное оборудование</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Промышленный цех, современные станки с ЧПУ, автоматизированная линия,
+чистое производственное пространство, синяя и белая цветовая схема,
+изометрическая 3D-иллюстрация, без людей, технический стиль, высокая детализация</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Переговорная без людей</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Современная корпоративная переговорная, пустые кресла вокруг стола,
+большие окна, вид на город, профессиональный интерьер, фотореализм, без людей</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 7 — CLI
+══════════════════════════════════ -->
+<div id="s7" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n7">7</div>
+    <div class="sec-title">Настройка оборудования через командную строку</div>
+    <div class="sec-question">Настройка через командную строку оборудования.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Инструмент</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>LM Studio / Ollama</td><td><strong>Qwen2.5-Coder-7B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+          <tr><td>LM Studio</td><td><strong>Qwen2.5-Coder-14B</strong></td><td>12 ГБ VRAM / 16–32 ГБ ОЗУ</td></tr>
+          <tr><td>LM Studio</td><td><strong>Qwen3-Coder-30B</strong></td><td>24 ГБ VRAM / 32 ГБ ОЗУ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen2.5-Coder-7B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Linux (CentOS, Ubuntu) и Windows Server — стандартные задачи (systemd, cron, PowerShell, права) знает хорошо с понятными пояснениями.</li>
+      <li class="a-ok">Диагностика по тексту ошибок — хорошо интерпретирует типовые логи и предлагает разумные версии причин.</li>
+      <li class="a-warn">Специфичное промышленное оборудование (Siemens SIMATIC, SCADA, ПЛК) — слабое покрытие. Команды могут выглядеть правдоподобно, но содержать ошибки.</li>
+      <li class="a-verdict">Для Linux/Windows — рабочий инструмент. Для промышленного оборудования — команды проверять по документации производителя перед применением.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat / YandexGPT</strong> — генерация команд Linux/Windows с пояснениями; данные в РФ.</li>
+      <li class="svc-global"><strong>ChatGPT / Claude</strong> — самые точные команды; не вставлять реальные IP, логины, конфиги в облако.</li>
+    </ul>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+      <div class="scenario">
+        <div class="scenario-title">Сценарий — Получение команд с объяснением</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — системный администратор с опытом в промышленных сетях.
+Знаешь Linux (RHEL/CentOS/Ubuntu), Windows Server, Cisco IOS.
+Правила:
+1. Давай команды пошагово — одна команда = один шаг.
+2. После каждой команды: что делает и почему именно так.
+3. Предупреждай о рисках.
+4. Необратимые команды отмечай ⚠️.
+5. В конце — команда для проверки результата.</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт-шаблон</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Оборудование: [сервер на CentOS 7]
+Задача: [настроить автозапуск nginx при перезагрузке]
+Текущее состояние: [nginx установлен, но не стартует автоматически]
+Ограничения: [нет интернета, нельзя ставить новые пакеты]</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Примеры задач</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre># Cron-задание на бэкап
+Настрой cron: каждую ночь в 02:00 бэкап /var/data → /backup/data_YYYYMMDD.
+Старые бэкапы старше 30 дней удалять автоматически.
+
+# Пользователь Windows Server
+На Windows Server 2019 через PowerShell: создать пользователя «operator1»,
+добавить в группу «Операторы», пароль истекает через 90 дней.
+
+# Диагностика по логу
+Диагностируй: сервис не запускается, вот лог: [текст лога]
+Какие 3 наиболее вероятные причины? Дай команды для диагностики каждой.</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 8 — Сеть и скрипты
+══════════════════════════════════ -->
+<div id="s8" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n8">8</div>
+    <div class="sec-title">Сетевое оборудование, скрипты, сервер авторизации</div>
+    <div class="sec-question">Настройка сетевого оборудования, написание скриптов, взаимодействие с сервером авторизации.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>Python/Bash скрипты</td><td><strong>Qwen2.5-Coder-7B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+          <tr><td>Конфиги оборудования</td><td><strong>Qwen2.5-Coder-14B</strong></td><td>12 ГБ VRAM / 16–32 ГБ ОЗУ</td></tr>
+          <tr><td>RADIUS/LDAP интеграция</td><td><strong>Qwen3-Coder-30B</strong></td><td>24 ГБ VRAM / 32 ГБ ОЗУ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen2.5-Coder-7B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-warn">Python/Bash скрипты простой сложности (Netmiko, парсинг вывода) — справляется, нужны итерации и проверка.</li>
+      <li class="a-bad">Конфигурация сетевого оборудования — 7B генерирует правдоподобные конфиги с синтаксическими и логическими ошибками. Для продуктивных сетей неприемлемо.</li>
+      <li class="a-bad">RADIUS/LDAP/802.1X — сложные сценарии авторизации требуют точных протокольных деталей; 7B ненадёжна.</li>
+      <li class="a-verdict">На офисном ПК для конфигов оборудования используйте GigaChat на корпоративном тарифе с обезличенными примерами — это надёжнее, чем 7B. Локальная 7B подходит только для простых скриптов.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat / YandexGPT</strong> — конфиги и скрипты; данные в РФ.</li>
+      <li class="svc-global"><strong>Claude / ChatGPT</strong> — лучшая глубина по сетевым протоколам; маскируйте реальные IP, пароли, домены.</li>
+    </ul>
+    <div class="note note-danger" style="margin-top:10px"><span class="note-icon">🔴</span><span>Топология сети, схема авторизации и учётные данные — чувствительная информация. Для реальных конфигов предприятия: только локальные модели или GigaChat on-premise.</span></div>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+      <div class="scenario">
+        <div class="scenario-title">Сценарий А — Конфигурация оборудования</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">System Prompt</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Ты — сетевой инженер CCNA/CCNP. Знаешь Cisco IOS, MikroTik RouterOS, Huawei VRP, Linux (iptables/nftables).
+При генерации конфигураций:
+1. Указывай платформу и версию ОС.
+2. Объясняй каждый блок конфигурации.
+3. Предупреждай об изменениях, которые могут прервать связь.
+4. Всегда добавляй команду отката.</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт-шаблон</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Платформа: [Cisco IOS / MikroTik / Linux]
+Задача: [настроить VLAN 100 для производственных устройств, VLAN 200 для офиса,
+         запретить трафик между ними, разрешить обоим доступ в интернет]
+Топология: [коммутатор SW1 подключён к роутеру R1 через trunk GE0/1]
+Ограничения: [нельзя перезагружать в рабочее время]</pre>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Б — Python-скрипт автоматизации (Netmiko)</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Напиши Python-скрипт с Netmiko для:
+1. Подключения к устройствам из devices.csv (поля: ip, vendor, login, password)
+2. Выполнения «show interfaces status» на каждом
+3. Парсинга: найти порты в состоянии err-disabled
+4. Записи в Excel report.xlsx с датой проверки
+5. Лог-алерта, если err-disabled портов больше 3
+
+Оборудование: Cisco IOS.</pre>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий В — FreeRADIUS + Active Directory</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Настрой FreeRADIUS для аутентификации из Active Directory через LDAP.
+Сервер AD: 192.168.1.10, домен: company.local.
+Пользователи попадают в VLAN по группе AD:
+- «IT-admins» → VLAN 10
+- «Engineers» → VLAN 20
+- остальные → VLAN 99 (карантин)
+Дай конфиг файлов: users, clients.conf, radiusd.conf и команды проверки.</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 9 — BPMN / IDEF0
+══════════════════════════════════ -->
+<div id="s9" class="sec-card f">
+  <div class="sec-head">
+    <div class="sec-num n9">9</div>
+    <div class="sec-title">Стандарты, BPMN и IDEF0</div>
+    <div class="sec-question">Проработка стандартов, подготовка фактуры для интервью с владельцами процессов. Описание моделей «как есть» в нотациях BPMN и IDEF0. Сравнение с формальными требованиями.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Инструмент</th><th>Модель</th><th>Железо</th></tr></thead>
+        <tbody>
+          <tr><td>Анализ текста стандарта</td><td>AnythingLLM + Ollama</td><td><strong>Qwen3-8B</strong></td><td><span class="badge-cpu">офисный ПК</span> 16 ГБ ОЗУ</td></tr>
+          <tr><td>Gap-анализ и логика</td><td>LM Studio</td><td><strong>Qwen3-8B</strong> / <strong>32B</strong> с GPU</td><td>16 ГБ ОЗУ / 24 ГБ VRAM</td></tr>
+          <tr><td>Генерация BPMN/IDEF0</td><td>LM Studio → <strong>drawio Desktop</strong></td><td><strong>Qwen3-8B</strong></td><td><span class="badge-cpu">любой ПК</span></td></tr>
+          <tr><td>Редактирование диаграмм</td><td><strong>drawio Desktop</strong> (офлайн)</td><td>—</td><td>любой ПК</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note note-info" style="margin:0 0 20px"><span class="note-icon">💡</span><span><strong>Почему не PlantUML для BPMN?</strong> PlantUML не поддерживает нотацию BPMN — нет пулов, событий и шлюзов BPMN. ИИ хорошо генерирует drawio XML с BPMN-шейпами, который открывается в бесплатном drawio Desktop офлайн.</span></div>
+  </div>
+
+  <div class="assessment">
+    <div class="assessment-head"><span>💻</span><span>Честная оценка — Qwen3-8B на CPU</span></div>
+    <ul class="a-list">
+      <li class="a-ok">Извлечение структуры из текста стандарта (процессы, участники, результаты) — хорошо. Задача «найти и оформить», а не «придумать».</li>
+      <li class="a-ok">Список вопросов для интервью с владельцем процесса — разумный стартовый набор.</li>
+      <li class="a-warn">Gap-анализ — находит очевидные несоответствия; тонкие противоречия и нюансы формулировок пропускает.</li>
+      <li class="a-warn">Генерация drawio XML — для простых схем (5–8 блоков) работает. Для сложных процессов с ветвлениями возможны ошибки разметки; открывайте в drawio и правьте.</li>
+      <li class="a-verdict">8B достаточно для подготовки к интервью и структуризации стандарта. Для серьёзного gap-анализа и сложных диаграмм — GigaChat или 14B+.</li>
+    </ul>
+  </div>
+
+  <div class="svc-section">
+    <div class="svc-label">Онлайн-аналоги</div>
+    <ul class="svc-list">
+      <li class="svc-ru"><strong>GigaChat / YandexGPT</strong> — анализ стандартов и генерация drawio XML; данные в РФ.</li>
+      <li class="svc-global"><strong>Claude</strong> — лучший для структурного анализа и формальной логики; для обезличенных описаний.</li>
+      <li class="svc-free"><strong>drawio Desktop, bpmn.io Desktop</strong> — бесплатные офлайн-редакторы диаграмм.</li>
+    </ul>
+    <div class="note note-warn" style="margin-top:10px"><span class="note-icon">⚠️</span><span>Тексты внутренних стандартов — чувствительны. Анализируйте только через AnythingLLM локально. Опасения участника по ИБ обоснованы — именно поэтому локальный контур здесь обязателен.</span></div>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-toggle" onclick="toggleScenario(this)">
+      Сценарии применения <span class="toggle-arrow">▶</span>
+    </button>
+    <div class="scenario-body">
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий А — Извлечение процессов из стандарта</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Загрузить стандарт в AnythingLLM (PDF или TXT) и дождаться индексирования.</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Задавать вопросы для извлечения фактуры:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпты для анализа стандарта</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Перечисли все процессы и подпроцессы в стандарте.
+Для каждого: название, исполнитель, результат на выходе.
+
+Какие контрольные точки описаны? Таблица: точка → кто проверяет → критерий.
+
+Составь вопросы для интервью с владельцем процесса [название].
+Цель: описать модель «как есть». Группы: входы, выходы, участники, инструменты, исключения, метрики.</pre>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Б — BPMN-диаграмма через drawio XML</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-body">Скачать <strong>drawio Desktop</strong>: <code>github.com/jgraph/drawio-desktop/releases</code> (офлайн, бесплатно).</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-body">Попросить ИИ сгенерировать drawio XML:</div></div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт — BPMN drawio XML</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Создай BPMN-диаграмму в формате drawio XML для процесса «Согласование ТЗ».
+Участники (дорожки): Инициатор, Технический отдел, Юридический отдел, Руководитель.
+
+Шаги:
+1. Инициатор создаёт проект ТЗ
+2. Техотдел проверяет → замечания: возврат / ОК: передача юристам
+3. Юристы проверяют → замечания: возврат / ОК: передача руководителю
+4. Руководитель подписывает или отклоняет
+
+Используй BPMN-шейпы drawio: swimlane для дорожек, события (круги),
+задачи (прямоугольники с закруглёнными углами), шлюзы (ромбы).
+Выведи только XML, начиная с &lt;mxfile&gt;.</pre>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">3</div><div class="step-body">Скопировать XML в файл <code>process.xml</code>.</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-body">drawio Desktop → File → Open → выбрать <code>process.xml</code> → доработать вручную.</div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-body">File → Export As → PNG / SVG для вставки в документ.</div></div>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий В — IDEF0 через drawio</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт — структура IDEF0</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>Опиши IDEF0-диаграмму (нотация SADT) для процесса «[название]».
+Для каждого функционального блока:
+- Название блока
+- Входы (стрелки слева): что поступает на обработку
+- Выходы (стрелки справа): что получается в результате
+- Управление (стрелки сверху): нормативные документы, условия
+- Механизмы (стрелки снизу): кто и с помощью чего выполняет
+
+Уровень A0: один главный блок.
+Уровень A1: 3–5 дочерних блоков с потоками между ними.
+Выведи текстовым описанием — я внесу в drawio вручную.</pre>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title">Сценарий Г — Gap-анализ «как есть» vs стандарт</div>
+        <div class="code-wrap">
+          <div class="code-bar"><div class="code-dots"><div class="cd cdr"></div><div class="cd cdy"></div><div class="cd cdg"></div></div><span class="code-lbl">Промпт</span><button class="copy-btn" onclick="copyCode(this)">Скопировать</button></div>
+          <pre>У меня есть:
+1. Описание процесса «как есть» по результатам интервью: [текст]
+2. Требования стандарта/регламента: [текст или «загружен в базу знаний»]
+
+Проведи gap-анализ:
+- Что соответствует требованиям?
+- Что противоречит? (с указанием пункта стандарта)
+- Что есть в реальности, но не описано в стандарте?
+- Что требует стандарт, но отсутствует в реальном процессе?
+
+Таблица: Требование → Статус (Соответствует / Нарушение / Отсутствует) → Комментарий.</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUICK REFERENCE TABLE
+══════════════════════════════════ -->
+<div id="quick" class="sec-card f quick-table">
+  <div class="sec-head">
+    <div style="font-size:1.2rem;font-weight:800;margin-bottom:16px">Шпаргалка — офисный ПК (16 ГБ ОЗУ, без GPU)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Модель (CPU)</th><th>Реальное качество</th><th>Альтернатива (РФ)</th></tr></thead>
+        <tbody>
+          <tr><td>Критика кода / Сократ</td><td>Qwen2.5-Coder-7B</td><td><span class="badge-cpu">✅ простой код / ⚠️ архитектура</span></td><td>GigaChat, YandexGPT</td></tr>
+          <tr><td>Планы обучения</td><td>Qwen3-8B</td><td><span class="badge-cpu">✅ планы / ⚠️ квесты</span></td><td>GigaChat, YandexGPT</td></tr>
+          <tr><td>ЛНА / документы</td><td>Qwen3-8B</td><td><span class="badge-warn">⚠️ черновик, нужна проверка</span></td><td>GigaChat</td></tr>
+          <tr><td>Вопросы по PDF (RAG)</td><td>Qwen3-8B</td><td><span class="badge-cpu">✅ факты / ⚠️ синтез</span></td><td>YandexGPT «Нейроэксперт»</td></tr>
+          <tr><td>Анализ Excel → Python</td><td>Qwen2.5-Coder-7B</td><td><span class="badge-cpu">✅ лучший сценарий для 7B</span></td><td>YandexGPT, GigaChat</td></tr>
+          <tr><td>Иллюстрации</td><td>—</td><td><span class="badge-no">❌ без GPU нереально</span></td><td>Шедеврум, Kandinsky</td></tr>
+          <tr><td>Схемы / диаграммы</td><td>Qwen3-8B</td><td><span class="badge-cpu">✅ Mermaid + VS Code</span></td><td>GigaChat</td></tr>
+          <tr><td>CLI-команды (Linux/Win)</td><td>Qwen2.5-Coder-7B</td><td><span class="badge-cpu">✅ стандартные / ⚠️ промоборудование</span></td><td>GigaChat, YandexGPT</td></tr>
+          <tr><td>Сетевые конфиги</td><td>Qwen2.5-Coder-7B</td><td><span class="badge-no">❌ ненадёжно — используй GigaChat</span></td><td>GigaChat (корп. тариф)</td></tr>
+          <tr><td>BPMN / IDEF0</td><td>Qwen3-8B</td><td><span class="badge-cpu">✅ структура / ⚠️ сложные схемы</span></td><td>GigaChat, YandexGPT</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note note-info" style="margin:16px 0 8px"><span class="note-icon">💡</span><span><strong>Скорость на офисном ПК:</strong> 7–8B на CPU — 3–10 токенов/сек, ответ за 30–90 сек. Рабочий темп для текстовых задач. При наличии GPU 8+ ГБ VRAM — переходите на 14B: скорость вырастает в 5–10 раз.</span></div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <div style="font-weight:700;margin-bottom:6px;color:#374151">Клуб «Образование» · Урок 2: Большие языковые модели</div>
+  <div>Все сценарии ориентированы на локальное развёртывание — данные не покидают контур предприятия</div>
+  <div style="margin-top:6px"><a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="color:#6366f1;font-weight:700;text-decoration:none">iivobrazovanii.club</a></div>
+</footer>
+
+<script>
+function toggleScenario(btn) {
+  const arrow = btn.querySelector('.toggle-arrow');
+  const body = btn.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Скопировано ✓';
+    btn.style.color = '#86efac';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1800);
+  });
+}
+
+// Scroll fade
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.f').forEach(el => observer.observe(el));
+
+// Active nav link
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+  navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
+}, { passive: true });
+</script>
+</body>
+</html>

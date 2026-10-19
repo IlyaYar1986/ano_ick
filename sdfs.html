@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сечение сферы плоскостью - Наклон и Сетка</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #fff; /* Светлый фон */
+            font-family: sans-serif;
+        }
+        #ui-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8); /* Чуть темнее для читаемости */
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: rgb(235, 227, 227);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Увеличил отступ */
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 350px;
+        }
+        #top-info {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            text-align: center;
+            color: #333;
+            pointer-events: none;
+            user-select: none;
+            font-weight: bold;
+        }
+        input[type=range] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div id="top-info">Вращение: ЛКМ | Приближение: Колесико (только снаружи)</div>
+
+    <div id="ui-container">
+        <div>
+            <button id="toggleView">Вид: Снаружи</button>
+        </div>
+
+        <div class="slider-group">
+            <label for="planeSlider">Высота секущей плоскости</label>
+            <input type="range" id="planeSlider" min="-5.5" max="5.5" step="0.05" value="0">
+        </div>
+
+        <div class="slider-group">
+            <label for="tiltSlider">Наклон плоскости (градусы)</label>
+            <input type="range" id="tiltSlider" min="-90" max="90" step="1" value="0">
+        </div>
+    </div>
+
+    <script>
+        // Базовая настройка
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff); // Устанавливаем белый фон
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Управление камерой (OrbitControls)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Для плавности
+
+        // Яркое освещение
+        const light = new THREE.DirectionalLight(0xffffff, 1.3);
+        light.position.set(5, 10, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+        const radius = 5;
+        const mainColor = 0x00ccff; // Ярко-голубой для плоскости и сетки
+
+        // 1. Создаем сферу (Полупрозрачная красная)
+        const sphereGeo = new THREE.SphereGeometry(radius, 40, 40);
+        const sphereMat = new THREE.MeshPhongMaterial({
+            color: 0xff3300, // Ярко-красный
+            transparent: true,
+            opacity: 0.15, // Высокая прозрачность для вида снаружи
+            side: THREE.DoubleSide
+        });
+        const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+        scene.add(sphere);
+
+        // 2. Добавляем четкий каркас для сферы (ЯРКО-ГОЛУБОЙ)
+        const sphereWireframeMat = new THREE.LineBasicMaterial({ color: mainColor, transparent: true, opacity: 0.7 });
+        const sphereWireframe = new THREE.LineSegments(new THREE.EdgesGeometry(sphereGeo), sphereWireframeMat);
+        scene.add(sphereWireframe);
+
+        // 3. Создаем плоскость (Контрастная синяя)
+        const planeGeo = new THREE.PlaneGeometry(16, 16);
+        const planeMat = new THREE.MeshPhongMaterial({
+            color: mainColor, // Ярко-голубой
+            transparent: true,
+            opacity: 0.85,
+            side: THREE.DoubleSide
+        });
+        const plane = new THREE.Mesh(planeGeo, planeMat);
+        // Начальная ориентация: кладем горизонтально
+        const initialPlaneRotationX = Math.PI / 2;
+        plane.rotation.x = initialPlaneRotationX;
+        scene.add(plane);
+
+        // --- Управление ---
+
+        // Связываем ползунок высоты с позицией плоскости
+        const heightSlider = document.getElementById('planeSlider');
+        heightSlider.addEventListener('input', function() {
+            plane.position.y = parseFloat(this.value);
+        });
+
+        // Связываем ползунок наклона с поворотом плоскости
+        const tiltSlider = document.getElementById('tiltSlider');
+        tiltSlider.addEventListener('input', function() {
+            const tiltDegrees = parseFloat(this.value);
+            const tiltRadians = tiltDegrees * (Math.PI / 180);
+            // Применяем наклон относительно горизонтального положения
+            plane.rotation.x = initialPlaneRotationX + tiltRadians;
+        });
+
+        // Настройка камеры для вида "Снаружи"
+        // Размещаем так, чтобы сфера и наклоненная плоскость гарантированно помещались
+        camera.position.set(0, 4, 18);
+        controls.target.set(0, 0, 0); // Смотрим в центр
+        controls.minDistance = 6; // Ограничиваем зум, чтобы не "врезаться" снаружи
+        controls.update();
+
+        // Логика кнопки переключения вида
+        let isInside = false;
+        const toggleBtn = document.getElementById('toggleView');
+        toggleBtn.addEventListener('click', function() {
+            isInside = !isInside;
+            if (isInside) {
+                this.textContent = "Вид: Внутри";
+
+                // Перемещаем камеру внутрь
+                camera.position.set(0, 0, 0.01);
+                controls.target.set(0, 0, 10); // Направляем взгляд вперед
+                controls.minDistance = 0.01; // Разрешаем камере быть близко к центру
+                controls.enableZoom = false; // Отключаем зум, чтобы не "вылететь" наружу
+            } else {
+                this.textContent = "Вид: Снаружи";
+
+                // Возвращаем камеру наружу
+                camera.position.set(0, 4, 18);
+                controls.target.set(0, 0, 0);
+                controls.minDistance = 6;
+                controls.enableZoom = true;
+            }
+            controls.update(); // Применяем изменения контролов
+        });
+
+        // Цикл отрисовки
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); // Для плавности камеры
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Адаптация под размер окна
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симуляция Веб-Краулера</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #334155;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: #0f172a;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Lists */
+        .list-container {
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            background: #f1f5f9;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .queue-item, .db-item {
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .db-item { border-left: 4px solid var(--success); }
+        .queue-item { border-left: 4px solid var(--primary); }
+
+        /* Crawler Node */
+        .crawler-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .crawler-node {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            display: block;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        #btn-start { background: var(--success); }
+        #btn-stop { background: var(--danger); }
+
+        .slider-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        input[type="range"] { flex-grow: 1; }
+
+        /* Animated Packets */
+        .packet {
+            position: fixed;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            z-index: 100;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Очередь URL -->
+    <div class="section" id="queue-section">
+        <h2>Очередь URL</h2>
+        <div class="list-container" id="queue-list">
+            <!-- Items will be generated here -->
+        </div>
+    </div>
+
+    <!-- Краулер -->
+    <div class="crawler-container">
+        <div class="crawler-node" id="crawler-node">Парсер</div>
+    </div>
+
+    <!-- База данных -->
+    <div class="section" id="db-section">
+        <h2>База данных</h2>
+        <div class="list-container" id="db-list">
+            <!-- DB items here -->
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="section">
+        <h2>Статистика</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-value" id="stat-processed">0</span>
+                <span>Обработано URL</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" id="stat-links">0</span>
+                <span>Найдено ссылок</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель управления -->
+    <div class="section controls">
+        <h2>Панель управления</h2>
+        <div class="slider-container">
+            <span>Медленно</span>
+            <input type="range" id="speed-slider" min="1" max="10" value="5">
+            <span>Быстро</span>
+        </div>
+        <div class="buttons">
+            <button id="btn-start" onclick="startCrawling()">▶ Пуск</button>
+            <button id="btn-stop" onclick="stopCrawling()" disabled>■ Стоп</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Data structures
+    let queue = [
+        "https://habr.com/ru/feed/",
+        "https://tech.yandex.ru/news",
+        "https://vc.ru/tech",
+        "https://tproger.ru/articles/"
+    ];
+    let processedCount = 0;
+    let linksFound = 0;
+    let isCrawling = false;
+    let timeoutId = null;
+
+    // Content dictionary for mock parsing
+    const mockContent = {
+        "habr": ["Разработка веб-приложений", "Как работает алгоритм"],
+        "yandex": ["Новая нейросеть Яндекса", "Обновление поиска"],
+        "vc": ["Стартап привлек инвестиции", "Анализ IT-рынка"],
+        "tproger": ["Изучаем Python с нуля", "Архитектура баз данных"]
+    };
+
+    // DOM Elements
+    const queueList = document.getElementById('queue-list');
+    const dbList = document.getElementById('db-list');
+    const crawlerNode = document.getElementById('crawler-node');
+    const statProcessed = document.getElementById('stat-processed');
+    const statLinks = document.getElementById('stat-links');
+    const speedSlider = document.getElementById('speed-slider');
+    const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
+
+    // Initialize UI
+    function renderQueue() {
+        queueList.innerHTML = '';
+        queue.forEach(url => {
+            const el = document.createElement('div');
+            el.className = 'queue-item';
+            el.textContent = url;
+            queueList.appendChild(el);
+        });
+    }
+    renderQueue();
+
+    function getCenter(elementId) {
+        const rect = document.getElementById(elementId).getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
+    }
+
+    function createPacket(color, startPos) {
+        const packet = document.createElement('div');
+        packet.className = 'packet';
+        packet.style.backgroundColor = color;
+        packet.style.left = `${startPos.x - 8}px`;
+        packet.style.top = `${startPos.y - 8}px`;
+        document.body.appendChild(packet);
+        return packet;
+    }
+
+    async function processNode() {
+        if (!isCrawling || queue.length === 0) {
+            stopCrawling();
+            return;
+        }
+
+        // 1. Get URL from queue
+        const currentUrl = queue.shift();
+        renderQueue();
+
+        // Coordinates
+        const queuePos = getCenter('queue-section');
+        const crawlerPos = getCenter('crawler-node');
+        const dbPos = getCenter('db-section');
+
+        // Speed setting (reverse: higher slider = lower duration)
+        const speedMultiplier = 11 - parseInt(speedSlider.value); 
+        const animDuration = speedMultiplier * 150;
+
+        // 2. Animate URL packet from Queue to Crawler
+        const urlPacket = createPacket('var(--primary)', queuePos);
+        await anime({
+            targets: urlPacket,
+            left: crawlerPos.x - 8,
+            top: crawlerPos.y - 8,
+            duration: animDuration,
+            easing: 'easeInOutQuad'
+        }).finished;
+        urlPacket.remove();
+
+        // 3. Crawler Parsing Animation (Pulse)
+        await anime({
+            targets: crawlerNode,
+            scale: [1, 1.2, 1],
+            rotate: '1turn',
+            duration: animDuration,
+            easing: 'easeInOutSine'
+        }).finished;
+
+        // Generate Mock Data
+        let keyword = Object.keys(mockContent).find(k => currentUrl.includes(k)) || "habr";
+        let title = mockContent[keyword][Math.floor(Math.random() * mockContent[keyword].length)];
+        
+        let newLinksCount = Math.floor(Math.random() * 3); // 0 to 2 new links
+        for(let i=0; i<newLinksCount; i++) {
+            queue.push(`${currentUrl}/page-${Math.floor(Math.random()*100)}`);
+        }
+
+        // 4. Animate Data to DB and Links to Queue simultaneously
+        let animations = [];
+
+        // Data Packet
+        const dataPacket = createPacket('var(--success)', crawlerPos);
+        animations.push(anime({
+            targets: dataPacket,
+            left: dbPos.x - 8,
+            top: dbPos.y - 8,
+            duration: animDuration,
+            easing: 'easeInOutQuad',
+            complete: () => dataPacket.remove()
+        }).finished);
+
+        // Link Packets
+        for(let i=0; i<newLinksCount; i++) {
+            const linkPacket = createPacket('var(--warning)', crawlerPos);
+            animations.push(anime({
+                targets: linkPacket,
+                left: queuePos.x - 8,
+                top: queuePos.y - 8,
+                duration: animDuration,
+                easing: 'easeOutExpo',
+                complete: () => linkPacket.remove()
+            }).finished);
+        }
+
+        await Promise.all(animations);
+
+        // 5. Update DOM Data
+        // Add to DB
+        const dbItem = document.createElement('div');
+        dbItem.className = 'db-item';
+        dbItem.innerHTML = `<span><b>URL:</b> ...${currentUrl.slice(-12)}</span><span><b>Заголовок:</b> ${title}</span>`;
+        dbList.prepend(dbItem);
+        if(dbList.children.length > 50) dbList.lastChild.remove();
+
+        // Update stats
+        processedCount++;
+        linksFound += newLinksCount;
+        statProcessed.textContent = processedCount;
+        statLinks.textContent = linksFound;
+        
+        renderQueue();
+
+        // 6. Loop
+        if (isCrawling) {
+            timeoutId = setTimeout(processNode, speedMultiplier * 50);
+        }
+    }
+
+    function startCrawling() {
+        if (queue.length === 0) {
+            alert("Очередь URL пуста! Добавим несколько начальных ссылок.");
+            queue = ["https://example.com/seed-1", "https://example.com/seed-2"];
+            renderQueue();
+        }
+        isCrawling = true;
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+        processNode();
+    }
+
+    function stopCrawling() {
+        isCrawling = false;
+        clearTimeout(timeoutId);
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+    }
+</script>
+</body>
+</html>

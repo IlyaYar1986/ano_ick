@@ -1,0 +1,35 @@
+# ── Исходники / планирование (не нужны для сайта) ──
+Docs.txt
+structura.md
+
+# ── Неиспользуемые / заменённые визуализации ──
+web/omonimy.html
+web/word_embeddings.html
+web/training_embeddings.html
+web/механизм Attension.html
+web/процесс SFT и LoRA.html
+web/процесс RLHF.html
+
+# ── Неиспользуемые изображения ──
+png/ChatGPT Image 26 апр. 2026 г., 15_50_37.png
+
+# ── macOS ──
+.DS_Store
+**/.DS_Store
+.__MACOSX
+
+# ── Редакторы ──
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.superpowers/
+.serena/
+.worktrees/
+.playwright-cli/
+
+Docs/*
+
+# ── Материалы клуба, не относятся к курсу для ИЦК ──
+Практика_агенты/

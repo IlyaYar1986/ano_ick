@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Персонализация и тьюторство с помощью ИИ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --cyan-lt:#e0f2fe;
+  --amber:#f59e0b;
+  --amber-lt:#fffbeb;
+  --green:#16a34a;
+  --green-lt:#f0fdf4;
+  --text:#0f172a;
+  --muted:#64748b;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(99,102,241,.14),transparent 32%),
+    radial-gradient(circle at 85% 6%,rgba(14,165,233,.13),transparent 34%),
+    linear-gradient(180deg,#f8fafc 0%,#eef2ff 30%,#f8fafc 100%);
+  color:var(--text);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,.06);
+  display:flex;align-items:center;padding:0 20px;z-index:900;
+  gap:2px;overflow-x:auto;scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none}
+.nav-logo{font-weight:900;font-size:.93rem;color:var(--indigo-dk);white-space:nowrap;margin:0 10px 0 4px;flex-shrink:0}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-link{padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;flex-shrink:0}
+.nav-link:hover,.nav-link.active{color:var(--indigo);background:var(--indigo-lt)}
+.nav-link:focus-visible,a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+/* HERO */
+#hero{
+  min-height:100vh;padding:calc(var(--nav-h) + 56px) 24px 64px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+.hero-badge{padding:5px 14px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:100px;font-size:.78rem;font-weight:700;color:var(--indigo-dk)}
+.hero-title{font-size:clamp(2rem,5.5vw,3.6rem);font-weight:900;line-height:1.12;letter-spacing:-1.5px;margin-bottom:16px;max-width:900px}
+.hero-title em{color:var(--indigo);font-style:normal}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:600px;margin-bottom:36px}
+.hero-img{max-width:900px;width:100%;margin-bottom:40px}
+.hero-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:820px}
+.hero-nav a{padding:8px 16px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--text);text-decoration:none;box-shadow:0 2px 8px rgba(15,23,42,.05);transition:transform .15s,box-shadow .15s}
+.hero-nav a:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(99,102,241,.15)}
+
+/* SECTION WRAPPER */
+.sec{max-width:1180px;margin:0 auto;padding:72px 24px}
+.sec-head{margin-bottom:36px}
+.num-badge{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:14px}
+.n1{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.n2{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.n3{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+.n4{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.n5{background:linear-gradient(135deg,#16a34a,#4ade80)}
+.n6{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.n7{background:linear-gradient(135deg,#0891b2,#22d3ee)}
+.n8{background:linear-gradient(135deg,#dc2626,#f87171)}
+.n9{background:linear-gradient(135deg,#4338ca,#6366f1)}
+.sec-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+.sec-desc{font-size:1rem;color:var(--muted);max-width:760px;line-height:1.75}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+
+/* IMAGE CARD + PLACEHOLDER */
+.img-card{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,.12);cursor:zoom-in}
+.img-card img{display:block;width:100%;height:auto}
+.img-card .img-missing-caption{display:none}
+.img-card.img-missing{border:2px dashed var(--border);background:var(--indigo-lt);min-height:220px;display:flex;align-items:center;justify-content:center;box-shadow:none;cursor:default}
+.img-card.img-missing img{display:none}
+.img-card.img-missing .img-missing-caption{display:block;color:var(--muted);font-size:.85rem;text-align:center;padding:24px;max-width:340px}
+
+/* LIGHTBOX (simple open/close, no pan/zoom) */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.overlay img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.overlay-close{position:absolute;top:18px;right:22px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.overlay-close:hover{background:rgba(255,255,255,.22)}
+.overlay-download{position:absolute;top:18px;right:72px;height:40px;padding:0 16px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;z-index:2}
+.overlay-download:hover{background:rgba(255,255,255,.22)}
+
+/* SCROLL REVEAL */
+.fade{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fade.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fade{opacity:1;transform:none;transition:none}}
+
+/* RESPONSIVE */
+@media (max-width:900px){
+  .sec{padding:56px 18px}
+}
+
+.classroom-bar{display:flex;gap:4px;border-radius:14px;overflow:hidden;height:120px;box-shadow:0 2px 10px rgba(15,23,42,.06)}
+.cb-segment{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:800;transform:scaleY(0);transform-origin:bottom;animation:cb-grow .6s ease forwards}
+.cb-segment:nth-child(2){animation-delay:.12s}
+.cb-segment:nth-child(3){animation-delay:.24s}
+@keyframes cb-grow{to{transform:scaleY(1)}}
+.cb-easy{background:linear-gradient(160deg,#38bdf8,#0ea5e9)}
+.cb-ok{background:linear-gradient(160deg,#4ade80,#16a34a)}
+.cb-hard{background:linear-gradient(160deg,#fb923c,#ea580c)}
+.cb-pct{font-size:1.5rem}
+.cb-label{font-size:.78rem;font-weight:600;opacity:.9}
+@media (prefers-reduced-motion:reduce){.cb-segment{transform:scaleY(1);animation:none}}
+
+.analogy-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.analogy-grid{grid-template-columns:1fr}}
+.timeline-list{margin:0;padding-left:20px;color:var(--muted);display:flex;flex-direction:column;gap:6px;font-size:.92rem;line-height:1.5}
+.dialog-widget{display:flex;flex-direction:column;gap:14px}
+.dialog-log{display:flex;flex-direction:column;gap:10px;min-height:60px}
+.dialog-bubble{max-width:80%;padding:10px 16px;border-radius:14px;font-size:.95rem;line-height:1.5;opacity:0;transform:translateY(8px);animation:dialog-in .35s ease forwards}
+@keyframes dialog-in{to{opacity:1;transform:none}}
+.dialog-bubble.student{align-self:flex-end;background:var(--indigo);color:#fff;border-bottom-right-radius:4px}
+.dialog-bubble.khanmigo{align-self:flex-start;background:var(--indigo-lt);color:var(--indigo-dk);border-bottom-left-radius:4px}
+.dialog-next{align-self:flex-start;padding:9px 18px;border-radius:10px;border:none;background:var(--indigo);color:#fff;font-weight:700;font-size:.85rem;cursor:pointer;transition:background .2s}
+.dialog-next:hover{background:var(--indigo-dk)}
+.dialog-next:disabled{background:var(--border);color:var(--muted);cursor:default}
+
+.not-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.not-list li{padding-left:26px;position:relative;color:var(--text)}
+.not-list li::before{content:"✕";position:absolute;left:0;color:#dc2626;font-weight:800}
+.not-list li span{color:var(--muted);font-size:.92rem}
+.principles{display:flex;flex-direction:column;gap:10px}
+.principle{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px}
+.principle summary{font-weight:700;cursor:pointer;list-style:none}
+.principle summary::-webkit-details-marker{display:none}
+.principle summary::before{content:"▸";display:inline-block;margin-right:8px;color:var(--indigo);transition:transform .2s}
+.principle[open] summary::before{transform:rotate(90deg)}
+.principle p{margin-top:10px;color:var(--muted);line-height:1.7}
+
+.bloom-toggle{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.bloom-tab{padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:#fff;font-size:.85rem;font-weight:700;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.bloom-tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.bloom-bar{height:18px;border-radius:100px;background:var(--indigo-lt);overflow:hidden;margin-bottom:12px}
+.bloom-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--cyan));border-radius:100px;transition:width .5s ease}
+.bloom-caption{color:var(--text);line-height:1.7}
+.bloom-sources{margin-top:10px;padding-left:20px;color:var(--muted);line-height:1.8}
+
+.capability-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.capability-grid{grid-template-columns:1fr}}
+.cap-head{font-weight:800;padding:8px 14px;border-radius:10px;margin-bottom:14px;display:inline-block}
+.cap-yes .cap-head{background:var(--green-lt);color:var(--green)}
+.cap-no .cap-head{background:var(--amber-lt);color:#b45309}
+.capability-grid ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.capability-grid li{color:var(--text);line-height:1.6;font-size:.94rem}
+.capability-grid li strong{display:block;margin-bottom:2px}
+.safety-callout{background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:16px;padding:24px}
+.safety-callout h3{color:var(--indigo-dk);margin-bottom:10px;font-size:1.05rem}
+.safety-callout p{color:var(--text);margin-bottom:8px;line-height:1.7}
+.safety-callout p:last-child{margin-bottom:0}
+
+.case-cards{display:flex;flex-direction:column;gap:12px}
+.case-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px}
+.case-card summary{font-weight:700;cursor:pointer;list-style:none;font-size:1rem}
+.case-card summary::-webkit-details-marker{display:none}
+.case-card summary::before{content:"▸";display:inline-block;margin-right:8px;color:var(--indigo);transition:transform .2s}
+.case-card[open] summary::before{transform:rotate(90deg)}
+.case-body{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.case-body p{color:var(--text);line-height:1.7;font-size:.94rem}
+.case-caveat{background:var(--amber-lt);border-left:3px solid var(--amber);padding:10px 14px;border-radius:6px;color:#92400e!important}
+.case-insight{color:var(--muted)!important}
+.ru-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.ru-name{font-weight:700;margin-bottom:8px}
+.ru-grid p:not(.ru-name){color:var(--muted);font-size:.92rem;line-height:1.6}
+.pilot-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px}
+.pilot-table-wrap summary{font-weight:700;cursor:pointer;list-style:none}
+.pilot-table-wrap summary::-webkit-details-marker{display:none}
+.table-scroll{overflow-x:auto;margin-top:16px}
+.pilot-table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+.pilot-table th{text-align:left;padding:10px 12px;background:var(--indigo-lt);color:var(--indigo-dk);font-weight:700}
+.pilot-table td{padding:10px 12px;border-top:1px solid var(--border);color:var(--text);vertical-align:top}
+
+.level-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.level-tab{padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:#fff;font-size:.85rem;font-weight:700;color:var(--muted);cursor:pointer}
+.level-tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.level-note{color:var(--muted);margin-bottom:16px}
+.prompt-box{background:#0f172a;border-radius:14px;overflow:hidden}
+.prompt-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1e293b;color:#e2e8f0;font-size:.82rem;font-weight:700}
+.copy-btn{padding:5px 12px;border-radius:8px;border:1px solid #475569;background:transparent;color:#e2e8f0;font-size:.76rem;font-weight:700;cursor:pointer;transition:background .2s}
+.copy-btn:hover{background:#334155}
+.prompt-box pre{margin:0;padding:18px 16px;color:#e2e8f0;font-size:.82rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.checklist-progress-bar{height:10px;border-radius:100px;background:var(--indigo-lt);overflow:hidden;margin-bottom:20px}
+.checklist-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--indigo),var(--cyan));border-radius:100px;transition:width .3s ease}
+.checklist-items{list-style:none;display:flex;flex-direction:column;gap:12px}
+.checklist-items label{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.95rem}
+.checklist-items input{width:18px;height:18px;accent-color:var(--indigo);cursor:pointer}
+.checklist-done{margin-top:18px;padding:12px 16px;background:var(--green-lt);color:var(--green);border-radius:10px;font-weight:700}
+
+.quiz{display:flex;flex-direction:column;gap:18px}
+.quiz-question{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.quiz-text{font-weight:700;margin-bottom:12px}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-options label{display:flex;align-items:center;gap:8px;font-size:.92rem;cursor:pointer}
+.quiz-options label.quiz-correct-answer{color:var(--green);font-weight:700}
+.quiz-options input{accent-color:var(--indigo)}
+.quiz-check{padding:8px 16px;border-radius:9px;border:none;background:var(--indigo);color:#fff;font-weight:700;font-size:.82rem;cursor:pointer}
+.quiz-check:hover{background:var(--indigo-dk)}
+.quiz-feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.9rem}
+.quiz-feedback.correct{background:var(--green-lt);color:var(--green)}
+.quiz-feedback.incorrect{background:#fef2f2;color:#dc2626}
+.quiz-score-box{text-align:center;font-weight:800;color:var(--indigo-dk)}
+.conclusion-list{list-style:none;counter-reset:concl;display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.conclusion-list li{counter-increment:concl;padding-left:38px;position:relative;font-size:1rem}
+.conclusion-list li::before{content:counter(concl);position:absolute;left:0;top:-2px;width:26px;height:26px;border-radius:50%;background:var(--indigo);color:#fff;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+footer{text-align:center;padding:32px 20px 48px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-link" href="../oglavlenie.html">← Оглавление</a>
+  <span class="nav-sep"></span>
+  <span class="nav-logo">Персонализация и ИИ</span>
+  <span class="nav-sep"></span>
+  <a class="nav-link" href="#problema">Проблема</a>
+  <a class="nav-link" href="#personalizaciya">Персонализация</a>
+  <a class="nav-link" href="#pochemu-seychas">Почему сейчас</a>
+  <a class="nav-link" href="#ii-tyutor">ИИ-тьютор</a>
+  <a class="nav-link" href="#vozmozhnosti">Возможности</a>
+  <a class="nav-link" href="#keysy">Кейсы</a>
+  <a class="nav-link" href="#rossiya">Россия</a>
+  <a class="nav-link" href="#primenenie">Как внедрить</a>
+  <a class="nav-link" href="#cheklist">Чек-лист</a>
+  <a class="nav-link" href="#kviz">Квиз</a>
+</nav>
+
+<header id="hero">
+  <div class="hero-badges">
+    <span class="hero-badge">45 минут</span>
+    <span class="hero-badge">Начальный уровень</span>
+    <span class="hero-badge">Тема 3.3</span>
+  </div>
+  <h1 class="hero-title">Персонализация и <em>тьюторство</em> с помощью ИИ</h1>
+  <p class="hero-sub">Как ИИ-тьюторы меняют образование и что из этого можно применить в вашей практике уже завтра</p>
+  <figure class="img-card hero-img" data-lightbox>
+    <img src="../png/personalizaciya_tyutorstvo/01_hero_ii_tyutor_i_student.webp" alt="ИИ-тьютор и студент за партой смотрят на голографический экран с прогрессом обучения" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">ИИ-тьютор и студент за партой смотрят на голографический экран с прогрессом обучения</figcaption>
+  </figure>
+  <nav class="hero-nav" aria-label="Разделы страницы">
+    <a href="#problema">Проблема массового образования</a>
+    <a href="#ii-tyutor">Как работает ИИ-тьютор</a>
+    <a href="#keysy">Мировые кейсы</a>
+    <a href="#primenenie">Готовые промпты</a>
+    <a href="#kviz">Проверить себя</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="sec" id="problema">
+  <div class="sec-head fade">
+    <div class="num-badge n1">1</div>
+    <h2 class="sec-title">Проблема массового образования</h2>
+    <p class="sec-desc">В группе 25–30 человек с разным уровнем подготовки, темпом обучения и стилем восприятия. Занятие готовится на «среднего» студента — и это математически не может подойти всем.</p>
+  </div>
+
+  <div class="card fade" style="margin-bottom:28px">
+    <p style="font-size:1.05rem">Сколько студентов в вашей самой большой группе? Скорее всего, «20+», «30+», а у кого-то — «50+». Вопрос в том, как при таком количестве найти индивидуальный подход к каждому.</p>
+  </div>
+
+  <div class="classroom-bar fade" role="img" aria-label="Распределение группы: 30% материал слишком простой, 40% в оптимальной зоне, 30% материал слишком сложный">
+    <div class="cb-segment cb-easy" style="flex:30">
+      <span class="cb-pct">30%</span>
+      <span class="cb-label">слишком просто</span>
+    </div>
+    <div class="cb-segment cb-ok" style="flex:40">
+      <span class="cb-pct">40%</span>
+      <span class="cb-label">оптимальная зона</span>
+    </div>
+    <div class="cb-segment cb-hard" style="flex:30">
+      <span class="cb-pct">30%</span>
+      <span class="cb-label">слишком сложно</span>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:32px">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/02_problema_massovogo_klassa.webp" alt="Один учитель перед классом из тридцати разных студентов: 30% скучно, 40% оптимально, 30% сложно" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Один учитель перед классом из тридцати разных студентов: 30% скучно, 40% оптимально, 30% сложно</figcaption>
+  </figure>
+
+  <p class="fade" style="margin-top:24px;color:var(--muted)">Мы знаем, что каждому нужен индивидуальный подход, но физически не можем его обеспечить — вернее, не могли до сих пор.</p>
+</section>
+
+<section class="sec" id="personalizaciya">
+  <div class="sec-head fade">
+    <div class="num-badge n2">2</div>
+    <h2 class="sec-title">Что такое настоящая персонализация</h2>
+    <p class="sec-desc">Слово звучит отовсюду, но чаще всего под ним понимают совсем не то. Разберёмся, что персонализация — это НЕ, и что это система, работающая постоянно, а не разовое задание.</p>
+  </div>
+
+  <div class="card fade" style="margin-bottom:28px">
+    <p style="font-weight:700;margin-bottom:10px">Персонализация — это НЕ:</p>
+    <ul class="not-list">
+      <li>Дать студенту выбрать тему проекта <span>— это свобода выбора</span></li>
+      <li>Разрешить сдать работу в разном формате <span>— это гибкость требований</span></li>
+      <li>Дать отличникам сложные задания, а отстающим — упрощённые <span>— это дифференциация, лишь один из элементов</span></li>
+    </ul>
+  </div>
+
+  <div class="principles fade">
+    <details class="principle" open>
+      <summary>1. Содержание под его уровень</summary>
+      <p>Не «лёгкое» или «сложное», а точно откалиброванное — чуть выше того, что студент уже умеет. Психологи называют это зоной ближайшего развития: задача трудная настолько, чтобы требовать усилий, но не вызывать отчаяния.</p>
+    </details>
+    <details class="principle">
+      <summary>2. Удобный темп</summary>
+      <p>Один студент усваивает тему за 20 минут, другому нужен час и три разных объяснения. В классическом уроке оба вынуждены двигаться в одном ритме — при персонализации каждый идёт в своём.</p>
+    </details>
+    <details class="principle">
+      <summary>3. Подходящий формат подачи</summary>
+      <p>Одному проще понять через схему, другому — через жизненный пример, третьему — через практическую задачу. Не потому что у них «разные типы мышления» (это не подтверждено исследованиями), а потому что разный контекст и опыт.</p>
+    </details>
+    <details class="principle">
+      <summary>4. Обратную связь в нужный момент</summary>
+      <p>Обратная связь эффективна, если дана в течение нескольких минут после ошибки. Когда студент получает исправленную работу через неделю — момент упущен, и ошибки просто повторяются снова.</p>
+    </details>
+    <details class="principle">
+      <summary>5. Поддержку именно там, где «спотыкается»</summary>
+      <p>Не общие рекомендации «подтяни математику», а конкретная дополнительная практика на ту операцию, которую студент делает неверно.</p>
+    </details>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:32px">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/03_pyat_printsipov_personalizatsii.webp" alt="Пять признаков настоящей персонализации: содержание, темп, формат, обратная связь, точечная поддержка" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Пять признаков настоящей персонализации: содержание, темп, формат, обратная связь, точечная поддержка</figcaption>
+  </figure>
+</section>
+
+<section class="sec" id="pochemu-seychas">
+  <div class="sec-head fade">
+    <div class="num-badge n3">3</div>
+    <h2 class="sec-title">Почему это было невозможно раньше</h2>
+    <p class="sec-desc">Идея персонализации не нова — ей больше ста лет. Лев Толстой в Яснополянской школе и Мария Монтессори строили системы индивидуального обучения. Обе работали. Обе не стали массовыми: один преподаватель физически не может качественно вести 25–30 студентов индивидуально, а на настоящую индивидуализацию группы нужно 3–5 преподавателей на класс.</p>
+  </div>
+
+  <div class="card fade" style="margin-bottom:24px">
+    <p style="font-weight:700;margin-bottom:6px">Эффект тьюторства: гипотеза Блума и то, что подтвердилось на практике</p>
+    <p style="color:var(--muted);margin-bottom:18px">В 1984 году Бенджамин Блум, обобщив диссертации своих аспирантов, сообщил: студент с личным тьютором обгоняет 98% студентов без него («проблема двух сигм»). Переключите вид ниже, чтобы увидеть, что показали десятки независимых исследований 2011–2026 годов.</p>
+
+    <div class="bloom-toggle" role="tablist" aria-label="Выбор источника эффекта тьюторства">
+      <button type="button" class="bloom-tab active" data-bloom="hypothesis" role="tab" aria-selected="true">Гипотеза Блума, 1984</button>
+      <button type="button" class="bloom-tab" data-bloom="modern" role="tab" aria-selected="false">Современные метаанализы</button>
+    </div>
+
+    <div class="bloom-view" data-bloom-view="hypothesis">
+      <div class="bloom-bar"><div class="bloom-fill" style="width:98%"></div></div>
+      <p class="bloom-caption">2σ → средний студент с тьютором обгоняет <strong>98%</strong> студентов без него. Источник: Bloom, 1984, «The 2 Sigma Problem» — обобщение диссертаций на выборках 40–70 школьников.</p>
+    </div>
+    <div class="bloom-view" data-bloom-view="modern" hidden>
+      <div class="bloom-bar"><div class="bloom-fill" style="width:79%"></div></div>
+      <p class="bloom-caption">0,29–0,79 стандартного отклонения → обгоняет <strong>64–79%</strong> группы, в зависимости от исследования:</p>
+      <ul class="bloom-sources">
+        <li><strong>Nickow, Oreopoulos &amp; Quan</strong> (2020/2024) — 96 независимых исследований школьного тьюторства: 0,29–0,37 SD (≈64–65%)</li>
+        <li><strong>VanLehn</strong> (2011) — очное человеческое тьюторство: d≈0,79 (≈79%)</li>
+        <li><strong>Kraft, Schueler &amp; Falken</strong> (2024/2026) — с поправкой на реальное масштабирование: 0,16–0,22 SD</li>
+      </ul>
+      <p class="bloom-caption" style="margin-top:10px">Даже скромная величина — один из самых высоких эффектов, зафиксированных в педагогике (типичный эффект школьных программ не превышает 0,1 SD). Главный вывод Блума в силе: индивидуальный подход работает — просто не в два раза сильнее, а устойчиво и воспроизводимо сильнее.</p>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox>
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/04_effekt_bluma_dve_sigmy.webp" alt="Сравнение гипотезы Блума 1984 года (2 сигмы, 98%) с современными метаанализами (0,29–0,79 SD, 64–79%)" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Сравнение гипотезы Блума 1984 года (2 сигмы, 98%) с современными метаанализами (0,29–0,79 SD, 64–79%)</figcaption>
+  </figure>
+</section>
+
+<section class="sec" id="ii-tyutor">
+  <div class="sec-head fade">
+    <div class="num-badge n4">4</div>
+    <h2 class="sec-title">ИИ-тьютор: личный наставник для каждого студента</h2>
+    <p class="sec-desc">ИИ-тьютор — не просто чат с ИИ. Это система, которая знает студента, адаптируется в реальном времени, обучает через вопросы вместо готовых ответов, отслеживает прогресс и следует педагогическим принципам.</p>
+  </div>
+
+  <div class="analogy-grid fade">
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:8px">Google vs Репетитор</p>
+      <p style="color:var(--muted)">Google выдаст информацию. Репетитор спросит, что вы знаете, объяснит на понятных примерах, проверит понимание, даст практику.</p>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:8px">Телевизор vs Онлайн-кинотеатр</p>
+      <p style="color:var(--muted)">Обычный телевизор покажет программы по расписанию. Онлайн-кинотеатр анализирует интересы и рекомендует лично то, что будет интересно именно вам.</p>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin:28px 0">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/05_analogii_google_i_tv.webp" alt="Аналогии: Google против репетитора, телевизор против онлайн-кинотеатра" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Аналогии: Google против репетитора, телевизор против онлайн-кинотеатра</figcaption>
+  </figure>
+
+  <div class="analogy-grid fade" style="margin-bottom:14px">
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:10px">Традиционно</p>
+      <ol class="timeline-list">
+        <li>Преподаватель объясняет всей группе</li>
+        <li>Студент решает дома</li>
+        <li>Через неделю получает оценку</li>
+        <li>Узнаёт об ошибках, но момент прошёл</li>
+      </ol>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:10px">С ИИ-тьютором</p>
+      <ol class="timeline-list">
+        <li>ИИ диагностирует текущий уровень</li>
+        <li>Строит персональный план обучения</li>
+        <li>Объясняет, подстраиваясь под стиль студента</li>
+        <li>Даёт задачу → студент решает → получает мгновенную обратную связь</li>
+        <li>При ошибке задаёт наводящие вопросы вместо «неправильно»</li>
+        <li>Адаптирует сложность: легко — усложняет, трудно — упрощает</li>
+        <li>Через несколько дней возвращается к теме для закрепления</li>
+      </ol>
+    </div>
+  </div>
+  <p class="fade" style="color:var(--muted);margin:0 0 28px"><strong>Ключевое отличие:</strong> обучение становится непрерывным диалогом.</p>
+
+  <div class="card fade">
+    <p style="font-weight:700;margin-bottom:4px">Попробуйте сами: сократовский диалог Khanmigo</p>
+    <p style="color:var(--muted);margin-bottom:16px">ИИ-тьютор Khan Academy не выдаёт готовый ответ — он ведёт студента к пониманию вопросами. Нажимайте «Далее», чтобы пройти диалог целиком.</p>
+    <div class="dialog-widget">
+      <div class="dialog-log" id="dialog-log" aria-live="polite"></div>
+      <button type="button" class="dialog-next" id="dialog-next">Далее →</button>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="vozmozhnosti">
+  <div class="sec-head fade">
+    <div class="num-badge n5">5</div>
+    <h2 class="sec-title">Возможности и ограничения ИИ-тьюторов</h2>
+    <p class="sec-desc">ИИ — не волшебная палочка. У него есть сильные стороны, которые работают уже сегодня, и границы, которые остаются за человеком.</p>
+  </div>
+
+  <div class="capability-grid fade">
+    <div class="card cap-yes">
+      <p class="cap-head">Умеет уже сейчас ✅</p>
+      <ul>
+        <li><strong>Диагностика в реальном времени</strong> — видит не только правильность ответа, но и время раздумья, систематические ошибки, пробелы в базовых знаниях</li>
+        <li><strong>Адаптивное объяснение</strong> — подаёт тему через схему, пример, задачу или аналогию, ориентируясь на реакцию студента, а не на «тип личности»</li>
+        <li><strong>Бесконечное терпение</strong> — студент может переспрашивать 10, 20, 50 раз без осуждения</li>
+        <li><strong>Доступность 24/7</strong> — помощь в 11 вечера, а не с пустой тетрадью наутро</li>
+        <li><strong>Мгновенная обратная связь</strong> — указывает на ошибку и даёт шанс исправить сразу, а не через неделю</li>
+      </ul>
+    </div>
+    <div class="card cap-no">
+      <p class="cap-head">Пока не умеет ⚠️</p>
+      <ul>
+        <li><strong>Эмоциональная поддержка</strong> — не чувствует, когда нужна не помощь с задачей, а вера в студента</li>
+        <li><strong>Оценка творческих работ</strong> — ограничен в оценке по-настоящему нестандартных решений</li>
+        <li><strong>Контекст жизненной ситуации</strong> — не знает про семейные проблемы или ночную работу</li>
+        <li><strong>Формирование ценностей</strong> — воспитательная функция остаётся за человеком</li>
+        <li><strong>Групповая динамика</strong> — не модерирует дискуссии, не создаёт командный дух</li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin:28px 0">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/06_vrach_s_mrt_usilenie_ne_zamena.webp" alt="Метафора: врач с МРТ не заменяет врача, а делает диагностику точнее — так же ИИ усиливает преподавателя" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Метафора: врач с МРТ не заменяет врача, а делает диагностику точнее — так же ИИ усиливает преподавателя</figcaption>
+  </figure>
+
+  <div class="safety-callout fade">
+    <h3>Данные и академическая честность</h3>
+    <p>Когда студенты передают работы в ChatGPT или GigaChat, данные могут использоваться для дообучения моделей, если не настроено иное — для работы со студентами используйте корпоративные версии с политиками конфиденциальности. Это особенно важно там, где затрагиваются персональные данные (152-ФЗ).</p>
+    <p>Задайте себе правило: ИИ помогает понять, но не делает вместо студента. Практический способ проверить — попросить студента объяснить тему своими словами или устно защитить решение после работы с ИИ-тьютором.</p>
+  </div>
+</section>
+
+<section class="sec" id="keysy">
+  <div class="sec-head fade">
+    <div class="num-badge n6">6</div>
+    <h2 class="sec-title">Мировые кейсы: персонализация на практике</h2>
+    <p class="sec-desc">Шесть платформ, которые уже проверили ИИ-персонализацию на реальных студентах — с проверенными цифрами и честными оговорками там, где данные исходят от самих компаний.</p>
+  </div>
+
+  <div class="case-cards fade">
+    <details class="case-card">
+      <summary>Squirrel AI (Китай) — ИИ против традиционного учителя</summary>
+      <div class="case-body">
+        <p>Китайская платформа адаптивного обучения. По данным самой компании, на 2026 год ей пользуются свыше <strong>40 миллионов</strong> человек через 3000+ учебных центров (независимого аудита цифры нет).</p>
+        <p><strong>Заявления компании:</strong> +25% к результатам по математике за семестр; в уезде Цинтай освоение материала выросло с 56% до 89% за два месяца; в декабре 2025 заявлен рекорд Гиннесса за эксперимент «ИИ против традиционного обучения» на 1662 учениках из 5 школ.</p>
+        <p class="case-caveat">Важная оговорка: это заявление компании, а не независимо подтверждённые данные — анализ рекорда проводило нанятое и оплаченное Squirrel AI агентство, страницы записи на официальном сайте Guinness World Records не найдено.</p>
+        <p class="case-insight"><strong>Инсайт:</strong> наибольший прирост компания фиксирует у слабых учеников — ИИ-персонализация выравнивает неравенство, а не только усиливает сильных.</p>
+      </div>
+    </details>
+
+    <details class="case-card">
+      <summary>Carnegie Learning MATHia (США) — когнитивная наука + ИИ</summary>
+      <div class="case-body">
+        <p>Адаптивное ядро восходит к системе Cognitive Tutor Университета Карнеги-Меллон, переименованной в MATHia около 2010–2011 года.</p>
+        <p>Независимое исследование RAND (Pane, Griffin, McCaffrey, Karam, 2014) охватило свыше 18 000 студентов в 147 школах. У старшеклассников за два года — статистически значимый прирост +0,21 SD («почти двукратное» ускорение прогресса, по формулировке Carnegie Learning). Для средней школы значимого эффекта не было.</p>
+        <p class="case-caveat">Статус ESSA Tier 1 присвоен всему комплексному курсу Math Solution, а не отдельно MATHia — сама платформа как отдельный инструмент имеет более скромный статус <strong>Tier 2</strong> («Умеренные доказательства»).</p>
+        <p class="case-insight"><strong>Инсайт:</strong> ИИ исправляет не только незнание, но и конкретную неверную ментальную модель — это качественно другой уровень помощи, чем учебник.</p>
+      </div>
+    </details>
+
+    <details class="case-card">
+      <summary>CENTURY Tech (Великобритания) — нейронаука в классе</summary>
+      <div class="case-body">
+        <p>Британская платформа, объединяющая ИИ с нейропедагогикой: учитывает когнитивную нагрузку и кривую забывания.</p>
+        <p>В июле 2025 CENTURY опубликовала собственный отчёт по 15 школам треста Discovery: 4 из 5 активных пользователей достигли ожидаемого уровня по математике; активные пользователи втрое чаще выходили на высокий уровень по трём предметам; средний совокупный балл был выше на 4,6 пункта.</p>
+        <p class="case-caveat">Это исследование самой компании, не независимый эксперимент. Программа EdTech Demonstrator, с которой иногда связывают CENTURY, присваивалась школам, а не компаниям, и была официально свёрнута Минобразования Великобритании в 2022 году.</p>
+        <p class="case-insight"><strong>Инсайт:</strong> персонализация освобождает учителя от рутины — он видит, кому именно нужна помощь прямо сейчас, а не через две недели после контрольной.</p>
+      </div>
+    </details>
+
+    <details class="case-card">
+      <summary>Jill Watson (Georgia Tech, США) — ИИ-ассистент, которого не отличили от человека</summary>
+      <div class="case-body">
+        <p>В 2016 году профессор Эшок Гоэл создал виртуального ассистента на базе IBM Watson для курса по ИИ в Georgia Tech — студенты весь семестр не догадывались, что общаются с ботом.</p>
+        <p>2025 год: новая версия на базе ChatGPT + RAG протестирована на 600+ студентах при поддержке Национального научного фонда США и фонда Гейтсов. Точность ответов Jill Watson — <strong>78,7%</strong>, у стандартного ассистента OpenAI — 30,7%. Оценку A получили 66% студентов с доступом к Jill против 62% без неё; оценок C — втрое меньше.</p>
+        <p class="case-insight"><strong>Инсайт:</strong> ИИ в образовании — не мода последних лет, а десятилетняя история реальной работы в аудитории; ассистент, «знающий» конкретный курс, точнее универсального чат-бота.</p>
+      </div>
+    </details>
+
+    <details class="case-card">
+      <summary>Duolingo — ИИ знает, что вы забудете</summary>
+      <div class="case-body">
+        <p>По данным компании, на 2025–2026 год у платформы свыше 500 миллионов зарегистрированных пользователей и порядка 135–160 миллионов активных в месяц.</p>
+        <p>Исследование Vesselinov &amp; Grego (2012, заказано и оплачено Duolingo, не рецензировалось): 34 часа занятий соответствуют переходу с первого на второй семестр университетского испанского. Более позднее независимое рецензируемое исследование (Smith, Jiang &amp; Peters, 2024) подтвердило похожий эффект на новой выборке за ~27 часов.</p>
+        <p class="case-insight"><strong>Инсайт:</strong> система видит паттерны забывания, невидимые человеку, и напоминает слово ровно в момент, когда вы вот-вот его забудете.</p>
+      </div>
+    </details>
+
+    <details class="case-card">
+      <summary>Khan Academy (Khanmigo) — сократовский метод</summary>
+      <div class="case-body">
+        <p>Khanmigo используют более 2 миллионов человек — за 2024–2025 учебный год число регистраций выросло на 731% (официальный годовой отчёт Khan Academy).</p>
+        <p>По внутреннему тестированию компании (октябрь 2025 — апрель 2026, ~15 млн диалогов), последовательные улучшения ИИ-тьютора дали прирост правильности решения следующей задачи на 6,1%.</p>
+        <p class="case-caveat">Растиражированная в интернете цифра «улучшение результатов по математике на 23%» не подтверждается ни Khan Academy, ни независимыми рецензируемыми исследованиями — похоже, распространилась через SEO-статьи со ссылкой на несуществующее исследование.</p>
+        <p class="case-insight"><strong>Инсайт:</strong> Khanmigo не даёт готовые ответы — он ведёт студента к пониманию через наводящие вопросы, шаг за шагом.</p>
+      </div>
+    </details>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:32px">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/07_kollazh_mirovyh_keysov.webp" alt="Коллаж шести мировых кейсов ИИ-персонализации: Squirrel AI, Carnegie Learning MATHia, CENTURY Tech, Jill Watson, Duolingo, Khanmigo" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Коллаж шести мировых кейсов ИИ-персонализации</figcaption>
+  </figure>
+</section>
+
+<section class="sec" id="rossiya">
+  <div class="sec-head fade">
+    <div class="num-badge n7">7</div>
+    <h2 class="sec-title">Российские ИИ-платформы: что уже работает рядом</h2>
+    <p class="sec-desc">Не нужно создавать всё с нуля — можно встроить существующие инструменты в свою практику и рекомендовать их студентам.</p>
+  </div>
+
+  <div class="ru-grid fade">
+    <div class="card">
+      <p class="ru-name">🇷🇺 Учи.ру</p>
+      <p>Входит в перечень ЭОР Минпросвещения (обновлён в августе 2025, 1425 ресурсов). В 2023–2024 учебном году — 14,5 млн учеников и 749 тыс. учителей; по оценке компании, в 2024 году число учеников превысило 18 млн.</p>
+    </div>
+    <div class="card">
+      <p class="ru-name">🤖 Яндекс Учебник · Репетитор AI</p>
+      <p>ИИ-помощник по информатике — с ноября 2023 года; с октября 2025 добавилась математика под именем «Репетитор AI» (семейство моделей Alice AI). Около 120 тысяч выпускников пользовались тренажёрами — это <strong>85% всех сдававших ЕГЭ по информатике</strong>. Личный кабинет учителя анонсирован на конец 2025 года.</p>
+    </div>
+    <div class="card">
+      <p class="ru-name">📚 ВШЭ + Яндекс</p>
+      <p>Пилот по ИИ в дипломных работах стартовал в 2024 году в ВШЭ, с 2025 года — в 11 вузах (ВШЭ, ИТМО, КФУ, НГТУ, ННГУ, СибГМУ, СКФУ, ТГУ, ТюмГУ, Университет Правительства Москвы, УрФУ), более 500 студентов работают с YandexGPT 5.</p>
+    </div>
+    <div class="card">
+      <p class="ru-name">🎓 AI360</p>
+      <p>Бакалавриат Яндекса и Сбера с ИТМО, ВШЭ, МФТИ и Университетом Иннополис. Первый набор (2024/2025) — 100 человек; с 2025/2026 — пятый вуз-партнёр СПбГУ, набор вырос до <strong>156 человек</strong> (+56%).</p>
+    </div>
+    <div class="card">
+      <p class="ru-name">🖥️ ВКИ НГУ</p>
+      <p>В марте 2025 Высший колледж информатики НГУ первым за Уралом развернул собственную LLM (Qwen 2.5 Coder + DeepSeek) на своих серверах — данные студентов не уходят во внешнее облако.</p>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin:28px 0">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/08_rossiyskiy_edtech_landshaft.webp" alt="Российские ИИ-платформы в образовании: Учи.ру, Яндекс Учебник, ВШЭ+Яндекс, AI360, ВКИ НГУ" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Российские ИИ-платформы в образовании</figcaption>
+  </figure>
+
+  <details class="pilot-table-wrap fade">
+    <summary>Пилотные проекты ИИ в России — развернуть таблицу</summary>
+    <div class="table-scroll">
+      <table class="pilot-table">
+        <thead>
+          <tr><th>Инициатива</th><th>Уровень</th><th>Статус и охват</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>НИТУ «МИСиС» + фонд «Вклад в будущее»</td><td>Школы</td><td>С 2021, 10 школ; продолжает работать как AI-Academy</td></tr>
+          <tr><td>ВШЭ + Яндекс — дипломные работы</td><td>Вузы</td><td>С 2024 (ВШЭ), с 2025 — 11 вузов, 500+ студентов</td></tr>
+          <tr><td>AI360</td><td>Вузы</td><td>100 → 156 человек, 5 вузов-партнёров</td></tr>
+          <tr><td>Федеральный проект «Искусственный интеллект»</td><td>Школы, вузы, доп. образование</td><td>Продлён до 2030; 97,8 тыс. участников конкурсов и хакатонов</td></tr>
+          <tr><td>Великий Новгород — «Стади Ниндзя»</td><td>Школы</td><td>Анонсирован пилот в индивидуальном формате; масштабный запуск не подтверждён</td></tr>
+          <tr><td>Уральские вузы</td><td>Вузы</td><td>Отдельные внедрения; сводных данных нет</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="sec" id="primenenie">
+  <div class="sec-head fade">
+    <div class="num-badge n8">8</div>
+    <h2 class="sec-title">Как применить в вашей практике: три уровня</h2>
+    <p class="sec-desc">От промпта, который можно использовать сегодня, до полноценного ИИ-тьютора курса. Промпты готовы к копированию — подставьте свой предмет и уровень группы.</p>
+  </div>
+
+  <div class="level-tabs fade" role="tablist" aria-label="Уровни внедрения">
+    <button type="button" class="level-tab active" data-level="1" role="tab" aria-selected="true">1 · Быстрый старт</button>
+    <button type="button" class="level-tab" data-level="2" role="tab" aria-selected="false">2 · Продвинутый</button>
+    <button type="button" class="level-tab" data-level="3" role="tab" aria-selected="false">3 · Системный</button>
+  </div>
+
+  <div class="level-panel" data-level-panel="1">
+    <p class="level-note">Можно начать сегодня. Создайте базового ИИ-помощника для студентов в GigaChat или ChatGPT.</p>
+    <div class="prompt-box">
+      <div class="prompt-head">
+        <span>Промпт: базовый ИИ-тьютор</span>
+        <button type="button" class="copy-btn" data-copy="prompt-1">Скопировать</button>
+      </div>
+      <pre id="prompt-1">Ты — тьютор по [ваш предмет]. Твоя задача — помогать студентам
+[уровень: колледж/вуз] понимать материал, но НЕ давать готовые ответы.
+
+Когда студент задаёт вопрос:
+1. Сначала узнай, что он уже понимает
+2. Задавай наводящие вопросы
+3. Объясняй через простые аналогии
+4. Проверяй понимание
+5. Если студент застрял — разбей задачу на более простые шаги
+
+Стиль: дружелюбный, терпеливый, мотивирующий.
+
+Начинай диалог так: "Привет! Я помогу разобраться с темой.
+Расскажи, что уже понял, и где возникли сложности?"</pre>
+    </div>
+  </div>
+
+  <div class="level-panel" data-level-panel="2" hidden>
+    <p class="level-note">2–4 недели на внедрение. Диагностируйте пробелы и разделите студентов на треки.</p>
+    <div class="prompt-box">
+      <div class="prompt-head">
+        <span>Промпт: диагностические вопросы</span>
+        <button type="button" class="copy-btn" data-copy="prompt-2">Скопировать</button>
+      </div>
+      <pre id="prompt-2">Создай 10 диагностических вопросов по теме [название],
+которые покажут пробелы в знаниях студентов.
+
+Требования:
+- Вопросы должны быть разной сложности
+- Каждый вопрос тестирует конкретный аспект понимания
+- Включи объяснение, какой пробел выявляет каждый вопрос</pre>
+    </div>
+  </div>
+
+  <div class="level-panel" data-level-panel="3" hidden>
+    <p class="level-note">Долгосрочная стратегия. Обучите ИИ стать полноценным экспертом по вашему курсу.</p>
+    <div class="prompt-box">
+      <div class="prompt-head">
+        <span>Промпт: адаптивные учебные материалы</span>
+        <button type="button" class="copy-btn" data-copy="prompt-3">Скопировать</button>
+      </div>
+      <pre id="prompt-3">Ты — методист курса [название]. Вот базовый материал лекции [текст].
+
+Создай адаптивную версию:
+1. Вводный тест на 5 вопросов для определения уровня
+2. Три версии материала: базовая, стандартная, углубленная
+3. Практические задания для каждого уровня
+4. Критерии, когда переводить студента на следующий уровень</pre>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:28px">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/09_tri_urovnya_vnedreniya.webp" alt="Три уровня внедрения ИИ-тьютора: быстрый старт, продвинутый, системный" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Три уровня внедрения ИИ-тьютора</figcaption>
+  </figure>
+</section>
+
+<section class="sec" id="cheklist">
+  <div class="sec-head fade">
+    <div class="num-badge n9">9</div>
+    <h2 class="sec-title">Чек-лист: готовы ли вы начать</h2>
+    <p class="sec-desc">Отметьте пункты по мере готовности — прогресс сохраняется в этом браузере.</p>
+  </div>
+
+  <div class="card fade">
+    <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="checklist-progress"></div></div>
+    <ul class="checklist-items">
+      <li><label><input type="checkbox" data-checklist-item="0"> Выбрали ИИ-платформу (GigaChat, ChatGPT, Claude)</label></li>
+      <li><label><input type="checkbox" data-checklist-item="1"> Определили 2–3 задачи для автоматизации</label></li>
+      <li><label><input type="checkbox" data-checklist-item="2"> Создали базовый промпт для ИИ-тьютора</label></li>
+      <li><label><input type="checkbox" data-checklist-item="3"> Протестировали на себе</label></li>
+      <li><label><input type="checkbox" data-checklist-item="4"> Готовы объяснить студентам, как использовать</label></li>
+      <li><label><input type="checkbox" data-checklist-item="5"> Запланировали точку оценки результатов (через 2 недели)</label></li>
+    </ul>
+    <p class="checklist-done" id="checklist-done" hidden>Все пункты отмечены — вы готовы! Начинайте прямо сегодня.</p>
+  </div>
+</section>
+
+<section class="sec" id="kviz">
+  <div class="sec-head fade">
+    <div class="num-badge n1">10</div>
+    <h2 class="sec-title">Проверьте себя</h2>
+    <p class="sec-desc">Пять вопросов по материалу лекции — ответьте и посмотрите разбор.</p>
+  </div>
+
+  <div class="quiz fade">
+    <div class="quiz-question" data-quiz="0">
+      <p class="quiz-text">1. Что из перечисленного — это НАСТОЯЩАЯ персонализация, а не просто дифференциация или гибкость?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q0" value="wrong"> Разрешить сдать работу в любом формате</label>
+        <label><input type="radio" name="q0" value="right"> Система постоянно подбирает содержание, темп и формат под конкретного студента</label>
+        <label><input type="radio" name="q0" value="wrong"> Дать отличникам задания посложнее</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="0">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="0" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="1">
+      <p class="quiz-text">2. Современные метаанализы (2020–2026) эффекта индивидуального тьюторства показывают, что средний студент с тьютором обгоняет примерно:</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q1" value="wrong"> 98% группы, как и предполагал Блум в 1984</label>
+        <label><input type="radio" name="q1" value="right"> 64–79% группы, в зависимости от исследования</label>
+        <label><input type="radio" name="q1" value="wrong"> Эффекта не обнаружено вовсе</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="1">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="1" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="2">
+      <p class="quiz-text">3. В чём ключевая идея сократовского метода Khanmigo?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q2" value="wrong"> Дать студенту готовый правильный ответ как можно быстрее</label>
+        <label><input type="radio" name="q2" value="right"> Вести студента к ответу через наводящие вопросы, а не выдавать решение</label>
+        <label><input type="radio" name="q2" value="wrong"> Оценивать студента без обратной связи</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="2">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="2" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="3">
+      <p class="quiz-text">4. Какая формулировка про ИИ-тьюторов и данные студентов верна?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q3" value="wrong"> Любой чат-бот безопасен для учебных данных по умолчанию</label>
+        <label><input type="radio" name="q3" value="right"> Для работы со студентами стоит использовать корпоративные версии с политикой конфиденциальности</label>
+        <label><input type="radio" name="q3" value="wrong"> Персональные данные можно свободно передавать в любой публичный сервис</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="3">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="3" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="4">
+      <p class="quiz-text">5. Что показывает кейс Carnegie Learning MATHia про статус ESSA Tier 1?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q4" value="wrong"> Tier 1 присвоен именно программе MATHia отдельно от всего остального</label>
+        <label><input type="radio" name="q4" value="right"> Tier 1 присвоен всему комплексному курсу Math Solution; сама MATHia отдельно — Tier 2</label>
+        <label><input type="radio" name="q4" value="wrong"> ESSA Tier — это внутренний рейтинг самой компании Carnegie Learning</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="4">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="4" hidden></p>
+    </div>
+
+    <div class="quiz-score-box">
+      <p id="quiz-score">Отвечено: 0 / 5</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="zaklyuchenie">
+  <div class="sec-head fade">
+    <h2 class="sec-title">Заключение: персонализация — это новая норма</h2>
+  </div>
+  <ol class="conclusion-list fade">
+    <li><strong>Массовое образование</strong> — система XIX века, которая больше не отвечает вызовам времени</li>
+    <li>Персонализация — <strong>не роскошь, а необходимость</strong> для эффективного обучения</li>
+    <li>ИИ-тьюторы — технология, которая впервые делает персонализацию масштабируемой</li>
+    <li>Возможности уже здесь — Duolingo, Khan Academy, российские колледжи показывают результаты</li>
+    <li>Преподаватель <strong>не заменяется</strong> — он освобождается для по-настоящему важных задач</li>
+  </ol>
+  <figure class="img-card fade" data-lightbox style="margin:28px 0">
+    <img decoding="async" src="../png/personalizaciya_tyutorstvo/10_dorozhnaya_karta_pedagoga.webp" alt="Дорожная карта педагога: пять шагов от осознания проблемы массового образования до партнёрства с ИИ" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Дорожная карта педагога</figcaption>
+  </figure>
+  <p class="fade" style="color:var(--muted);max-width:700px">После этой лекции вас ждут практические занятия: исследование ИИ-платформ и настройка собственного тьютора в GigaChat, а затем — разработка личного плана внедрения персонализации в вашем курсе.</p>
+</section>
+
+</main>
+
+<div class="overlay" id="lightbox" aria-hidden="true">
+  <a class="overlay-download" id="lightbox-download" download aria-label="Скачать изображение">⬇ Скачать</a>
+  <button class="overlay-close" id="lightbox-close" aria-label="Закрыть">✕</button>
+  <img id="lightbox-img" alt="">
+</div>
+
+<footer>
+  <p>Лекция 3.3 «Персонализация и тьюторство с помощью ИИ» · Клуб Образование · 2026</p>
+  <p style="margin-top:6px"><a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="color:#6366f1;font-weight:700;text-decoration:none">iivobrazovanii.club</a></p>
+</footer>
+
+<script>
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (!reduceMotion && "IntersectionObserver" in window) {
+  const reveal = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in");
+        reveal.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.06, rootMargin: "0px 0px -24px"});
+  document.querySelectorAll(".fade").forEach((element) => reveal.observe(element));
+} else {
+  document.querySelectorAll(".fade").forEach((element) => element.classList.add("in"));
+}
+
+const navLinks = [...document.querySelectorAll(".nav-link")];
+const sections = [...document.querySelectorAll("main section[id]")];
+if ("IntersectionObserver" in window) {
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach((link) => {
+        link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`);
+      });
+    });
+  }, {rootMargin: "-35% 0px -55%", threshold: 0});
+  sections.forEach((section) => sectionObserver.observe(section));
+}
+
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+const lightboxDownload = document.getElementById("lightbox-download");
+function brandedFilename(url) {
+  const name = url.split("/").pop().split("?")[0];
+  return `iivobrazovanii-club_${name}`;
+}
+document.querySelectorAll(".img-card[data-lightbox]").forEach((card) => {
+  card.addEventListener("click", () => {
+    if (card.classList.contains("img-missing")) return;
+    const img = card.querySelector("img");
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightboxDownload.href = img.src.replace(/\.webp$/i, ".png");
+    lightboxDownload.download = brandedFilename(img.src.replace(/\.webp$/i, ".png"));
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+  });
+});
+function closeLightbox() {
+  if (lightbox.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  lightbox.classList.remove("open");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightboxImg.src = "";
+}
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", (event) => { if (event.target === lightbox) closeLightbox(); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeLightbox(); });
+
+document.querySelectorAll(".bloom-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".bloom-tab").forEach((t) => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+    tab.classList.add("active");
+    tab.setAttribute("aria-selected", "true");
+    const target = tab.dataset.bloom;
+    document.querySelectorAll("[data-bloom-view]").forEach((view) => {
+      view.hidden = view.dataset.bloomView !== target;
+    });
+  });
+});
+
+const dialogLines = [
+  {who: "student", text: "Как решить 2x + 5 = 13?"},
+  {who: "khanmigo", text: "Отлично! Что нужно сделать, чтобы x остался один слева?"},
+  {who: "student", text: "Убрать 5?"},
+  {who: "khanmigo", text: "Верно! Как «убрать»? Помни про баланс весов."},
+  {who: "student", text: "Вычесть 5 с обеих сторон?"},
+  {who: "khanmigo", text: "Точно! Попробуй."},
+];
+const dialogLog = document.getElementById("dialog-log");
+const dialogNextBtn = document.getElementById("dialog-next");
+let dialogStep = 0;
+function renderDialogStep() {
+  if (dialogStep >= dialogLines.length) {
+    dialogNextBtn.textContent = "Диалог завершён";
+    dialogNextBtn.disabled = true;
+    return;
+  }
+  const line = dialogLines[dialogStep];
+  const bubble = document.createElement("div");
+  bubble.className = `dialog-bubble ${line.who}`;
+  bubble.textContent = line.text;
+  bubble.setAttribute("data-dialog-line", String(dialogStep));
+  dialogLog.appendChild(bubble);
+  dialogStep += 1;
+  if (dialogStep >= dialogLines.length) {
+    dialogNextBtn.textContent = "Диалог завершён";
+    dialogNextBtn.disabled = true;
+  }
+}
+dialogNextBtn.addEventListener("click", renderDialogStep);
+
+document.querySelectorAll(".level-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".level-tab").forEach((t) => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+    tab.classList.add("active");
+    tab.setAttribute("aria-selected", "true");
+    const target = tab.dataset.level;
+    document.querySelectorAll("[data-level-panel]").forEach((panel) => {
+      panel.hidden = panel.dataset.levelPanel !== target;
+    });
+  });
+});
+
+document.querySelectorAll("[data-copy]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const code = document.getElementById(button.dataset.copy);
+    if (!code) return;
+    const original = button.textContent;
+    try {
+      await navigator.clipboard.writeText(code.innerText);
+      button.textContent = "Скопировано";
+    } catch {
+      button.textContent = "Выделите текст";
+    }
+    window.setTimeout(() => { button.textContent = original; }, 1600);
+  });
+});
+
+const CHECKLIST_KEY = "personalizaciya-checklist";
+const checklistInputs = [...document.querySelectorAll("[data-checklist-item]")];
+const checklistProgress = document.getElementById("checklist-progress");
+const checklistDone = document.getElementById("checklist-done");
+
+function loadChecklistState() {
+  try {
+    return JSON.parse(localStorage.getItem(CHECKLIST_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+function saveChecklistState(state) {
+  try {
+    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+  } catch {
+    /* localStorage unavailable (private mode) — progress just won't persist */
+  }
+}
+function renderChecklistProgress() {
+  const checked = checklistInputs.filter((input) => input.checked).length;
+  const pct = Math.round((checked / checklistInputs.length) * 100);
+  checklistProgress.style.width = `${pct}%`;
+  checklistDone.hidden = checked !== checklistInputs.length;
+}
+
+const savedChecklist = loadChecklistState();
+checklistInputs.forEach((input) => {
+  const key = input.dataset.checklistItem;
+  input.checked = Boolean(savedChecklist[key]);
+  input.addEventListener("change", () => {
+    const state = loadChecklistState();
+    state[key] = input.checked;
+    saveChecklistState(state);
+    renderChecklistProgress();
+  });
+});
+renderChecklistProgress();
+
+let quizAnswered = 0;
+const quizScoreEl = document.getElementById("quiz-score");
+document.querySelectorAll(".quiz-check").forEach((button) => {
+  button.addEventListener("click", () => {
+    const index = button.dataset.quizCheck;
+    const question = document.querySelector(`.quiz-question[data-quiz="${index}"]`);
+    const selected = question.querySelector(`input[name="q${index}"]:checked`);
+    const feedback = document.querySelector(`[data-quiz-feedback="${index}"]`);
+    if (!selected) {
+      feedback.textContent = "Выберите вариант ответа.";
+      feedback.className = "quiz-feedback incorrect";
+      feedback.hidden = false;
+      return;
+    }
+    const alreadyAnswered = button.disabled;
+    const isCorrect = selected.value === "right";
+    feedback.textContent = isCorrect ? "Верно!" : "Не совсем — посмотрите выделенный правильный вариант выше.";
+    feedback.className = `quiz-feedback ${isCorrect ? "correct" : "incorrect"}`;
+    feedback.hidden = false;
+    question.querySelectorAll("input").forEach((input) => { input.disabled = true; });
+    question.querySelector('input[value="right"]').closest("label").classList.add("quiz-correct-answer");
+    button.disabled = true;
+    if (!alreadyAnswered) {
+      quizAnswered += 1;
+      quizScoreEl.textContent = `Отвечено: ${quizAnswered} / 5`;
+    }
+  });
+});
+</script>
+</body>
+</html>

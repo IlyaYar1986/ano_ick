@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM — Как работают большие языковые модели · ИЦК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* Палитра АНО ДПО «Институт цифровых компетенций» — см. ../../Бренд ИЦК/ДНК_и_стиль_ИЦК.md */
+:root{
+  --bg:#f4f5fa;
+  --card:#ffffff;
+  --border:#e3e3e8;
+  --indigo:#6654d9;
+  --indigo-dark:#562d86;
+  --indigo-lt:#f0eefc;
+  --cyan:#0090cf;
+  --text:#2c2d30;
+  --muted:#6b6f80;
+  --nav-h:56px;
+}
+
+html{scroll-behavior:smooth;background:var(--bg)}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,0.07);
+  display:flex;align-items:center;padding:0 22px;z-index:900;
+  gap:2px;overflow-x:auto;scrollbar-width:none
+}
+nav::-webkit-scrollbar{display:none}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.93rem;color:var(--indigo-dark);white-space:nowrap;margin-right:14px;flex-shrink:0}
+.nav-logo img{height:30px;width:auto;display:block}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-link{padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;flex-shrink:0}
+.nav-link:hover,.nav-link.active{color:var(--indigo);background:#f0eefc}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;padding:calc(var(--nav-h) + 60px) 24px 72px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(155deg,#f0eefc 0%,#f8f9fc 50%,#e6f5fc 100%);
+  position:relative;overflow:hidden
+}
+/* Два логотипа: заказчик (ИЦК) и автор (клуб «ИИ в образованИИ») */
+.hero-logos{display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:28px;flex-wrap:wrap}
+.hero-logos img{display:block;width:auto}
+.hero-logos .logo-ick{height:clamp(52px,7vw,76px)}
+.hero-logos .logo-club{height:clamp(76px,10vw,112px)}
+.hero-logos-sep{width:1px;height:56px;background:var(--border)}
+
+span.hero-eyebrow{cursor:default}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;padding:5px 16px;
+  background:#f0eefc;border:1px solid #d6d0f5;border-radius:100px;
+  font-size:.79rem;font-weight:700;color:var(--indigo);margin-bottom:24px;
+  text-decoration:none;cursor:pointer;
+  transition:background .2s,box-shadow .2s,transform .15s
+}
+.hero-eyebrow:hover{
+  background:#e6e2fa;box-shadow:0 4px 16px rgba(102,84,217,.2);transform:translateY(-1px)
+}
+.hero-title{
+  font-size:clamp(2.5rem,6.5vw,5rem);font-weight:900;line-height:1.06;
+  letter-spacing:-2px;margin-bottom:18px;color:var(--text)
+}
+.hero-title em{color:var(--indigo);font-style:normal}
+.hero-sub{font-size:1.08rem;color:var(--muted);max-width:520px;margin-bottom:48px}
+.hero-img{max-width:880px;width:100%}
+.hero-img img{width:100%;border-radius:16px;box-shadow:0 24px 80px rgba(102,84,217,0.18),0 0 0 1px rgba(102,84,217,0.1);cursor:zoom-in;display:block}
+
+/* ── SECTION WRAPPER ── */
+.sec{max-width:1200px;margin:0 auto;padding:72px 32px}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-title{font-size:clamp(1.55rem,3.2vw,2.4rem);font-weight:800;letter-spacing:-.5px;margin-bottom:12px;color:var(--text)}
+.sec-desc{font-size:1rem;color:var(--muted);max-width:700px;margin:0 auto;line-height:1.78}
+
+.num-badge{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;font-size:1.25rem;font-weight:900;color:#fff;margin-bottom:18px}
+/* Бейджи идут по градиенту логотипа ИЦК: от голубого к фиолетовому */
+.n1{background:linear-gradient(135deg,#00abea,#0090cf)}
+.n2{background:linear-gradient(135deg,#0090cf,#2868ab)}
+.n3{background:linear-gradient(135deg,#2868ab,#464f9a)}
+.n4{background:linear-gradient(135deg,#464f9a,#533389)}
+.n5{background:linear-gradient(135deg,#533389,#562d86)}
+.n6{background:linear-gradient(135deg,#562d86,#6654d9)}
+.n7{background:linear-gradient(135deg,#6654d9,#725ef2)}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--border)}
+
+/* ── VIZ CARD (iframe) ── */
+.viz{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07)}
+.viz-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#f8fafc;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febb2c}.dg{background:#27c840}
+.viz-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);flex:1}
+.viz-fs{display:flex;align-items:center;gap:5px;padding:4px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;font-size:.71rem;font-weight:600;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s;white-space:nowrap}
+.viz-fs:hover{background:#f0eefc;color:var(--indigo);border-color:#d6d0f5}
+.viz iframe{width:100%;border:none;display:block}
+
+/* ── FULL-BLEED IMAGE ── */
+.img-bleed{width:100%;display:block;cursor:zoom-in;overflow:hidden}
+.img-bleed img{width:100%;height:auto;display:block;transition:transform .3s ease}
+.img-bleed:hover img{transform:scale(1.005)}
+
+/* ── EXTERNAL LINK ── */
+.ext{display:flex;align-items:center;gap:12px;padding:16px 22px;background:#eaf6fc;border:1px solid #b5e0f5;border-radius:12px;text-decoration:none;color:#0079b0;font-weight:600;font-size:.93rem;transition:background .2s,transform .15s,box-shadow .2s}
+.ext:hover{background:#dcf0fa;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,144,207,.14)}
+.ext-arrow{margin-left:auto;opacity:.6}
+
+/* ── LAYOUT ── */
+.col{display:flex;flex-direction:column;gap:24px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.gap{margin-top:16px}
+
+/* ── SCROLL FADE ── */
+.f{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.f.in{opacity:1;transform:none}
+
+/* ────────────────────────────
+   LIGHTBOX
+──────────────────────────── */
+#lightbox{
+  position:fixed;inset:0;background:rgba(2,6,23,0.94);z-index:3000;
+  display:none;flex-direction:column;align-items:stretch;justify-content:stretch
+}
+#lightbox.open{display:flex}
+#lb-bar{
+  display:flex;align-items:center;padding:10px 16px;gap:12px;flex-shrink:0;
+  background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.08)
+}
+#lb-bar-title{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.5);flex:1}
+#lb-hint-bar{font-size:.72rem;color:rgba(255,255,255,.38);white-space:nowrap}
+#lb-close-btn{
+  width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.8);font-size:1.15rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .2s
+}
+#lb-close-btn:hover{background:rgba(255,255,255,.2)}
+#lb-download-btn{
+  height:34px;padding:0 14px;border-radius:8px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.85);font-size:.76rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:6px;text-decoration:none;transition:background .2s;flex-shrink:0
+}
+#lb-download-btn:hover{background:rgba(255,255,255,.2)}
+#lb-wrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none;position:relative}
+#lb-wrap.grabbing{cursor:grabbing}
+#lb-img{transform-origin:center center;max-width:none;max-height:none;pointer-events:none;display:block;will-change:transform}
+
+/* ────────────────────────────
+   FULLSCREEN OVERLAY
+──────────────────────────── */
+#fs-overlay{
+  position:fixed;inset:0;background:rgba(2,6,23,.92);z-index:2000;
+  display:none;flex-direction:column
+}
+#fs-overlay.open{display:flex}
+#fs-bar{
+  display:flex;align-items:center;padding:10px 16px;background:#1e293b;
+  border-bottom:1px solid #334155;gap:10px;flex-shrink:0
+}
+#fs-bar-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#94a3b8;flex:1}
+#fs-close-btn{
+  width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.8);font-size:1.15rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .2s
+}
+#fs-close-btn:hover{background:rgba(255,255,255,.2)}
+#fs-frame{flex:1;border:none;background:white}
+
+/* ── FOOTER ── */
+footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;border-top:1px solid var(--border);background:white}
+.footer-logos{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:16px}
+.footer-logos img{height:44px;width:auto;display:block}
+.footer-logos img[src$="logo_club_bulb.png"]{height:62px}
+.footer-line{height:3px;max-width:240px;margin:0 auto 18px;border-radius:3px;background:linear-gradient(90deg,#00abea,#2868ab,#562d86)}
+
+/* ── HERO CTA BUTTON ── */
+.hero-cta{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:13px 24px;
+  background:var(--indigo);color:#fff;
+  border-radius:100px;font-size:.95rem;font-weight:700;
+  text-decoration:none;
+  box-shadow:0 6px 24px rgba(102,84,217,.35);
+  transition:background .2s,transform .15s,box-shadow .2s
+}
+.hero-cta:hover{background:var(--indigo-dark);transform:translateY(-2px);box-shadow:0 10px 32px rgba(102,84,217,.45)}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.hero-cta.secondary{background:#fff;color:var(--indigo);border:1px solid #d6d0f5;box-shadow:0 6px 20px rgba(102,84,217,.12)}
+.hero-cta.secondary:hover{background:#f0eefc;color:var(--indigo-dark);box-shadow:0 10px 28px rgba(102,84,217,.18)}
+.hero-cta svg{flex-shrink:0}
+.hero-cta .cta-arrow{opacity:.75;font-size:1.1rem}
+
+/* ── NAV ANSWERS LINK ── */
+.nav-link-cta{
+  padding:5px 12px;border-radius:6px;font-size:.73rem;font-weight:700;
+  color:var(--indigo);background:var(--indigo-lt);
+  text-decoration:none;white-space:nowrap;flex-shrink:0;
+  border:1px solid #d6d0f5;
+  transition:background .2s,box-shadow .2s
+}
+.nav-link-cta:hover{background:#e6e2fa;box-shadow:0 2px 8px rgba(102,84,217,.2)}
+
+@media(max-width:720px){.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LIGHTBOX ══════════════ -->
+<div id="lightbox">
+  <div id="lb-bar">
+    <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+    <span id="lb-bar-title"></span>
+    <span id="lb-hint-bar">Прокрутка — масштаб &nbsp;·&nbsp; Перетащи для перемещения &nbsp;·&nbsp; ESC — закрыть</span>
+    <a id="lb-download-btn" download aria-label="Скачать изображение">⬇ Скачать</a>
+    <button id="lb-close-btn" onclick="closeLb()">✕</button>
+  </div>
+  <div id="lb-wrap"><img id="lb-img" src="" alt=""></div>
+</div>
+
+<!-- ══════════════ FULLSCREEN IFRAME ══════════════ -->
+<div id="fs-overlay">
+  <div id="fs-bar">
+    <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+    <span id="fs-bar-title"></span>
+    <button id="fs-close-btn" onclick="closeFs()">✕</button>
+  </div>
+  <iframe id="fs-frame" src=""></iframe>
+</div>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav>
+  <a class="nav-link" href="oglavlenie.html">← Оглавление</a>
+  <div class="nav-sep"></div>
+  <span class="nav-logo"><img src="png/brand/logo_ick.png" alt="Институт цифровых компетенций">LLM: Как работает</span>
+  <div class="nav-sep"></div>
+  <a class="nav-link" href="#hero">Начало</a>
+  <a class="nav-link" href="#s1">1. Данные</a>
+  <a class="nav-link" href="#s2">2. Токены</a>
+  <a class="nav-link" href="#s3">3. Эмбеддинги</a>
+  <a class="nav-link" href="#s4">4. Трансформер</a>
+  <a class="nav-link" href="#s5">5. Обучение</a>
+  <a class="nav-link" href="#s6">6. Генерация</a>
+  <a class="nav-link" href="#s7">7. Эволюция</a>
+  <div class="nav-sep"></div>
+  <a class="nav-link-cta" href="web/seminar_25_45.html">Семинар 25 + 45 →</a>
+  <a class="nav-link-cta" href="web/agentnye_sistemy.html">Занятие 2: агенты →</a>
+  <a class="nav-link-cta" href="web/instrumenty_mcp_skills.html">Практика: MCP + Skills →</a>
+  <a class="nav-link-cta" href="web/ответы-участников.html">Ответы участникам →</a>
+</nav>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section id="hero">
+  <div class="hero-logos">
+    <img class="logo-ick" src="png/brand/logo_ick.png" alt="АНО ДПО «Институт цифровых компетенций»">
+    <div class="hero-logos-sep"></div>
+    <img class="logo-club" src="png/brand/logo_club_bulb.png" alt="Клуб «ИИ в образованИИ»">
+  </div>
+  <span class="hero-eyebrow">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Повышение квалификации · «Использование LLM и Агентов в работе преподавателя»
+  </span>
+  <h1 class="hero-title">Большие языковые<br><em>модели (LLM)</em></h1>
+  <p class="hero-sub">Как они работают на самом деле — от сбора данных до цепочки мыслей</p>
+  <div class="hero-actions">
+    <a href="web/seminar_25_45.html" class="hero-cta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 5h16"/><path d="M4 12h10"/><path d="M4 19h7"/><path d="m16 16 3 3 3-3"/><path d="M19 11v8"/></svg>
+      Семинар: 25 + 45 минут
+      <span class="cta-arrow">→</span>
+    </a>
+    <a href="web/agentnye_sistemy.html" class="hero-cta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="8"/></svg>
+      Занятие 2: агентные системы
+      <span class="cta-arrow">→</span>
+    </a>
+    <a href="web/instrumenty_mcp_skills.html" class="hero-cta secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/><circle cx="18" cy="17" r="2"/></svg>
+      Практика: инструменты, MCP и Skills
+      <span class="cta-arrow">→</span>
+    </a>
+    <a href="web/ответы-участников.html" class="hero-cta secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Ответы на вопросы участников
+      <span class="cta-arrow">→</span>
+    </a>
+  </div>
+  <div class="hero-img">
+    <img src="png/ChatGPT Image 26 апр. 2026 г., 16_35_12.webp" alt="LLM Overview" onclick="openLb(this.src,'Обзор')">
+  </div>
+</section>
+
+<!-- ══════════════ ВВЕДЕНИЕ ══════════════ -->
+<div id="intro" style="background:rgba(255,255,255,0.90)">
+  <div class="sec" style="padding-bottom:32px">
+    <div class="sec-head f">
+      <h2 class="sec-title">Введение: Откуда появился GPT?</h2>
+      <p class="sec-desc"><strong>G</strong> — Generative &nbsp;·&nbsp; <strong>P</strong> — Pre-trained &nbsp;·&nbsp; <strong>T</strong> — Transformer</p>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_49_13.webp','Архитектура GPT')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_49_13.webp" alt="Архитектура GPT">
+  </div>
+  <div class="img-bleed gap f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_49_41.webp','Схема GPT')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_49_41.webp" alt="Схема GPT">
+  </div>
+  <div style="height:72px"></div>
+</div>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 1 ══════════════ -->
+<section id="s1">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n1">1</div>
+      <h2 class="sec-title">Сбор данных и очистка</h2>
+      <p class="sec-desc">Краулеры собирают триллионы токенов. Очистка удаляет мусор и дубликаты. Доминирование английского языка формирует «англоязычный акцент» ИИ навсегда.</p>
+    </div>
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Симуляция веб-краулера</span>
+          <button class="viz-fs" onclick="openFs('web/parser.html','Симуляция веб-краулера')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/parser.html" height="558"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_49_52.webp','Сбор данных')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_49_52.webp" alt="Сбор данных">
+  </div>
+  <div class="img-bleed gap f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_49_57.webp','Очистка данных')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_49_57.webp" alt="Очистка данных">
+  </div>
+  <div style="height:72px"></div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 2 ══════════════ -->
+<section id="s2" style="background:rgba(255,255,255,0.90)">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n2">2</div>
+      <h2 class="sec-title">Токенизация</h2>
+      <p class="sec-desc">Нейросети работают только с числами. BPE находит самые частые пары символов и объединяет их. Модель предсказывает не слово, а следующий токен.</p>
+    </div>
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Интерактивный токенизатор — сравни три режима</span>
+          <button class="viz-fs" onclick="openFs('web/tokenizator.html','Токенизатор')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/tokenizator.html" height="468"></iframe>
+      </div>
+      <div class="row2 f">
+        <div class="viz">
+          <div class="viz-bar">
+            <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+            <span class="viz-lbl">Алгоритм BPE</span>
+            <button class="viz-fs" onclick="openFs('web/алгоритма BPE.html','Алгоритм BPE')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              На весь экран
+            </button>
+          </div>
+          <iframe src="web/алгоритма BPE.html" height="440"></iframe>
+        </div>
+        <div class="viz">
+          <div class="viz-bar">
+            <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+            <span class="viz-lbl">SentencePiece</span>
+            <button class="viz-fs" onclick="openFs('web/алгоритма SentencePiece.html','SentencePiece')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              На весь экран
+            </button>
+          </div>
+          <iframe src="web/алгоритма SentencePiece.html" height="440"></iframe>
+        </div>
+      </div>
+      <a href="https://tiktokenizer.vercel.app/" target="_blank" class="ext f">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Попробуй токенизатор GPT-4 онлайн — tiktokenizer.vercel.app
+        <svg class="ext-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 3 ══════════════ -->
+<section id="s3">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n3">3</div>
+      <h2 class="sec-title">Эмбеддинги и латентное пространство</h2>
+      <p class="sec-desc">Каждое слово — точка в пространстве из тысяч измерений. Контекстуальные эмбеддинги меняют координаты «на лету», учитывая соседей — так модель различает омонимы.</p>
+    </div>
+    <div class="col">
+      <div class="viz f" style="height:578px">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">3D-латентное пространство — вращай и исследуй</span>
+          <button class="viz-fs" onclick="openFs('web/word_embeddings_3d.html','3D Латентное пространство')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/word_embeddings_3d.html" height="540"></iframe>
+      </div>
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Омонимы и контекст — как слово меняет смысл</span>
+          <button class="viz-fs" onclick="openFs('web/omonimy2.html','Омонимы и контекст')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/omonimy2.html" height="560"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_50_06.webp','Эмбеддинги')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_50_06.webp" alt="Эмбеддинги">
+  </div>
+  <div style="height:72px"></div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 4 ══════════════ -->
+<section id="s4" style="background:rgba(255,255,255,0.90)">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n4">4</div>
+      <h2 class="sec-title">Архитектура Трансформера и механизм внимания</h2>
+      <p class="sec-desc">Self-Attention позволяет каждому слову «видеть» все остальные. MLP-слои хранят выученные факты. 12 голов внимания работают параллельно, каждая со своей специализацией.</p>
+    </div>
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Механизм Self-Attention — умный прожектор</span>
+          <button class="viz-fs" onclick="openFs('web/механизм Attension2.html','Механизм Self-Attention')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/механизм Attension2.html" height="600"></iframe>
+      </div>
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Математика QKV — Query · Key · Value</span>
+          <button class="viz-fs" onclick="openFs('web/математика внимания.html','Математика QKV')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/математика внимания.html" height="580"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_50_13.webp','Архитектура Трансформера')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_50_13.webp" alt="Трансформер">
+  </div>
+  <div class="img-bleed gap f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_50_31.webp','Многоголовое внимание')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_50_31.webp" alt="Многоголовое внимание">
+  </div>
+  <div class="sec">
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Слои MLP — хранилище знаний нейросети</span>
+          <button class="viz-fs" onclick="openFs('web/Слои MLP.html','Слои MLP')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/Слои MLP.html" height="588"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 5 ══════════════ -->
+<section id="s5">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n5">5</div>
+      <h2 class="sec-title">Этапы обучения</h2>
+      <p class="sec-desc">Pre-training: чтение всего интернета — предсказание следующего токена. SFT: тонкая настройка на примерах диалогов. RLHF: оценки людей «выравнивают» модель под человеческие ценности.</p>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_50_43.webp','Этапы обучения')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_50_43.webp" alt="Этапы обучения">
+  </div>
+  <div class="sec">
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">SFT · LoRA · RLHF — три этапа превращения модели в ассистента</span>
+          <button class="viz-fs" onclick="openFs('web/процесс обучения.html','SFT · LoRA · RLHF')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/процесс обучения.html" height="660"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 6 ══════════════ -->
+<section id="s6" style="background:rgba(255,255,255,0.90)">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n6">6</div>
+      <h2 class="sec-title">Управление генерацией</h2>
+      <p class="sec-desc">Каждый ответ — статистический бросок кубика со 100 000 гранями. Температура, Top-K, Top-P и Min-P задают баланс точности и креативности.</p>
+    </div>
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Инференс и сэмплирование — как рождается ответ</span>
+          <button class="viz-fs" onclick="openFs('web/процесс Инференс и Сэмплирование.html','Инференс и сэмплирование')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/процесс Инференс и Сэмплирование.html" height="700"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_50_48.webp','Параметры генерации')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_50_48.webp" alt="Параметры генерации">
+  </div>
+  <div class="sec">
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Рычаги управления — Temperature · Top-K · Top-P · Min-P</span>
+          <button class="viz-fs" onclick="openFs('web/Рычаги управления нейросетью.html','Рычаги управления')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/Рычаги управления нейросетью.html" height="700"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_50_58.webp','Промпт-инжиниринг')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_50_58.webp" alt="Промпт-инжиниринг">
+  </div>
+  <div style="height:72px"></div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 7 ══════════════ -->
+<section id="s7">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n7">7</div>
+      <h2 class="sec-title">Эволюция ИИ — «Думающие» модели</h2>
+      <p class="sec-desc">От «Системы 1» (мгновенный рефлекс) к «Системе 2» (медленное обдумывание). Reasoning-модели тратят вычислительные ресурсы на рассуждение, самопроверку и поиск ошибок прежде чем ответить.</p>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_51_04.webp','Эволюция ИИ')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_51_04.webp" alt="Эволюция ИИ">
+  </div>
+  <div class="sec">
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Эволюция ИИ — Система 1 против Системы 2</span>
+          <button class="viz-fs" onclick="openFs('web/Эволюция ИИ.html','Эволюция ИИ')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/Эволюция ИИ.html" height="680"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_51_10.webp','Система 2')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_51_10.webp" alt="Система 2">
+  </div>
+  <div class="sec">
+    <div class="col">
+      <div class="viz f">
+        <div class="viz-bar">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="viz-lbl">Переход к Process Reward Models — оценка пути, а не только результата</span>
+          <button class="viz-fs" onclick="openFs('web/Переход к PRM.html','Переход к PRM')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            На весь экран
+          </button>
+        </div>
+        <iframe src="web/Переход к PRM.html" height="680"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="img-bleed f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 15_51_15.webp','PRM')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 15_51_15.webp" alt="PRM">
+  </div>
+  <div class="img-bleed gap f" onclick="openLb('png/ChatGPT Image 26 апр. 2026 г., 17_01_15.webp','Заключение')">
+    <img loading="lazy" decoding="async" src="png/ChatGPT Image 26 апр. 2026 г., 17_01_15.webp" alt="Заключение">
+  </div>
+  <div style="height:72px"></div>
+</section>
+
+<footer>
+  <div class="footer-line"></div>
+  <div class="footer-logos">
+    <img src="png/brand/logo_ick.png" alt="АНО ДПО «Институт цифровых компетенций»">
+    <img src="png/brand/logo_club_bulb.png" alt="Клуб «ИИ в образованИИ»">
+  </div>
+  <p>Программа повышения квалификации «Использование LLM и Агентов в работе преподавателя»</p>
+  <p style="margin-top:4px">АНО ДПО «Институт цифровых компетенций» &nbsp;·&nbsp; Уфа &nbsp;·&nbsp; 2026</p>
+  <p style="margin-top:6px">Автор курса — Илья Чурилов, клуб <a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="color:#6654d9;font-weight:700;text-decoration:none">«ИИ в образованИИ»</a></p>
+</footer>
+
+<script>
+/* ══════════════════════════════
+   LIGHTBOX — zoom at cursor + pan
+══════════════════════════════ */
+const lbEl  = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbWrap= document.getElementById('lb-wrap');
+const lbTitle = document.getElementById('lb-bar-title');
+const lbDownloadBtn = document.getElementById('lb-download-btn');
+function brandedFilename(url) {
+  const name = url.split('/').pop().split('?')[0];
+  return `ick-ufa_${name}`;
+}
+
+let lb = { scale:1, tx:0, ty:0, drag:false, moved:false, sx:0, sy:0, stx:0, sty:0 };
+
+function applyLb() {
+  lbImg.style.transform = `translate(${lb.tx}px,${lb.ty}px) scale(${lb.scale})`;
+}
+
+function openLb(src, title) {
+  lbImg.src = src;
+  lbTitle.textContent = title || '';
+  lbDownloadBtn.href = src.replace(/\.webp$/i, ".png");
+  lbDownloadBtn.download = brandedFilename(src.replace(/\.webp$/i, ".png"));
+  lb.scale = 1; lb.tx = 0; lb.ty = 0;
+  applyLb();
+  lbEl.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLb() {
+  lbEl.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* Zoom at cursor position */
+lbWrap.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = lbWrap.getBoundingClientRect();
+  const cx = e.clientX - rect.left - rect.width  / 2;
+  const cy = e.clientY - rect.top  - rect.height / 2;
+  const factor = e.deltaY < 0 ? 1.12 : 0.893;
+  const newScale = Math.max(0.25, Math.min(12, lb.scale * factor));
+  const ratio = newScale / lb.scale;
+  lb.tx = cx - (cx - lb.tx) * ratio;
+  lb.ty = cy - (cy - lb.ty) * ratio;
+  lb.scale = newScale;
+  applyLb();
+}, { passive: false });
+
+/* Pan */
+lbWrap.addEventListener('mousedown', e => {
+  lb.drag = true; lb.moved = false;
+  lb.sx = e.clientX; lb.sy = e.clientY;
+  lb.stx = lb.tx; lb.sty = lb.ty;
+  lbWrap.classList.add('grabbing');
+  e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!lb.drag) return;
+  const dx = e.clientX - lb.sx;
+  const dy = e.clientY - lb.sy;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) lb.moved = true;
+  lb.tx = lb.stx + dx;
+  lb.ty = lb.sty + dy;
+  applyLb();
+});
+document.addEventListener('mouseup', () => {
+  lb.drag = false;
+  lbWrap.classList.remove('grabbing');
+});
+
+/* Double-click to reset zoom */
+lbWrap.addEventListener('dblclick', () => {
+  lb.moved = false;
+  lb.scale = 1; lb.tx = 0; lb.ty = 0; applyLb();
+});
+
+/* Click backdrop to close — only if it was a real click, not end of drag */
+lbWrap.addEventListener('click', e => {
+  if (lb.moved) { lb.moved = false; return; }
+  if (e.target === lbWrap) closeLb();
+});
+
+/* ══════════════════════════════
+   FULLSCREEN IFRAME
+══════════════════════════════ */
+const fsEl    = document.getElementById('fs-overlay');
+const fsFrame = document.getElementById('fs-frame');
+const fsTitle = document.getElementById('fs-bar-title');
+
+function openFs(src, title) {
+  fsFrame.src = src;
+  fsTitle.textContent = title || '';
+  fsEl.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeFs() {
+  fsEl.classList.remove('open');
+  fsFrame.src = '';
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════
+   ESC KEY
+══════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeLb(); closeFs(); }
+});
+
+/* ══════════════════════════════
+   SCROLL FADE IN
+══════════════════════════════ */
+const io = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+  { threshold: 0.06, rootMargin: '0px 0px -28px 0px' }
+);
+document.querySelectorAll('.f').forEach(el => io.observe(el));
+
+/* ══════════════════════════════
+   ACTIVE NAV
+══════════════════════════════ */
+const navLinks = document.querySelectorAll('.nav-link');
+function setActive(id) {
+  navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+}
+const secObs = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); }),
+  { threshold: 0.22 }
+);
+document.querySelectorAll('section[id]').forEach(s => secObs.observe(s));
+const heroObs = new IntersectionObserver(
+  ([e]) => { if (e.isIntersecting) setActive('hero'); },
+  { threshold: 0.3 }
+);
+const heroEl = document.getElementById('hero');
+if (heroEl) heroObs.observe(heroEl);
+</script>
+</body>
+</html>

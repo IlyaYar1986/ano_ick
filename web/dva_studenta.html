@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Что видит журнал — что видит цифровой след</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --green:#10b981;
+  --green-lt:#ecfdf5;
+  --red:#ef4444;
+  --red-lt:#fef2f2;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.55;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{
+  padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.88rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.tab:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.panels{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+@media (max-width:760px){.panels{grid-template-columns:1fr}}
+.panel{border:1px solid var(--border);border-radius:14px;padding:16px 18px;background:#fff}
+.panel h2{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:12px}
+.grades{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.grade{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.95rem;background:#f1f5f9;color:var(--text);
+}
+.label-verdict{
+  display:inline-block;padding:5px 14px;border-radius:100px;background:#f1f5f9;color:var(--muted);
+  font-weight:700;font-size:.82rem;
+}
+.metric{margin-bottom:12px}
+.metric .m-head{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600;margin-bottom:4px}
+.metric .m-val{font-weight:800}
+.bar{height:12px;border-radius:100px;background:#f1f5f9;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;background:var(--green);transition:width .35s ease,background .35s ease}
+
+.slider-row{display:flex;align-items:center;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
+.slider-row[hidden]{display:none}
+.slider-row label{font-size:.85rem;font-weight:700;color:var(--muted)}
+.slider-row input{flex:1;min-width:160px;accent-color:var(--indigo)}
+.slider-row .week{font-weight:800;color:var(--indigo-dk);min-width:96px;font-size:.9rem}
+
+.action{
+  margin-top:14px;border-radius:12px;padding:13px 16px;font-size:.92rem;line-height:1.55;
+}
+.action.good{background:var(--green-lt);color:#065f46}
+.action.alarm{background:var(--red-lt);color:#991b1b}
+.action strong{display:block;margin-bottom:3px}
+.thesis{
+  margin-top:14px;text-align:center;font-weight:800;font-size:.98rem;color:var(--indigo-dk);
+  background:var(--indigo-lt);border-radius:12px;padding:11px 16px;
+}
+</style>
+</head>
+<body>
+
+<h1>Что видит журнал — и что видит цифровой след</h1>
+
+<div class="tabs" role="tablist" aria-label="Выбор студента">
+  <button type="button" class="tab active" data-student="maria" role="tab" aria-selected="true">Мария 💎 Скрытый потенциал</button>
+  <button type="button" class="tab" data-student="alexey" role="tab" aria-selected="false">Алексей 🚨 Тревожный сигнал</button>
+</div>
+
+<div class="panels">
+  <div class="panel">
+    <h2>Журнал</h2>
+    <div class="grades" id="grades"></div>
+    <span class="label-verdict" id="verdict"></span>
+    <p style="color:var(--muted);font-size:.85rem;margin-top:12px" id="journal-note"></p>
+  </div>
+
+  <div class="panel">
+    <h2>Цифровой след</h2>
+    <div class="slider-row" id="slider-row" hidden>
+      <label for="week">Семестр:</label>
+      <input type="range" id="week" min="1" max="8" value="1" step="1">
+      <span class="week" id="week-label">неделя 1 из 8</span>
+    </div>
+    <div id="metrics"></div>
+  </div>
+</div>
+
+<div class="action" id="action"></div>
+<p class="thesis">Без следа — ярлык. Со следом — помощь вовремя.</p>
+
+<script>
+const STUDENTS = {
+  maria: {
+    grades: ["3", "4", "3", "3", "4", "3"],
+    verdict: "«троечница»",
+    journalNote: "Так Мария выглядит в ведомости: стабильно средние оценки, повода присмотреться вроде бы нет.",
+    metrics: [
+      {name: "Заходы в курс", val: "3–4 раза в неделю", pct: 85},
+      {name: "Дополнительные видео", val: "смотрит почти все", pct: 80},
+      {name: "Активность в чате группы", val: "высокая", pct: 75},
+      {name: "Скачивание доп. материалов", val: "все до одного", pct: 100},
+    ],
+    action: {cls: "good", title: "Что делать преподавателю", text: "Мотивация и интерес есть — не работает подача. Подойти, поговорить, предложить другой формат: больше практики вместо теории. Вместо ярлыка «троечница» вы нашли талантливую студентку."},
+  },
+  alexey: {
+    grades: ["5", "5", "5", "4", "5", "5"],
+    verdict: "«отличник, всё в порядке»",
+    journalNote: "В журнале у Алексея всё отлично. Потяните ползунок семестра — и посмотрите, что происходит на самом деле.",
+    action: {cls: "alarm", title: "Что делать преподавателю", text: "След гаснет на глазах: возможны перегрузка, потеря мотивации, проблемы вне учёбы. Время поговорить лично, предложить помощь и скорректировать нагрузку — до того, как ситуация станет критической."},
+  },
+};
+
+// Метрики Алексея зависят от недели семестра (1..8): от «всё хорошо» к «тревоге»
+function alexeyMetrics(week) {
+  const k = (week - 1) / 7; // 0 → 1
+  const visits = 5 - 4 * k;
+  const daysEarly = 3 - 3 * k;
+  const questions = Math.round(4 - 4 * k);
+  const timeFactor = 1 + k;
+  return [
+    {name: "Заходы в курс", val: `${visits.toFixed(1).replace(".", ",")} раза в неделю`, pct: (visits / 5) * 100},
+    {name: "Сдача работ до дедлайна", val: daysEarly >= 0.5 ? `за ${daysEarly.toFixed(1).replace(".", ",")} дня` : "в последнюю минуту", pct: (daysEarly / 3) * 100},
+    {name: "Вопросы на занятиях", val: `${questions} в неделю`, pct: (questions / 4) * 100},
+    {name: "Время на задание", val: `×${timeFactor.toFixed(1).replace(".", ",")} от обычного`, pct: 100 - 50 * k},
+  ];
+}
+
+const gradesEl = document.getElementById("grades");
+const verdictEl = document.getElementById("verdict");
+const journalNoteEl = document.getElementById("journal-note");
+const metricsEl = document.getElementById("metrics");
+const sliderRow = document.getElementById("slider-row");
+const weekInput = document.getElementById("week");
+const weekLabel = document.getElementById("week-label");
+const actionEl = document.getElementById("action");
+let current = "maria";
+
+function barColor(pct) {
+  if (pct >= 66) return "var(--green)";
+  if (pct >= 35) return "#f59e0b";
+  return "var(--red)";
+}
+
+function renderMetrics(list) {
+  metricsEl.innerHTML = list.map((metric) => {
+    const pct = Math.max(6, Math.round(metric.pct));
+    return `<div class="metric">
+      <div class="m-head"><span>${metric.name}</span><span class="m-val">${metric.val}</span></div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%;background:${barColor(pct)}"></div></div>
+    </div>`;
+  }).join("");
+}
+
+function render() {
+  const student = STUDENTS[current];
+  gradesEl.innerHTML = student.grades.map((grade) => `<span class="grade">${grade}</span>`).join("");
+  verdictEl.textContent = `Вывод по журналу: ${student.verdict}`;
+  journalNoteEl.textContent = student.journalNote;
+  actionEl.className = `action ${student.action.cls}`;
+  actionEl.innerHTML = `<strong>${student.action.title}</strong>${student.action.text}`;
+  if (current === "alexey") {
+    sliderRow.hidden = false;
+    renderMetrics(alexeyMetrics(Number(weekInput.value)));
+  } else {
+    sliderRow.hidden = true;
+    renderMetrics(student.metrics);
+  }
+}
+
+weekInput.addEventListener("input", () => {
+  weekLabel.textContent = `неделя ${weekInput.value} из 8`;
+  renderMetrics(alexeyMetrics(Number(weekInput.value)));
+});
+
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+    tab.classList.add("active");
+    tab.setAttribute("aria-selected", "true");
+    current = tab.dataset.student;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPE Алгоритм: Симуляция</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --token-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 10px; }
+        p.desc { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 30px; }
+
+        .sequence-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            min-height: 80px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .token {
+            padding: 8px 12px;
+            background: var(--token-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .token.highlight {
+            border-color: var(--secondary);
+            background: #fdf2f8;
+            transform: scale(1.1);
+        }
+
+        .token.merged {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .stats-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .freq-list {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .freq-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .freq-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-family: monospace;
+        }
+
+        .freq-item.top {
+            background: #eef2ff;
+            color: var(--primary);
+            font-weight: bold;
+            border-left: 4px solid var(--primary);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        #btn-merge { background: var(--primary); color: white; }
+        #btn-reset { background: #e2e8f0; color: var(--text); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Симулятор алгоритма BPE</h1>
+    <p class="desc">Корпус: «eat eats eated». Шаг 1 — убираем пробелы, раскладываем на отдельные символы. Далее BPE находит самую частую пару и объединяет её в новый токен.</p>
+
+    <div class="sequence-area" id="sequence"></div>
+
+    <div class="stats-area">
+        <div class="freq-list">
+            <div class="freq-title">
+                <span>Пары символов</span>
+                <span>Частота</span>
+            </div>
+            <div id="freq-items"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-merge" onclick="stepBPE()">Выполнить слияние</button>
+        <button id="btn-reset" onclick="resetBPE()">Сброс</button>
+    </div>
+</div>
+
+<script>
+    const initialText = ['e', 'a', 't', 'e', 'a', 't', 's', 'e', 'a', 't', 'e', 'd'];
+    let currentSequence = [...initialText];
+    
+    const seqEl = document.getElementById('sequence');
+    const freqEl = document.getElementById('freq-items');
+    const mergeBtn = document.getElementById('btn-merge');
+
+    function getFrequencies() {
+        const freqs = {};
+        for (let i = 0; i < currentSequence.length - 1; i++) {
+            const pair = `${currentSequence[i]}|${currentSequence[i+1]}`;
+            // Не считаем пары, разделенные пробелом в реальности (здесь всё едино)
+            freqs[pair] = (freqs[pair] || 0) + 1;
+        }
+        return Object.entries(freqs).sort((a, b) => b[1] - a[1]);
+    }
+
+    function render() {
+        // Render Sequence
+        seqEl.innerHTML = '';
+        currentSequence.forEach((char, i) => {
+            const div = document.createElement('div');
+            div.className = 'token';
+            div.textContent = char;
+            div.id = `t-${i}`;
+            seqEl.appendChild(div);
+        });
+
+        // Render Frequencies
+        const freqs = getFrequencies();
+        freqEl.innerHTML = '';
+        
+        if (freqs.length === 0 || freqs[0][1] < 2) {
+            freqEl.innerHTML = '<div style="text-align:center; color:#94a3b8">Частых пар больше нет</div>';
+            mergeBtn.disabled = true;
+            return;
+        }
+
+        mergeBtn.disabled = false;
+        freqs.slice(0, 5).forEach((f, index) => {
+            const [pair, count] = f;
+            const displayPair = pair.replace('|', ' + ');
+            const div = document.createElement('div');
+            div.className = `freq-item ${index === 0 ? 'top' : ''}`;
+            div.innerHTML = `<span>${displayPair}</span> <span>${count}</span>`;
+            freqEl.appendChild(div);
+        });
+    }
+
+    async function stepBPE() {
+        const freqs = getFrequencies();
+        if (freqs.length === 0 || freqs[0][1] < 2) return;
+
+        const bestPair = freqs[0][0];
+        const [left, right] = bestPair.split('|');
+
+        // Подсветка пар перед слиянием
+        const targets = [];
+        for (let i = 0; i < currentSequence.length - 1; i++) {
+            if (currentSequence[i] === left && currentSequence[i+1] === right) {
+                targets.push(i, i + 1);
+                document.getElementById(`t-${i}`).classList.add('highlight');
+                document.getElementById(`t-${i+1}`).classList.add('highlight');
+            }
+        }
+
+        await new Promise(r => setTimeout(r, 600));
+
+        // Логика слияния
+        let newSeq = [];
+        for (let i = 0; i < currentSequence.length; i++) {
+            if (i < currentSequence.length - 1 && 
+                currentSequence[i] === left && 
+                currentSequence[i+1] === right) {
+                newSeq.push(left + right);
+                i++; // Пропускаем следующий
+            } else {
+                newSeq.push(currentSequence[i]);
+            }
+        }
+
+        currentSequence = newSeq;
+        render();
+
+        // Анимация успеха
+        anime({
+            targets: '.token',
+            scale: [1, 1.1, 1],
+            duration: 400,
+            easing: 'easeInOutQuad'
+        });
+    }
+
+    function resetBPE() {
+        currentSequence = [...initialText];
+        render();
+    }
+
+    render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Галерея паттернов</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --cyan-lt:#e0f2fe;
+  --green:#10b981;
+  --green-lt:#ecfdf5;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.55;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:16px}
+@media (max-width:760px){.layout{grid-template-columns:1fr}}
+
+.list{display:flex;flex-direction:column;gap:6px}
+.group-label{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:8px 0 2px}
+.group-label:first-child{margin-top:0}
+.pat{
+  text-align:left;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.88rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .18s;
+}
+.pat:hover{border-color:#c7d2fe;background:var(--indigo-lt)}
+.pat.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.pat:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.detail{border:1px solid var(--border);border-radius:14px;padding:18px 20px;background:#fff}
+.detail h2{font-size:1.05rem;font-weight:800;margin-bottom:12px}
+.chart{
+  background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:10px 14px 6px;margin-bottom:14px;
+}
+.chart svg{display:block;width:100%;height:auto}
+.chart .cap{font-size:.74rem;color:var(--muted);text-align:center;padding-bottom:4px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{border-radius:10px;padding:10px 14px;font-size:.9rem;line-height:1.5}
+.row strong{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.row.see{background:var(--cyan-lt);color:#0c4a6e}
+.row.see strong{color:var(--cyan)}
+.row.mean{background:var(--indigo-lt);color:#312e81}
+.row.mean strong{color:var(--indigo)}
+.row.act{background:var(--green-lt);color:#065f46}
+.row.act strong{color:var(--green)}
+</style>
+</head>
+<body>
+
+<h1>Семь паттернов поведения студентов</h1>
+
+<div class="layout">
+  <div class="list" id="list" role="tablist" aria-label="Паттерны"></div>
+  <div class="detail" id="detail" aria-live="polite"></div>
+</div>
+
+<script>
+// Спарклайны: простые inline-SVG без библиотек
+const AXIS = '<line x1="4" y1="86" x2="236" y2="86" stroke="#cbd5e1" stroke-width="1.5"/>';
+function bars(values, colors) {
+  const width = 232 / values.length;
+  return values.map((value, index) => {
+    const h = value * 74;
+    const color = colors ? colors[index] : "#6366f1";
+    return `<rect x="${(4 + index * width).toFixed(1)}" y="${(84 - h).toFixed(1)}" width="${(width - 6).toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${color}"/>`;
+  }).join("");
+}
+function line(values, color) {
+  const points = values.map((value, index) =>
+    `${(4 + (232 * index) / (values.length - 1)).toFixed(1)},${(84 - value * 72).toFixed(1)}`).join(" ");
+  return `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+function svg(inner) {
+  return `<svg viewBox="0 0 240 92" role="img" aria-hidden="true">${inner}${AXIS}</svg>`;
+}
+
+const PATTERNS = [
+  {group: "Индивидуальные", name: "Прокрастинатор ⏰",
+   see: "Все работы сданы в последний момент, часто за 5–10 минут до дедлайна. Активность в курсе взлетает за день до срока.",
+   mean: "Проблемы с планированием времени; нет мотивации начинать заранее.",
+   act: "Разбейте большое задание на этапы с промежуточными дедлайнами: тема — к 1 апреля, план — к 15-му, введение — к 30-му.",
+   chart: svg(line([0.06, 0.05, 0.08, 0.06, 0.1, 0.12, 0.3, 1], "#6366f1")),
+   cap: "Активность по дням: всплеск у дедлайна"},
+  {group: "Индивидуальные", name: "Тихоня-отличник 🤫",
+   see: "Высокие оценки за письменные работы — и почти нулевая активность в обсуждениях. Вопросы задаёт только лично после занятия.",
+   mean: "Интроверт с глубоким пониманием материала; публичные выступления — дискомфорт, а не показатель знаний.",
+   act: "Дайте альтернативу: письменные дискуссии в чате, работа в группах по 2–3 человека. Поощряйте сильную сторону — глубокий анализ.",
+   chart: svg(bars([0.15, 0.12, 0.14, 0.1, 0.13, 0.95], ["#0ea5e9", "#0ea5e9", "#0ea5e9", "#0ea5e9", "#0ea5e9", "#10b981"]) ),
+   cap: "Активность в обсуждениях низкая — оценка (зелёный) высокая"},
+  {group: "Индивидуальные", name: "Активист-двоечник 🎤",
+   see: "Всегда поднимает руку, активен в чате, задаёт много вопросов — но работы слабые, оценки низкие.",
+   mean: "Интерес и мотивация есть; хромает глубина понимания.",
+   act: "Используйте активность во благо: дайте роль наставника. «Объясни тему однокурснику» — лучший способ понять самому.",
+   chart: svg(bars([0.9, 0.85, 0.95, 0.88, 0.92, 0.25], ["#6366f1", "#6366f1", "#6366f1", "#6366f1", "#6366f1", "#ef4444"]) ),
+   cap: "Активность высокая — оценка (красный) низкая"},
+  {group: "Групповые", name: "Проблемная тема 📉",
+   see: "Вся группа плохо написала контрольную по одной теме: средний балл упал на 1–2 пункта, в чате шквал вопросов именно по ней.",
+   mean: "Проблема не в студентах — проблема в подаче материала.",
+   act: "Смените методику: была лекция — сделайте практикум, был текст — добавьте схемы и видео. Другие примеры, метафоры, аналогии.",
+   chart: svg(bars([0.78, 0.82, 0.8, 0.22, 0.79, 0.81], ["#6366f1", "#6366f1", "#6366f1", "#ef4444", "#6366f1", "#6366f1"]) ),
+   cap: "Средний балл по темам: провал на одной"},
+  {group: "Групповые", name: "Эффект формата 🎬",
+   see: "После видеолекций вопросов меньше, чем после обычных, — но результаты контрольной хуже.",
+   mean: "Видео создаёт иллюзию понимания: студенты думают, что всё поняли, а материал не усвоился.",
+   act: "Встраивайте в видео интерактив: паузы с вопросами и проверку понимания каждые 5–7 минут.",
+   chart: svg(bars([0.85, 0.35, 0.55, 0.75], ["#6366f1", "#38bdf8", "#ef4444", "#10b981"]) ),
+   cap: "Вопросы после лекции / после видео · результат после видео / после лекции"},
+  {group: "Временные", name: "Сезонные колебания 🍂",
+   see: "Активность и качество работ проседают перед каникулами — в ноябре и апреле.",
+   mean: "Естественные циклы усталости: люди не работают на пике весь год.",
+   act: "Сложные темы — на начало семестра; ближе к каникулам — практика и закрепление.",
+   chart: svg(line([0.85, 0.8, 0.55, 0.3, 0.75, 0.8, 0.5, 0.28], "#f59e0b")),
+   cap: "Активность по месяцам: волны с провалами в ноябре и апреле"},
+  {group: "Временные", name: "Понедельничный синдром 😴",
+   see: "В понедельник утром посещаемость и включённость заметно ниже, чем в остальные дни.",
+   mean: "Людям — в отличие от роботов — нужно время «раскачаться».",
+   act: "Начинайте неделю с лёгких интерактивных форматов: викторина для разогрева, обсуждение в малых группах, практика.",
+   chart: svg(bars([0.35, 0.75, 0.85, 0.8, 0.7], ["#ef4444", "#6366f1", "#6366f1", "#6366f1", "#6366f1"]) ),
+   cap: "Активность по дням недели: провал в понедельник"},
+];
+
+const list = document.getElementById("list");
+const detail = document.getElementById("detail");
+let lastGroup = null;
+
+PATTERNS.forEach((pattern, index) => {
+  if (pattern.group !== lastGroup) {
+    const label = document.createElement("div");
+    label.className = "group-label";
+    label.textContent = pattern.group;
+    list.appendChild(label);
+    lastGroup = pattern.group;
+  }
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "pat";
+  button.role = "tab";
+  button.textContent = pattern.name;
+  button.dataset.index = String(index);
+  button.addEventListener("click", () => select(index));
+  list.appendChild(button);
+});
+
+function select(index) {
+  const pattern = PATTERNS[index];
+  document.querySelectorAll(".pat").forEach((el) => {
+    const on = el.dataset.index === String(index);
+    el.classList.toggle("active", on);
+    el.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  detail.innerHTML = `
+    <h2>${pattern.name}</h2>
+    <div class="chart">${pattern.chart}<div class="cap">${pattern.cap}</div></div>
+    <div class="rows">
+      <div class="row see"><strong>Что вы видите</strong>${pattern.see}</div>
+      <div class="row mean"><strong>Что это значит</strong>${pattern.mean}</div>
+      <div class="row act"><strong>Что делать</strong>${pattern.act}</div>
+    </div>`;
+}
+
+select(0);
+</script>
+</body>
+</html>

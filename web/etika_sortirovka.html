@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Этично или нет?</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --green:#10b981;
+  --green-lt:#ecfdf5;
+  --red:#ef4444;
+  --red-lt:#fef2f2;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.55;padding:20px 22px 24px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.wrap{width:100%;max-width:640px}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px;text-align:center}
+.progress{text-align:center;color:var(--muted);font-size:.85rem;font-weight:700;margin:6px 0 16px}
+.situation{
+  border:1px solid var(--border);border-radius:14px;padding:22px 24px;background:#f8fafc;
+  font-size:1.02rem;font-weight:600;text-align:center;min-height:110px;
+  display:flex;align-items:center;justify-content:center;transition:border-color .25s,background .25s;
+}
+.situation.ok{border-color:var(--green);background:var(--green-lt)}
+.situation.bad{border-color:var(--red);background:var(--red-lt)}
+.buttons{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.choice{
+  padding:12px 26px;border-radius:12px;border:none;font-weight:800;font-size:.95rem;cursor:pointer;
+  transition:transform .15s,box-shadow .2s;
+}
+.choice:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.12)}
+.choice:disabled{opacity:.45;cursor:default}
+.choice.yes{background:var(--green-lt);color:#065f46;border:1px solid #a7f3d0}
+.choice.no{background:var(--red-lt);color:#991b1b;border:1px solid #fecaca}
+.choice:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+.explain{
+  margin-top:14px;border-radius:12px;padding:13px 16px;font-size:.9rem;line-height:1.55;
+  opacity:0;transition:opacity .3s;min-height:64px;
+}
+.explain.show{opacity:1}
+.explain.ok{background:var(--green-lt);color:#065f46}
+.explain.bad{background:var(--red-lt);color:#991b1b}
+.explain strong{display:block;margin-bottom:2px}
+.next{
+  display:block;margin:14px auto 0;padding:10px 24px;border-radius:10px;border:none;
+  background:var(--indigo);color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;visibility:hidden;
+}
+.next:hover{background:var(--indigo-dk)}
+.final{text-align:center;padding:28px 10px}
+.final .score{font-size:2.2rem;font-weight:900;color:var(--indigo-dk)}
+.final p{color:var(--muted);margin-top:10px}
+.final .rule{
+  margin-top:18px;padding:14px 18px;border-radius:12px;background:var(--indigo-lt);
+  color:var(--indigo-dk);font-weight:700;font-size:.95rem;
+}
+.restart{
+  margin-top:18px;padding:10px 24px;border-radius:10px;border:1px solid var(--border);
+  background:#fff;color:var(--muted);font-weight:700;font-size:.88rem;cursor:pointer;
+}
+.restart:hover{background:var(--indigo-lt);color:var(--indigo-dk)}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="game">
+  <h1>Этично или нет?</h1>
+  <p class="progress" id="progress"></p>
+  <div class="situation" id="situation"></div>
+  <div class="buttons">
+    <button type="button" class="choice yes" id="btn-yes">Этично ✅</button>
+    <button type="button" class="choice no" id="btn-no">Неэтично 🚩</button>
+  </div>
+  <div class="explain" id="explain"></div>
+  <button type="button" class="next" id="next">Дальше →</button>
+</div>
+
+<script>
+const SITUATIONS = [
+  {text: "Заметив по статистике платформы поздние заходы Ивана, вы лично спросили его: «Всё в порядке? Может, нужна помощь или стоит распределить нагрузку по-другому?»",
+   ethical: true, why: "Принцип «во благо»: данные использованы, чтобы вовремя предложить поддержку, разговор — личный."},
+  {text: "Вы обсудили ночную активность Ивана перед всей группой — «для примера, чтобы другие не прокрастинировали».",
+   ethical: false, why: "Нарушен принцип «во благо»: данные стали инструментом публичного давления, а не помощи."},
+  {text: "Таблица с ФИО, оценками и комментариями о студентах лежит в облаке по открытой ссылке «для удобства коллег».",
+   ethical: false, why: "Нарушена безопасность: персональные данные в открытом доступе — прямое нарушение 152-ФЗ."},
+  {text: "Перед анализом выгрузки журнала в нейросети вы заменили все ФИО на «Студент 1…N» и удалили контакты.",
+   ethical: true, why: "Обезличивание — обязательное условие: LLM получает паттерны, а не персональные данные."},
+  {text: "Вы решили дополнительно собирать данные о том, во сколько студенты ложатся спать, — «вдруг пригодится».",
+   ethical: false, why: "Нарушена минимальность: собирайте только то, что нужно для учебного процесса, а не «про запас»."},
+  {text: "В начале курса вы рассказали группе, какие данные фиксирует платформа и как вы будете их использовать.",
+   ethical: true, why: "Прозрачность: студенты знают, что собирается и зачем — это основа доверия."},
+  {text: "Работы и личные данные отчисленных студентов хранятся у вас «на всякий случай» уже пятый год.",
+   ethical: false, why: "Нарушены минимальность и безопасность: данные нельзя хранить дольше, чем необходимо."},
+  {text: "Увидев, что активность отличника упала втрое, вы предложили ему перенести дедлайн и встретиться для разговора.",
+   ethical: true, why: "Данные — для помощи: ранний сигнал замечен, поддержка предложена без ярлыков и наказаний."},
+];
+
+let index = 0;
+let correct = 0;
+const progressEl = document.getElementById("progress");
+const situationEl = document.getElementById("situation");
+const explainEl = document.getElementById("explain");
+const nextBtn = document.getElementById("next");
+const yesBtn = document.getElementById("btn-yes");
+const noBtn = document.getElementById("btn-no");
+const game = document.getElementById("game");
+
+function show() {
+  const item = SITUATIONS[index];
+  progressEl.textContent = `Ситуация ${index + 1} из ${SITUATIONS.length}`;
+  situationEl.textContent = item.text;
+  situationEl.className = "situation";
+  explainEl.className = "explain";
+  explainEl.textContent = "";
+  nextBtn.style.visibility = "hidden";
+  yesBtn.disabled = false;
+  noBtn.disabled = false;
+}
+
+function answer(saidEthical) {
+  const item = SITUATIONS[index];
+  const isRight = saidEthical === item.ethical;
+  if (isRight) correct += 1;
+  situationEl.classList.add(item.ethical ? "ok" : "bad");
+  explainEl.className = `explain show ${item.ethical ? "ok" : "bad"}`;
+  explainEl.innerHTML = `<strong>${isRight ? "Верно!" : "Не совсем."} Это ${item.ethical ? "этично" : "неэтично"}.</strong>${item.why}`;
+  yesBtn.disabled = true;
+  noBtn.disabled = true;
+  nextBtn.style.visibility = "visible";
+  nextBtn.textContent = index + 1 < SITUATIONS.length ? "Дальше →" : "Результат →";
+}
+
+function finish() {
+  game.innerHTML = `
+    <h1>Этично или нет?</h1>
+    <div class="final">
+      <div class="score">${correct} / ${SITUATIONS.length}</div>
+      <p>${correct >= 7 ? "Отлично — этика данных у вас в руках!" : correct >= 5 ? "Хорошо! Осталось закрепить пару принципов." : "Стоит перечитать четыре принципа этичной работы с данными."}</p>
+      <div class="rule">Золотое правило: относитесь к данным студентов так, как хотели бы, чтобы относились к вашим.</div>
+      <button type="button" class="restart" id="restart">Пройти ещё раз</button>
+    </div>`;
+  document.getElementById("restart").addEventListener("click", () => window.location.reload());
+}
+
+yesBtn.addEventListener("click", () => answer(true));
+noBtn.addEventListener("click", () => answer(false));
+nextBtn.addEventListener("click", () => {
+  index += 1;
+  if (index < SITUATIONS.length) { show(); } else { finish(); }
+});
+
+show();
+</script>
+</body>
+</html>

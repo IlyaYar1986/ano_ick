@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Теоретический семинар для преподавателей: как ИИ превращает данные в смыслы, а смыслы — в действия.">
+<link rel="icon" href="../png/logo.webp">
+<title>От смысла к действию — семинар 25 + 45 минут</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;
+  --card:#fff;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --muted:#64748b;
+  --indigo:#6366f1;
+  --indigo-dark:#4338ca;
+  --indigo-soft:#eef2ff;
+  --cyan:#0891b2;
+  --cyan-soft:#ecfeff;
+  --teal:#0f9f8f;
+  --teal-soft:#ecfdf5;
+  --amber:#d97706;
+  --amber-soft:#fffbeb;
+  --red:#dc2626;
+  --nav-h:58px;
+  --max:1180px;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+  color:var(--text);
+  line-height:1.65;
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 10% 2%,rgba(99,102,241,.16),transparent 25rem),
+    radial-gradient(circle at 90% 28%,rgba(8,145,178,.12),transparent 28rem),
+    linear-gradient(180deg,#f8fafc 0%,#eef2ff 30%,#f8fafc 62%,#ecfdf5 100%);
+}
+button,a{font:inherit}
+button{cursor:pointer}
+img{max-width:100%}
+a{color:inherit}
+
+/* Navigation */
+.topnav{
+  position:fixed;inset:0 0 auto;height:var(--nav-h);z-index:1000;
+  display:flex;align-items:center;gap:3px;padding:0 18px;
+  overflow-x:auto;scrollbar-width:none;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);box-shadow:0 2px 14px rgba(15,23,42,.07);
+}
+.topnav::-webkit-scrollbar{display:none}
+.nav-brand,.nav-link,.nav-back{white-space:nowrap;text-decoration:none}
+.nav-brand{font-weight:900;color:var(--indigo-dark);font-size:.91rem;margin:0 9px 0 4px}
+.nav-link,.nav-back{
+  padding:6px 10px;border-radius:7px;color:var(--muted);
+  font-size:.74rem;font-weight:750;transition:.2s;
+}
+.nav-link:hover,.nav-link.active,.nav-back:hover{background:var(--indigo-soft);color:var(--indigo-dark)}
+.nav-link.part-two.active{background:var(--teal-soft);color:#047565}
+.nav-sep{width:1px;height:19px;background:var(--border);margin:0 5px;flex:0 0 auto}
+
+/* Hero */
+.hero{
+  min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;
+  padding:calc(var(--nav-h) + 58px) 24px 72px;
+}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.hero::before{width:520px;height:520px;left:-260px;top:10%;background:rgba(99,102,241,.12);filter:blur(8px)}
+.hero::after{width:420px;height:420px;right:-200px;bottom:0;background:rgba(15,159,143,.13);filter:blur(8px)}
+.hero-grid{
+  width:min(var(--max),100%);margin:auto;position:relative;z-index:1;
+  display:grid;grid-template-columns:.88fr 1.12fr;gap:48px;align-items:center;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:99px;
+  background:#fff;border:1px solid #c7d2fe;color:var(--indigo-dark);
+  font-size:.78rem;font-weight:800;box-shadow:0 8px 22px rgba(99,102,241,.12);
+}
+.hero h1{
+  font-size:clamp(2.75rem,5.7vw,5.7rem);line-height:.98;letter-spacing:-2.5px;
+  margin:22px 0 20px;font-weight:900;
+}
+.hero h1 em{font-style:normal;color:var(--indigo)}
+.hero-lead{max-width:620px;color:var(--muted);font-size:clamp(1rem,1.4vw,1.16rem)}
+.audience{margin-top:18px;color:#334155;font-size:.91rem;font-weight:650}
+.time-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:28px 0}
+.time-card{
+  padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.86);
+  border:1px solid var(--border);box-shadow:0 7px 24px rgba(15,23,42,.06);
+}
+.time-card strong{display:block;font-size:1.65rem;line-height:1;color:var(--indigo-dark)}
+.time-card.two strong{color:#057c6e}
+.time-card span{display:block;margin-top:7px;color:var(--muted);font-size:.78rem;font-weight:700}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cta{
+  display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:99px;
+  text-decoration:none;font-size:.88rem;font-weight:800;transition:.2s;
+}
+.cta.primary{background:var(--indigo);color:#fff;box-shadow:0 9px 25px rgba(99,102,241,.3)}
+.cta.secondary{background:#fff;color:#067e70;border:1px solid #99f6e4}
+.cta:hover{transform:translateY(-2px)}
+.hero-visual{
+  background:#fff;border:1px solid rgba(99,102,241,.2);border-radius:24px;padding:10px;
+  box-shadow:0 28px 80px rgba(67,56,202,.19);transform:rotate(1deg);
+}
+.hero-visual button{border:0;background:transparent;width:100%;display:block}
+.hero-visual img{width:100%;display:block;border-radius:17px}
+.visual-caption{
+  display:flex;justify-content:space-between;gap:12px;padding:10px 8px 4px;
+  color:var(--muted);font-size:.76rem;font-weight:700;
+}
+
+/* Route and chapter headers */
+.route{
+  width:min(var(--max),calc(100% - 32px));margin:-34px auto 76px;position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:15px;
+  padding:18px 22px;background:rgba(255,255,255,.94);border:1px solid var(--border);
+  border-radius:20px;box-shadow:0 16px 46px rgba(15,23,42,.1);
+}
+.route-item{display:flex;gap:13px;align-items:center}
+.route-item:last-child{text-align:right;justify-content:flex-end}
+.route-num{
+  width:42px;height:42px;display:grid;place-items:center;flex:0 0 auto;
+  border-radius:13px;background:var(--indigo);color:white;font-weight:900;
+}
+.route-item:last-child .route-num{background:var(--teal)}
+.route-item b{display:block;font-size:.91rem}
+.route-item span{display:block;color:var(--muted);font-size:.75rem}
+.route-arrow{color:#94a3b8;font-size:1.4rem}
+.chapter{
+  position:relative;overflow:hidden;padding:82px 24px 62px;
+  border-top:1px solid rgba(226,232,240,.85);
+}
+.chapter.part1{background:linear-gradient(135deg,rgba(238,242,255,.86),rgba(255,255,255,.88))}
+.chapter.part2{background:linear-gradient(135deg,rgba(236,253,245,.88),rgba(255,255,255,.9))}
+.chapter-inner{width:min(var(--max),100%);margin:auto;display:grid;grid-template-columns:auto 1fr;gap:22px}
+.chapter-badge{
+  width:62px;height:62px;border-radius:19px;display:grid;place-items:center;
+  color:white;background:linear-gradient(135deg,var(--indigo),#818cf8);
+  font-size:1.5rem;font-weight:900;box-shadow:0 13px 28px rgba(99,102,241,.25);
+}
+.part2 .chapter-badge{background:linear-gradient(135deg,var(--teal),#2dd4bf);box-shadow:0 13px 28px rgba(15,159,143,.24)}
+.chapter-kicker{font-size:.75rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--indigo-dark)}
+.part2 .chapter-kicker{color:#057c6e}
+.chapter h2{font-size:clamp(2rem,4vw,3.55rem);line-height:1.05;letter-spacing:-1.2px;margin:6px 0 12px}
+.chapter p{max-width:800px;color:var(--muted);font-size:1rem}
+.chapter-time{
+  display:inline-flex;margin-top:16px;padding:6px 12px;border-radius:99px;
+  background:#fff;border:1px solid #c7d2fe;color:var(--indigo-dark);font-size:.8rem;font-weight:850;
+}
+.part2 .chapter-time{border-color:#99f6e4;color:#047565}
+
+/* Content sections */
+.lesson{padding:74px 24px;border-top:1px solid rgba(226,232,240,.76);scroll-margin-top:var(--nav-h)}
+.lesson.alt{background:rgba(255,255,255,.66)}
+.lesson-inner{width:min(var(--max),100%);margin:auto}
+.section-head{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:start;margin-bottom:30px}
+.section-num{
+  width:49px;height:49px;border-radius:15px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,var(--indigo),#818cf8);font-weight:900;font-size:1.12rem;
+}
+.part-two-section .section-num{background:linear-gradient(135deg,var(--teal),#2dd4bf)}
+.section-label{font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--indigo)}
+.part-two-section .section-label{color:#078577}
+.section-head h3{font-size:clamp(1.55rem,3vw,2.4rem);line-height:1.13;letter-spacing:-.5px;margin:4px 0 7px}
+.section-head p{color:var(--muted);max-width:800px}
+.minute{
+  padding:6px 11px;border-radius:99px;background:var(--indigo-soft);color:var(--indigo-dark);
+  font-size:.74rem;font-weight:850;white-space:nowrap;
+}
+.part-two-section .minute{background:var(--teal-soft);color:#047565}
+.concept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0}
+.concept{
+  background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:16px;
+  padding:18px;box-shadow:0 5px 20px rgba(15,23,42,.05);
+}
+.concept strong{display:block;margin-bottom:7px;color:#1e293b}
+.concept p{font-size:.88rem;color:var(--muted)}
+.concept .letter{font-size:1.55rem;color:var(--indigo);margin-right:6px}
+.flow{
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+  padding:20px;border:1px solid #c7d2fe;background:var(--indigo-soft);border-radius:17px;margin:24px 0;
+}
+.flow span{padding:8px 12px;border-radius:10px;background:white;font-weight:800;font-size:.84rem;box-shadow:0 3px 10px rgba(67,56,202,.08)}
+.flow i{font-style:normal;color:var(--indigo);font-weight:900}
+.part-two-section .flow{background:var(--teal-soft);border-color:#99f6e4}
+.part-two-section .flow i{color:var(--teal)}
+
+/* Visual and iframe cards */
+.visual-card,.demo-card{
+  background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  box-shadow:0 8px 30px rgba(15,23,42,.07);margin-top:24px;
+}
+.window-bar{
+  min-height:45px;display:flex;align-items:center;gap:10px;padding:9px 14px;background:#f8fafc;
+  border-bottom:1px solid var(--border);
+}
+.dots{display:flex;gap:5px}.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febb2c}.dg{background:#27c840}
+.window-title{flex:1;color:var(--muted);font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.07em}
+.window-action{
+  border:1px solid var(--border);background:white;color:var(--muted);border-radius:8px;
+  padding:5px 9px;font-size:.7rem;font-weight:800;transition:.2s;
+}
+.window-action:hover{border-color:#c7d2fe;background:var(--indigo-soft);color:var(--indigo)}
+.visual-button{border:0;background:#fff;width:100%;display:block}
+.visual-button img{width:100%;display:block}
+.demo-card iframe{display:block;width:100%;border:0;background:#fff}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.compact-note{
+  border-left:5px solid var(--indigo);background:white;border-radius:0 14px 14px 0;
+  padding:17px 19px;margin-top:20px;color:#334155;box-shadow:0 5px 18px rgba(15,23,42,.05);
+}
+.part-two-section .compact-note{border-left-color:var(--teal)}
+
+/* Tables and parameter cards */
+.stage-table{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+.stage{
+  border-radius:17px;padding:19px;background:white;border:1px solid var(--border);
+  box-shadow:0 5px 18px rgba(15,23,42,.05);
+}
+.stage small{color:var(--indigo);font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.stage h4{margin:7px 0 8px;font-size:1.02rem}.stage p{font-size:.84rem;color:var(--muted)}
+.params{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}
+.param{padding:16px;background:#fff;border:1px solid var(--border);border-radius:15px}
+.param b{display:block;color:#057c6e;margin-bottom:6px}.param p{color:var(--muted);font-size:.82rem}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.system-card{padding:22px;border-radius:18px;border:1px solid var(--border);background:white}
+.system-card.fast{border-top:5px solid var(--amber)}.system-card.slow{border-top:5px solid var(--teal)}
+.system-card h4{font-size:1.15rem;margin-bottom:8px}.system-card ul{padding-left:19px;color:var(--muted);font-size:.88rem}
+
+/* Method accordions */
+.method-stack{display:grid;gap:10px;margin-top:24px}
+.method{
+  background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+}
+.method summary{
+  list-style:none;display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:14px 17px;font-weight:800;cursor:pointer;color:#334155;
+}
+.method summary::-webkit-details-marker{display:none}
+.method summary::after{content:"+";font-size:1.25rem;color:var(--indigo);transition:transform .2s}
+.method[open] summary::after{transform:rotate(45deg)}
+.method-body{padding:0 17px 17px;color:var(--muted);font-size:.89rem}
+.method-body ul{padding-left:20px}.method-body li+li{margin-top:5px}
+
+/* Bridges */
+.bridge{
+  padding:84px 24px;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(135deg,#172554,#312e81 54%,#0f766e);
+  color:white;scroll-margin-top:var(--nav-h);
+}
+.bridge::before{
+  content:"";position:absolute;inset:0;opacity:.24;
+  background-image:radial-gradient(circle at 20% 30%,#67e8f9 0 2px,transparent 3px),radial-gradient(circle at 75% 65%,#a5b4fc 0 2px,transparent 3px);
+  background-size:76px 76px,92px 92px;
+}
+.bridge-inner{width:min(900px,100%);margin:auto;position:relative}
+.bridge-label{font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;font-weight:900;color:#99f6e4}
+.bridge h2{font-size:clamp(2rem,4.5vw,4rem);line-height:1.05;margin:13px 0 18px;letter-spacing:-1px}
+.bridge p{max-width:760px;margin:auto;color:#dbeafe;font-size:1rem}
+.bridge-route{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:27px}
+.bridge-route span{padding:8px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.23);background:rgba(255,255,255,.09);font-size:.8rem;font-weight:800}
+.bridge-route i{font-style:normal;color:#5eead4}
+
+/* Pedagogical agent */
+.agent-formula{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0;
+}
+.agent-formula div{padding:15px;border-radius:14px;text-align:center;background:var(--teal-soft);border:1px solid #99f6e4;font-weight:850;color:#075e54}
+.mentor-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:22px}
+.mentor-step{position:relative;padding:16px 12px;border-radius:15px;background:#fff;border:1px solid var(--border);text-align:center;font-size:.82rem;font-weight:750}
+.mentor-step:not(:last-child)::after{content:"→";position:absolute;right:-10px;top:50%;transform:translateY(-50%);z-index:2;color:var(--teal);font-weight:900}
+.final-quote{font-size:clamp(1.35rem,2.8vw,2.25rem);line-height:1.25;font-weight:850;max-width:900px;margin:32px auto 0;text-align:center;color:#0f3f39}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;z-index:3000;display:none;flex-direction:column;background:rgba(2,6,23,.95)}
+.overlay.open{display:flex}
+.overlay-bar{height:52px;display:flex;align-items:center;gap:11px;padding:8px 14px;background:#111827;border-bottom:1px solid #334155}
+.overlay-title{flex:1;color:#cbd5e1;font-size:.78rem;font-weight:800}
+.overlay-close{width:35px;height:35px;border:0;border-radius:9px;background:rgba(255,255,255,.1);color:white;font-size:1.1rem}
+.overlay-download{height:35px;padding:0 14px;border:0;border-radius:9px;background:rgba(255,255,255,.1);color:#fff;font-size:.76rem;font-weight:700;display:flex;align-items:center;gap:6px;text-decoration:none}
+.overlay-download:hover{background:rgba(255,255,255,.2)}
+#fs-frame{flex:1;width:100%;border:0;background:white}
+#lb-wrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none}
+#lb-wrap.grabbing{cursor:grabbing}
+#lb-img{display:block;max-width:none;max-height:none;transform-origin:center;pointer-events:none;will-change:transform}
+
+.fade{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.fade.in{opacity:1;transform:none}
+footer{padding:42px 24px;text-align:center;color:var(--muted);background:#fff;border-top:1px solid var(--border);font-size:.83rem}
+
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr}.hero{padding-top:calc(var(--nav-h) + 40px)}
+  .hero-copy{text-align:center}.hero-lead{margin-inline:auto}.hero-actions{justify-content:center}
+  .audience{text-align:center}.hero-visual{transform:none;max-width:820px;margin:auto}
+  .concept-grid,.stage-table{grid-template-columns:1fr}.params{grid-template-columns:1fr 1fr}
+  .mentor-flow{grid-template-columns:1fr}.mentor-step:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-16px;transform:translateX(-50%)}
+}
+@media(max-width:760px){
+  :root{--nav-h:54px}
+  .nav-brand{display:none}.topnav{padding-inline:8px}
+  .hero h1{letter-spacing:-1.4px}.time-grid{grid-template-columns:1fr}
+  .route{grid-template-columns:1fr}.route-arrow{transform:rotate(90deg);text-align:center}
+  .route-item:last-child{text-align:left;justify-content:flex-start}
+  .chapter-inner,.section-head{grid-template-columns:1fr}
+  .chapter-badge,.section-num{width:45px;height:45px;border-radius:14px}
+  .minute{justify-self:start}.two-col,.comparison{grid-template-columns:1fr}
+  .agent-formula{grid-template-columns:1fr 1fr}.demo-card iframe{height:620px!important}
+}
+@media(max-width:480px){
+  .hero,.chapter,.lesson,.bridge{padding-left:16px;padding-right:16px}
+  .hero h1{font-size:2.55rem}.hero-actions{flex-direction:column}.cta{justify-content:center}
+  .params,.agent-formula{grid-template-columns:1fr}
+  .visual-card,.demo-card{border-radius:14px}
+  .window-title{font-size:.62rem}.window-action{padding:5px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}.fade{opacity:1;transform:none;transition:none}.cta{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="fullscreen" aria-hidden="true">
+  <div class="overlay-bar">
+    <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+    <span class="overlay-title" id="fs-title"></span>
+    <button class="overlay-close" type="button" onclick="closeFullscreen()" aria-label="Закрыть полноэкранный режим">×</button>
+  </div>
+  <iframe id="fs-frame" title="Полноэкранная интерактивная визуализация"></iframe>
+</div>
+
+<div class="overlay" id="lightbox" aria-hidden="true">
+  <div class="overlay-bar">
+    <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+    <span class="overlay-title" id="lb-title">Инфографика</span>
+    <a class="overlay-download" id="lb-download" download aria-label="Скачать изображение">⬇ Скачать</a>
+    <button class="overlay-close" type="button" onclick="closeLightbox()" aria-label="Закрыть изображение">×</button>
+  </div>
+  <div id="lb-wrap"><img id="lb-img" alt=""></div>
+</div>
+
+<nav class="topnav" aria-label="Навигация по семинару">
+  <a class="nav-back" href="../oglavlenie.html">← Оглавление</a>
+  <a class="nav-back" href="../index.html">← Главная</a>
+  <span class="nav-sep"></span>
+  <span class="nav-brand">От смысла к действию</span>
+  <a class="nav-link" href="#part1">Часть 1 · 25 мин</a>
+  <a class="nav-link" href="#tokens">Токены</a>
+  <a class="nav-link" href="#embeddings">Смыслы</a>
+  <span class="nav-sep"></span>
+  <a class="nav-link part-two" href="#part2">Часть 2 · 45 мин</a>
+  <a class="nav-link part-two" href="#training">Обучение</a>
+  <a class="nav-link part-two" href="#sampling">Параметры</a>
+  <a class="nav-link part-two" href="#agents">Агенты</a>
+</nav>
+
+<header class="hero" id="hero">
+  <div class="hero-grid">
+    <div class="hero-copy fade">
+      <span class="eyebrow">Семинар для преподавателей техникумов и колледжей</span>
+      <h1>От <em>смысла</em><br>к действию</h1>
+      <p class="hero-lead">Как ИИ превращает данные в представления, представления — в ответы, а ответы — в последовательность осмысленных действий.</p>
+      <p class="audience">Цель: дать преподавателю базу, которую он сможет объяснить студентам и применить при ведении кружка по ИИ.</p>
+      <div class="time-grid">
+        <div class="time-card">
+          <strong>25 минут</strong>
+          <span>Как машина получает смысл</span>
+        </div>
+        <div class="time-card two">
+          <strong>45 минут</strong>
+          <span>Как смысл становится действием</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a class="cta primary" href="#part1">Начать с части 1 ↓</a>
+        <a class="cta secondary" href="#part2">Перейти к части 2 ↓</a>
+      </div>
+    </div>
+    <div class="hero-visual fade">
+      <button type="button" onclick="openLightbox('../png/ChatGPT Image 26 апр. 2026 г., 16_35_12.webp','Путь большой языковой модели')">
+        <img src="../png/ChatGPT Image 26 апр. 2026 г., 16_35_12.webp" alt="Обзор устройства большой языковой модели">
+      </button>
+      <div class="visual-caption"><span>Единый маршрут семинара</span><span>Нажмите, чтобы увеличить</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="route fade" aria-label="Маршрут семинара">
+  <div class="route-item">
+    <span class="route-num">1</span>
+    <div><b>Пространство смыслов</b><span>данные → токены → эмбеддинги → изображение</span></div>
+  </div>
+  <span class="route-arrow">→</span>
+  <div class="route-item">
+    <div><b>Пространство действий</b><span>контекст → обучение → рассуждение → агент</span></div>
+    <span class="route-num">2</span>
+  </div>
+</div>
+
+<section class="chapter part1" id="part1">
+  <div class="chapter-inner fade">
+    <div class="chapter-badge">1</div>
+    <div>
+      <span class="chapter-kicker">Первая теоретическая часть</span>
+      <h2>Как машина получает смысл</h2>
+      <p>Собираем минимальную базу: от следующего токена до общей карты, на которой текст, изображение и звук становятся связанными математическими представлениями.</p>
+      <span class="chapter-time">Общий тайминг: 25 минут</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section class="lesson alt" id="gpt">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">1.1</div>
+        <div>
+          <span class="section-label">Базовый принцип</span>
+          <h3>GPT: не справочник, а генератор продолжения</h3>
+          <p>В аббревиатуре уже зашит принцип работы: модель предобучена на больших данных, использует Transformer и создаёт результат последовательно.</p>
+        </div>
+        <span class="minute">0–3 мин</span>
+      </div>
+      <div class="concept-grid fade">
+        <article class="concept"><strong><span class="letter">G</span>Generative</strong><p>Создаёт продолжение токен за токеном, опираясь на уже имеющийся контекст.</p></article>
+        <article class="concept"><strong><span class="letter">P</span>Pre-trained</strong><p>До диалога проходит предварительное обучение на больших массивах данных.</p></article>
+        <article class="concept"><strong><span class="letter">T</span>Transformer</strong><p>Связывает элементы контекста через механизм внимания.</p></article>
+      </div>
+      <div class="visual-card fade">
+        <div class="window-bar">
+          <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+          <span class="window-title">Эволюция Transformer → GPT</span>
+          <button class="window-action" type="button" onclick="openLightbox('../png/ChatGPT Image 26 апр. 2026 г., 15_49_13.webp','Эволюция Transformer → GPT')">Увеличить</button>
+        </div>
+        <button class="visual-button" type="button" onclick="openLightbox('../png/ChatGPT Image 26 апр. 2026 г., 15_49_13.webp','Эволюция Transformer → GPT')">
+          <img decoding="async" loading="lazy" src="../png/ChatGPT Image 26 апр. 2026 г., 15_49_13.webp" alt="Эволюция архитектуры Transformer к GPT">
+        </button>
+      </div>
+      <div class="flow fade"><span>Контекст</span><i>→</i><span>Вероятности токенов</span><i>→</i><span>Выбор продолжения</span><i>→</i><span>Новый контекст</span></div>
+      <div class="method-stack fade">
+        <details class="method"><summary>Что важно запомнить</summary><div class="method-body">Модель не извлекает готовую фразу из хранилища. Она вычисляет наиболее подходящее продолжение и повторяет этот процесс много раз.</div></details>
+        <details class="method"><summary>Как объяснить студентам</summary><div class="method-body">Предложите студентам по очереди продолжать незнакомое предложение одним словом. Каждый новый участник видит всё, что уже написано: это простая аналогия авторегрессии.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson" id="data">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">1.2</div>
+        <div>
+          <span class="section-label">Источник возможностей</span>
+          <h3>Данные формируют возможности и ограничения</h3>
+          <p>Модель учится не по учебнику с готовыми правилами. Она находит закономерности в корпусе, а вместе с ними наследует качество, пробелы и перекосы данных.</p>
+        </div>
+        <span class="minute">3–7 мин</span>
+      </div>
+      <div class="flow fade"><span>Сбор данных</span><i>→</i><span>Очистка</span><i>→</i><span>Обучение</span><i>→</i><span>Закономерности</span></div>
+      <div class="two-col">
+        <div class="visual-card fade">
+          <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Сбор данных</span></div>
+          <button class="visual-button" type="button" onclick="openLightbox('../png/ChatGPT Image 26 апр. 2026 г., 15_49_52.webp','Сбор обучающих данных')"><img decoding="async" loading="lazy" src="../png/ChatGPT Image 26 апр. 2026 г., 15_49_52.webp" alt="Сбор обучающих данных"></button>
+        </div>
+        <div class="visual-card fade">
+          <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Очистка данных</span></div>
+          <button class="visual-button" type="button" onclick="openLightbox('../png/ChatGPT Image 26 апр. 2026 г., 15_49_57.webp','Очистка обучающих данных')"><img decoding="async" loading="lazy" src="../png/ChatGPT Image 26 апр. 2026 г., 15_49_57.webp" alt="Очистка обучающих данных"></button>
+        </div>
+      </div>
+      <p class="compact-note fade"><strong>Педагогический вывод:</strong> уверенный тон ответа не доказывает истинность. Результат нужно сопоставлять с источниками, условиями задачи и профессиональными критериями.</p>
+    </div>
+  </section>
+
+  <section class="lesson alt" id="tokens">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">1.3</div>
+        <div>
+          <span class="section-label">Язык машины</span>
+          <h3>Токены: мост от текста к числам</h3>
+          <p>Токеном может быть слово, часть слова, знак или символ. Подсловное разбиение даёт компромисс между огромным словарём и слишком длинной последовательностью.</p>
+        </div>
+        <span class="minute">7–12 мин</span>
+      </div>
+      <div class="flow fade"><span>Текст</span><i>→</i><span>Токены</span><i>→</i><span>Числовые ID</span><i>→</i><span>Вычисления</span></div>
+      <div class="demo-card fade">
+        <div class="window-bar">
+          <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+          <span class="window-title">Интерактив: сравнение слов, символов и подсловных токенов</span>
+          <button class="window-action" type="button" onclick="openFullscreen('tokenizator.html','Визуализатор токенизации')">На весь экран</button>
+        </div>
+        <iframe loading="lazy" src="tokenizator.html" title="Визуализатор токенизации" height="475"></iframe>
+      </div>
+      <div class="method-stack fade">
+        <details class="method"><summary>BPE и SentencePiece — коротко</summary><div class="method-body"><ul><li><strong>BPE</strong> многократно объединяет часто встречающиеся пары в новые токены.</li><li><strong>SentencePiece</strong> работает с сырым текстом и рассматривает пробел как обычный символ, что удобно для мультиязычности.</li></ul></div></details>
+        <details class="method"><summary>Ограничение, которое увидит студент</summary><div class="method-body">Редкое русское слово может занимать больше токенов, чем частое английское. Поэтому один и тот же объём смысла может по-разному расходовать контекст модели.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson" id="embeddings">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">1.4</div>
+        <div>
+          <span class="section-label">Координаты смысла</span>
+          <h3>Эмбеддинги превращают токены в карту смыслов</h3>
+          <p>Числовой ID ничего не говорит о значении. Эмбеддинг превращает объект в многомерный вектор: похожие употребления получают близкие представления.</p>
+        </div>
+        <span class="minute">12–20 мин</span>
+      </div>
+      <div class="two-col">
+        <div class="demo-card fade">
+          <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Трёхмерная карта слов</span><button class="window-action" type="button" onclick="openFullscreen('word_embeddings_3d.html','Карта эмбеддингов')">На весь экран</button></div>
+          <iframe loading="lazy" src="word_embeddings_3d.html" title="Трёхмерная карта эмбеддингов" height="560"></iframe>
+        </div>
+        <div class="demo-card fade">
+          <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Контекст меняет значение</span><button class="window-action" type="button" onclick="openFullscreen('omonimy2.html','Контекстуальные эмбеддинги')">На весь экран</button></div>
+          <iframe loading="lazy" src="omonimy2.html" title="Визуализация контекстуальных эмбеддингов" height="570"></iframe>
+        </div>
+      </div>
+      <div class="compact-note fade"><strong>Пример:</strong> «дверной замок» и «старинный замок» начинаются с одного токена, но окружающий контекст постепенно разводит их внутренние представления.</div>
+      <div class="method-stack fade">
+        <details class="method"><summary>Что важно запомнить</summary><div class="method-body">Эмбеддинг — не определение слова, а набор координат, полезный модели для сравнения и преобразования смыслов.</div></details>
+        <details class="method"><summary>Как объяснить студентам</summary><div class="method-body">Используйте аналогию карты города: координаты не описывают здание словами, но позволяют понять, какие объекты находятся рядом и как между ними перемещаться.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson alt" id="image-bridge">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">1.5</div>
+        <div>
+          <span class="section-label">Финал первой части</span>
+          <h3>Текст, изображение и звук встречаются на общей карте</h3>
+          <p>Разные типы сигналов преобразуются в сопоставимые векторные представления. Для модели важен не источник сигнала, а смысловые связи.</p>
+        </div>
+        <span class="minute">20–25 мин</span>
+      </div>
+      <div class="visual-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Одна карта смыслов</span><button class="window-action" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/05_02_odna_karta_smyslov.webp','Одна карта смыслов')">Увеличить</button></div>
+        <button class="visual-button" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/05_02_odna_karta_smyslov.webp','Одна карта смыслов')"><img decoding="async" loading="lazy" src="../png/zanyatie2_agentnye_sistemy/05_02_odna_karta_smyslov.webp" alt="Единое пространство смыслов для текста, изображения и звука"></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bridge" aria-label="Переход к практике по изображениям">
+    <div class="bridge-inner fade">
+      <span class="bridge-label">Логический переход к отдельной практике</span>
+      <h2>Мы управляем не пикселями,<br>а направлением в пространстве смыслов</h2>
+      <p>Чем точнее описаны объект, действие, окружение, композиция, стиль, свет и ограничения, тем яснее задан смысловой ориентир для генерации изображения.</p>
+      <div class="bridge-route"><span>Объект</span><i>+</i><span>Действие</span><i>+</i><span>Среда</span><i>+</i><span>Композиция</span><i>+</i><span>Стиль</span></div>
+    </div>
+  </section>
+
+  <section class="chapter part2" id="part2">
+    <div class="chapter-inner fade">
+      <div class="chapter-badge">2</div>
+      <div>
+        <span class="chapter-kicker">Вторая теоретическая часть</span>
+        <h2>Как смысл становится действием</h2>
+        <p>Продолжаем маршрут: контекст связывает смыслы, обучение формирует поведение, параметры меняют выбор, а инструменты и цикл обратной связи превращают модель в агента.</p>
+        <span class="chapter-time">Общий тайминг: 45 минут</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section alt" id="attention">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.1</div>
+        <div>
+          <span class="section-label">Контекст</span>
+          <h3>Внимание связывает элементы запроса</h3>
+          <p>Эмбеддинг даёт исходное представление, а механизм внимания уточняет его с учётом других элементов последовательности.</p>
+        </div>
+        <span class="minute">0–5 мин</span>
+      </div>
+      <div class="concept-grid fade">
+        <article class="concept"><strong>Query — запрос</strong><p>Какую информацию текущий токен ищет у других?</p></article>
+        <article class="concept"><strong>Key — ключ</strong><p>Какие признаки токен предлагает для сопоставления?</p></article>
+        <article class="concept"><strong>Value — значение</strong><p>Какую информацию он передаст при высокой связи?</p></article>
+      </div>
+      <div class="demo-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Интерактив: механизм внимания</span><button class="window-action" type="button" onclick="openFullscreen('механизм Attension2.html','Механизм внимания')">На весь экран</button></div>
+        <iframe loading="lazy" src="механизм Attension2.html" title="Интерактив механизма внимания" height="620"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section" id="training">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.2</div>
+        <div>
+          <span class="section-label">Формирование поведения</span>
+          <h3>Знания, инструкции и критерии качества обучаются по-разному</h3>
+          <p>Важно разделять три задачи: получить языковую базу, научиться выполнять инструкции и согласовать поведение с критериями полезности и безопасности.</p>
+        </div>
+        <span class="minute">5–14 мин</span>
+      </div>
+      <div class="stage-table fade">
+        <article class="stage"><small>Этап 1</small><h4>Pre-training</h4><p>Предсказание следующего токена формирует языковые закономерности и базовые знания.</p></article>
+        <article class="stage"><small>Этап 2</small><h4>SFT / Instruct-tuning</h4><p>Примеры «инструкция → ответ» учат модель выполнять задачу, а не просто продолжать текст.</p></article>
+        <article class="stage"><small>Этап 3</small><h4>Обучение по предпочтениям</h4><p>Сравнение ответов формирует критерии полезного, безопасного и уместного поведения.</p></article>
+      </div>
+      <div class="demo-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Интерактив: путь обучения модели</span><button class="window-action" type="button" onclick="openFullscreen('процесс обучения.html','Этапы обучения модели')">На весь экран</button></div>
+        <iframe loading="lazy" src="процесс обучения.html" title="Этапы обучения модели" height="680"></iframe>
+      </div>
+      <div class="demo-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Outcome Reward и Process Reward</span><button class="window-action" type="button" onclick="openFullscreen('Переход к PRM.html','От результата к процессу')">На весь экран</button></div>
+        <iframe loading="lazy" src="Переход к PRM.html" title="Сравнение оценки результата и процесса" height="700"></iframe>
+      </div>
+      <div class="comparison fade">
+        <article class="system-card fast"><h4>Оцениваем только результат</h4><ul><li>быстро масштабируется;</li><li>не показывает место первой ошибки;</li><li>подталкивает к формату «правильно / неправильно».</li></ul></article>
+        <article class="system-card slow"><h4>Добавляем оценку процесса</h4><ul><li>видим приближение к решению;</li><li>выбираем адресную подсказку;</li><li>реализуем формирующее оценивание.</li></ul></article>
+      </div>
+      <p class="compact-note fade"><strong>Точная педагогическая аналогия:</strong> «Система 1 / Система 2» описывает режимы мышления, а Outcome / Process Reward — способ оценивания. Они связаны, но не являются одним и тем же.</p>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section alt" id="sampling">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.3</div>
+        <div>
+          <span class="section-label">Управление выбором</span>
+          <h3>Температура и фильтры меняют пространство следующего шага</h3>
+          <p>После вычисления логитов Softmax формирует распределение вероятностей. Настройки определяют, насколько широкий набор токенов будет участвовать в сэмплировании.</p>
+        </div>
+        <span class="minute">14–20 мин</span>
+      </div>
+      <div class="flow fade"><span>Логиты</span><i>→</i><span>Softmax</span><i>→</i><span>Фильтры</span><i>→</i><span>Сэмплирование</span></div>
+      <div class="params fade">
+        <article class="param"><b>Temperature</b><p>Низкая заостряет распределение, высокая увеличивает разнообразие и риск.</p></article>
+        <article class="param"><b>Top-K</b><p>Оставляет только K наиболее вероятных кандидатов.</p></article>
+        <article class="param"><b>Top-P</b><p>Оставляет минимальный набор с заданной суммарной вероятностью.</p></article>
+        <article class="param"><b>Min-P</b><p>Отсекает варианты, слишком слабые относительно лидера.</p></article>
+      </div>
+      <div class="demo-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Интерактив: Temperature, Top-K, Top-P и Min-P</span><button class="window-action" type="button" onclick="openFullscreen('Рычаги управления нейросетью.html','Параметры генерации')">На весь экран</button></div>
+        <iframe loading="lazy" src="Рычаги управления нейросетью.html" title="Интерактив параметров генерации" height="740"></iframe>
+      </div>
+      <div class="method-stack fade">
+        <details class="method"><summary>Практический ориентир для агентов</summary><div class="method-body"><ul><li>Проверка по критериям и извлечение данных — низкая вариативность.</li><li>Объяснение одной темы разными способами — средняя.</li><li>Мозговой штурм — повышенная, но с последующей проверкой.</li></ul></div></details>
+        <details class="method"><summary>Как исследовать ползунки</summary><div class="method-body">Меняйте один параметр за раз и сравнивайте несколько запусков на одном запросе. Иначе невозможно понять, какая настройка повлияла на результат.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section" id="reasoning">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.4</div>
+        <div>
+          <span class="section-label">Режимы решения задач</span>
+          <h3>От быстрого шаблона к декомпозиции и самопроверке</h3>
+          <p>Рассуждающие модели получают больше вычислений на этапе ответа: разбивают задачу, сравнивают варианты и проверяют промежуточные результаты.</p>
+        </div>
+        <span class="minute">20–25 мин</span>
+      </div>
+      <div class="comparison fade">
+        <article class="system-card fast"><h4>Условная «Система 1»</h4><ul><li>быстрый ответ;</li><li>знакомый шаблон;</li><li>подходит для простых задач;</li><li>может пропустить логическую ошибку.</li></ul></article>
+        <article class="system-card slow"><h4>Условная «Система 2»</h4><ul><li>декомпозиция;</li><li>сравнение подходов;</li><li>самопроверка;</li><li>выше стоимость и риск переусложнения.</li></ul></article>
+      </div>
+      <div class="demo-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Интерактив: эволюция рассуждающих моделей</span><button class="window-action" type="button" onclick="openFullscreen('Эволюция ИИ.html','От Системы 1 к Системе 2')">На весь экран</button></div>
+        <iframe loading="lazy" src="Эволюция ИИ.html" title="Эволюция рассуждающих моделей" height="700"></iframe>
+      </div>
+      <p class="compact-note fade"><strong>Связь с обучением:</strong> ИИ может помочь преподавателю анализировать наблюдаемые шаги решения каждого студента. Это делает процессную обратную связь реалистичной даже при большой группе.</p>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section alt" id="agents">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.5</div>
+        <div>
+          <span class="section-label">От ответа к действию</span>
+          <h3>Инструменты и цикл обратной связи рождают агента</h3>
+          <p>Модель по-прежнему генерирует токены, но теперь может сформировать структурированный вызов инструмента, получить наблюдение и скорректировать следующий шаг.</p>
+        </div>
+        <span class="minute">25–32 мин</span>
+      </div>
+      <div class="agent-formula fade">
+        <div>Модель<br><small>мозг</small></div>
+        <div>Цель<br><small>направление</small></div>
+        <div>Инструменты<br><small>действия</small></div>
+        <div>Цикл<br><small>обратная связь</small></div>
+      </div>
+      <div class="visual-card fade">
+        <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">Цикл ReAct: рассуждение → действие → наблюдение</span><button class="window-action" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/01_03_react_cycle.webp','Цикл агента ReAct')">Увеличить</button></div>
+        <button class="visual-button" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/01_03_react_cycle.webp','Цикл агента ReAct')"><img decoding="async" loading="lazy" src="../png/zanyatie2_agentnye_sistemy/01_03_react_cycle.webp" alt="Цикл агента ReAct"></button>
+      </div>
+      <div class="flow fade"><span>Понять цель</span><i>→</i><span>Выбрать инструмент</span><i>→</i><span>Действовать</span><i>→</i><span>Проверить</span><i>↺</i></div>
+      <div class="method-stack fade">
+        <details class="method"><summary>Что отличает агента от чат-бота</summary><div class="method-body">Чат-бот отвечает на сообщение. Агент получает цель, выполняет несколько шагов, использует внешние инструменты и меняет план по результатам действий.</div></details>
+        <details class="method"><summary>Ограничения и риски</summary><div class="method-body">Ошибка агента может стать реальным действием. Поэтому важны минимальные разрешения, подтверждение необратимых операций и принцип «человек в петле».</div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section" id="memory">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.6</div>
+        <div>
+          <span class="section-label">Память и подключение к миру</span>
+          <h3>RAG возвращает эмбеддинги, MCP подключает инструменты</h3>
+          <p>Абстрактная карта смыслов становится практическим механизмом поиска: релевантные фрагменты документов находятся по близости векторов и добавляются в контекст.</p>
+        </div>
+        <span class="minute">32–39 мин</span>
+      </div>
+      <div class="two-col">
+        <div class="visual-card fade">
+          <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">RAG: открытая книга для модели</span><button class="window-action" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/04_02_rag_otkrytaya_kniga.webp','RAG как открытая книга')">Увеличить</button></div>
+          <button class="visual-button" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/04_02_rag_otkrytaya_kniga.webp','RAG как открытая книга')"><img decoding="async" loading="lazy" src="../png/zanyatie2_agentnye_sistemy/04_02_rag_otkrytaya_kniga.webp" alt="RAG как открытая книга"></button>
+        </div>
+        <div class="visual-card fade">
+          <div class="window-bar"><div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div><span class="window-title">MCP: универсальная розетка</span><button class="window-action" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/03_02_mcp_usb_c_dlya_ii.webp','MCP как USB-C для ИИ')">Увеличить</button></div>
+          <button class="visual-button" type="button" onclick="openLightbox('../png/zanyatie2_agentnye_sistemy/03_02_mcp_usb_c_dlya_ii.webp','MCP как USB-C для ИИ')"><img decoding="async" loading="lazy" src="../png/zanyatie2_agentnye_sistemy/03_02_mcp_usb_c_dlya_ii.webp" alt="MCP как универсальный протокол подключения инструментов"></button>
+        </div>
+      </div>
+      <div class="flow fade"><span>Материалы</span><i>→</i><span>Фрагменты</span><i>→</i><span>Эмбеддинги</span><i>→</i><span>Поиск по смыслу</span><i>→</i><span>Контекст</span></div>
+      <p class="compact-note fade"><strong>Для кружка:</strong> RAG позволяет отвечать по вашим методическим материалам, а MCP — подключать файлы, базы данных и другие разрешённые инструменты единым способом.</p>
+    </div>
+  </section>
+
+  <section class="lesson part-two-section alt" id="teacher-agent">
+    <div class="lesson-inner">
+      <div class="section-head fade">
+        <div class="section-num">2.7</div>
+        <div>
+          <span class="section-label">Педагогический смысл</span>
+          <h3>Агент-наставник помогает увидеть путь каждого студента</h3>
+          <p>Задача не в автоматической отметке, а в масштабировании диагностической обратной связи: обнаружить место затруднения и выбрать следующий вопрос.</p>
+        </div>
+        <span class="minute">39–45 мин</span>
+      </div>
+      <div class="mentor-flow fade">
+        <div class="mentor-step">Получить наблюдаемые шаги решения</div>
+        <div class="mentor-step">Сопоставить с критериями</div>
+        <div class="mentor-step">Найти первое отклонение</div>
+        <div class="mentor-step">Задать диагностический вопрос</div>
+        <div class="mentor-step">Собрать отчёт преподавателю</div>
+      </div>
+      <div class="concept-grid fade">
+        <article class="concept"><strong>Что анализировать</strong><p>Черновики, версии проекта, результаты тестов, ответы на вопросы и объяснение выбора.</p></article>
+        <article class="concept"><strong>Что поручить агенту</strong><p>Рутинное сопоставление с критериями, поиск первого сбоя и подготовку дозированной подсказки.</p></article>
+        <article class="concept"><strong>Что оставить человеку</strong><p>Педагогическое решение, ответственность, мотивацию, этику и понимание контекста студента.</p></article>
+      </div>
+      <div class="method-stack fade">
+        <details class="method"><summary>Условия безопасного применения</summary><div class="method-body"><ul><li>Не передавать лишние персональные данные.</li><li>Показывать студенту критерии анализа.</li><li>Не выдавать готовый ответ раньше диагностического вопроса.</li><li>Оставлять преподавателю возможность проверить и изменить рекомендацию.</li></ul></div></details>
+        <details class="method"><summary>Почему это стало возможным сейчас</summary><div class="method-body">Преподаватель один, студентов много, а анализ промежуточных шагов трудоёмок. Агент может предварительно обработать наблюдаемые свидетельства и направить внимание преподавателя туда, где оно нужнее всего.</div></details>
+      </div>
+      <p class="final-quote fade">Мы создаём не автоматическую отметку «правильно / неправильно», а помощника, который видит путь студента и выбирает следующий полезный вопрос.</p>
+    </div>
+  </section>
+
+  <section class="bridge" aria-label="Переход к практике по агентам">
+    <div class="bridge-inner fade">
+      <span class="bridge-label">Логический переход к отдельной практике</span>
+      <h2>Теперь модель получила цель,<br>память, инструменты и обратную связь</h2>
+      <p>Следующий шаг — собрать собственного агента и увидеть, как параметры генерации, инструкции и доступные инструменты меняют его поведение.</p>
+      <div class="bridge-route"><span>Цель</span><i>+</i><span>Модель</span><i>+</i><span>Инструкции</span><i>+</i><span>Инструменты</span><i>+</i><span>Контроль человека</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Семинар «От смысла к действию» · Клуб «ИИ в ОбразованИИ» · 2026</p>
+  <p style="margin-top:6px"><a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="color:#6366f1;font-weight:700;text-decoration:none">iivobrazovanii.club</a></p>
+</footer>
+
+<script>
+const fullscreen = document.getElementById('fullscreen');
+const fsFrame = document.getElementById('fs-frame');
+const fsTitle = document.getElementById('fs-title');
+
+function openFullscreen(src,title){
+  fsFrame.src=src;
+  fsTitle.textContent=title||'Интерактив';
+  fullscreen.classList.add('open');
+  fullscreen.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeFullscreen(){
+  fullscreen.classList.remove('open');
+  fullscreen.setAttribute('aria-hidden','true');
+  fsFrame.src='';
+  document.body.style.overflow='';
+}
+
+const lightbox=document.getElementById('lightbox');
+const lbImg=document.getElementById('lb-img');
+const lbWrap=document.getElementById('lb-wrap');
+const lbTitle=document.getElementById('lb-title');
+const lbDownload=document.getElementById('lb-download');
+function brandedFilename(url){
+  const name=url.split('/').pop().split('?')[0];
+  return `iivobrazovanii-club_${name}`;
+}
+let lbState={scale:1,x:0,y:0,drag:false,moved:false,sx:0,sy:0,startX:0,startY:0};
+
+function applyLightbox(){
+  lbImg.style.transform=`translate(${lbState.x}px,${lbState.y}px) scale(${lbState.scale})`;
+}
+function openLightbox(src,title){
+  lbImg.src=src;
+  lbImg.alt=title||'Инфографика';
+  lbTitle.textContent=title||'Инфографика';
+  lbDownload.href=src.replace(/\.webp$/i,".png");
+  lbDownload.download=brandedFilename(src.replace(/\.webp$/i,".png"));
+  lbState={scale:1,x:0,y:0,drag:false,moved:false,sx:0,sy:0,startX:0,startY:0};
+  applyLightbox();
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+lbWrap.addEventListener('wheel',event=>{
+  event.preventDefault();
+  const rect=lbWrap.getBoundingClientRect();
+  const cx=event.clientX-rect.left-rect.width/2;
+  const cy=event.clientY-rect.top-rect.height/2;
+  const next=Math.max(.25,Math.min(12,lbState.scale*(event.deltaY<0?1.12:.893)));
+  const ratio=next/lbState.scale;
+  lbState.x=cx-(cx-lbState.x)*ratio;
+  lbState.y=cy-(cy-lbState.y)*ratio;
+  lbState.scale=next;
+  applyLightbox();
+},{passive:false});
+lbWrap.addEventListener('mousedown',event=>{
+  lbState.drag=true;lbState.moved=false;lbState.sx=event.clientX;lbState.sy=event.clientY;
+  lbState.startX=lbState.x;lbState.startY=lbState.y;lbWrap.classList.add('grabbing');event.preventDefault();
+});
+document.addEventListener('mousemove',event=>{
+  if(!lbState.drag)return;
+  const dx=event.clientX-lbState.sx,dy=event.clientY-lbState.sy;
+  if(Math.abs(dx)>3||Math.abs(dy)>3)lbState.moved=true;
+  lbState.x=lbState.startX+dx;lbState.y=lbState.startY+dy;applyLightbox();
+});
+document.addEventListener('mouseup',()=>{lbState.drag=false;lbWrap.classList.remove('grabbing')});
+lbWrap.addEventListener('dblclick',()=>{lbState.scale=1;lbState.x=0;lbState.y=0;applyLightbox()});
+lbWrap.addEventListener('click',event=>{
+  if(lbState.moved){lbState.moved=false;return}
+  if(event.target===lbWrap)closeLightbox();
+});
+
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){closeFullscreen();closeLightbox()}
+});
+
+document.querySelectorAll('.method').forEach(details=>{
+  details.addEventListener('toggle',()=>details.querySelector('summary').setAttribute('aria-expanded',String(details.open)));
+  details.querySelector('summary').setAttribute('aria-expanded','false');
+});
+
+if('IntersectionObserver' in window){
+  const revealObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add('in')});
+  },{threshold:.06,rootMargin:'0px 0px -25px 0px'});
+  document.querySelectorAll('.fade').forEach(element=>revealObserver.observe(element));
+
+  const navLinks=[...document.querySelectorAll('.nav-link')];
+  const sectionObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting)return;
+      navLinks.forEach(link=>link.classList.toggle('active',link.getAttribute('href')==='#'+entry.target.id));
+    });
+  },{threshold:.2,rootMargin:'-58px 0px -55% 0px'});
+  document.querySelectorAll('section[id]').forEach(section=>sectionObserver.observe(section));
+}else{
+  document.querySelectorAll('.fade').forEach(element=>element.classList.add('in'));
+}
+</script>
+</body>
+</html>

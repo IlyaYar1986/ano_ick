@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Качество данных и цифровая безопасность</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --cyan-lt:#e0f2fe;
+  --amber:#f59e0b;
+  --amber-lt:#fffbeb;
+  --green:#16a34a;
+  --green-lt:#f0fdf4;
+  --red:#dc2626;
+  --red-lt:#fef2f2;
+  --text:#0f172a;
+  --muted:#64748b;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(99,102,241,.14),transparent 32%),
+    radial-gradient(circle at 85% 6%,rgba(14,165,233,.13),transparent 34%),
+    linear-gradient(180deg,#f8fafc 0%,#eef2ff 30%,#f8fafc 100%);
+  color:var(--text);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* NAV */
+nav.top{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,.06);
+  display:flex;align-items:center;padding:0 20px;z-index:900;
+  gap:2px;overflow-x:auto;scrollbar-width:none;
+}
+nav.top::-webkit-scrollbar{display:none}
+.nav-logo{font-weight:900;font-size:.93rem;color:var(--indigo-dk);white-space:nowrap;margin:0 10px 0 4px;flex-shrink:0}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-link{padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;flex-shrink:0}
+.nav-link:hover,.nav-link.active{color:var(--indigo);background:var(--indigo-lt)}
+.nav-link:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+/* HERO */
+#hero{
+  min-height:100vh;padding:calc(var(--nav-h) + 56px) 24px 64px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+.hero-badge{padding:5px 14px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:100px;font-size:.78rem;font-weight:700;color:var(--indigo-dk)}
+.hero-title{font-size:clamp(2rem,5.5vw,3.6rem);font-weight:900;line-height:1.12;letter-spacing:-1.5px;margin-bottom:16px;max-width:900px}
+.hero-title em{color:var(--indigo);font-style:normal}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:660px;margin-bottom:36px}
+.hero-img{max-width:900px;width:100%;margin-bottom:40px}
+.hero-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:820px}
+.hero-nav a{padding:8px 16px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--text);text-decoration:none;box-shadow:0 2px 8px rgba(15,23,42,.05);transition:transform .15s,box-shadow .15s}
+.hero-nav a:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(99,102,241,.15)}
+
+/* SECTIONS */
+.sec{max-width:1180px;margin:0 auto;padding:72px 24px}
+.sec-head{margin-bottom:36px}
+.num-badge{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:14px}
+.n1{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.n2{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.n3{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+.n4{background:linear-gradient(135deg,#16a34a,#4ade80)}
+.n5{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.n6{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.n7{background:linear-gradient(135deg,#dc2626,#f87171)}
+.n8{background:linear-gradient(135deg,#0891b2,#22d3ee)}
+.n9{background:linear-gradient(135deg,#4338ca,#6366f1)}
+.n10{background:linear-gradient(135deg,#ea580c,#fb923c)}
+.n11{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.sec-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+.sec-desc{font-size:1rem;color:var(--muted);max-width:760px;line-height:1.75}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+
+/* IMAGE CARD + PLACEHOLDER */
+.img-card{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,.12);cursor:zoom-in}
+.img-card img{display:block;width:100%;height:auto}
+.img-card .img-missing-caption{display:none}
+.img-card.img-missing{border:2px dashed var(--border);background:var(--indigo-lt);min-height:220px;display:flex;align-items:center;justify-content:center;box-shadow:none;cursor:default}
+.img-card.img-missing img{display:none}
+.img-card.img-missing .img-missing-caption{display:block;color:var(--muted);font-size:.85rem;text-align:center;padding:24px;max-width:340px}
+
+/* VIZ CARD (iframe) */
+.viz{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.viz-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#f8fafc;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febb2c}.dg{background:#27c840}
+.viz-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);flex:1}
+.viz-fs{display:flex;align-items:center;gap:5px;padding:4px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;font-size:.71rem;font-weight:600;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s;white-space:nowrap}
+.viz-fs:hover{background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.viz iframe{width:100%;border:none;display:block}
+
+/* LIGHTBOX */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.overlay img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.overlay-close{position:absolute;top:18px;right:22px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.overlay-close:hover{background:rgba(255,255,255,.22)}
+.overlay-download{position:absolute;top:18px;right:72px;height:40px;padding:0 16px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;z-index:2}
+.overlay-download:hover{background:rgba(255,255,255,.22)}
+
+/* FULLSCREEN IFRAME OVERLAY */
+#fs-overlay{position:fixed;inset:0;background:rgba(2,6,23,.94);z-index:2100;display:none;flex-direction:column}
+#fs-overlay.open{display:flex}
+#fs-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.08)}
+#fs-title{font-size:.8rem;font-weight:700;color:rgba(255,255,255,.65);flex:1}
+#fs-close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.8);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#fs-close:hover{background:rgba(255,255,255,.2)}
+#fs-frame{flex:1;border:none;background:#fff}
+
+/* SCROLL REVEAL */
+.fade{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fade.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fade{opacity:1;transform:none;transition:none}}
+@media (max-width:900px){.sec{padding:56px 18px}}
+
+.svc-link{color:var(--indigo);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+
+/* S1: POLL */
+.poll-duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+@media (max-width:700px){.poll-duo{grid-template-columns:1fr}}
+.poll-opt{
+  text-align:left;background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:20px 22px;cursor:pointer;transition:all .2s;font-size:.95rem;line-height:1.6;
+}
+.poll-opt:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,.12)}
+.poll-opt.chosen{border-color:var(--indigo);box-shadow:0 8px 24px rgba(99,102,241,.18)}
+.poll-opt .sign{font-size:1.6rem;font-weight:900;display:block;margin-bottom:6px}
+.poll-opt[data-vote="yes"] .sign{color:var(--green)}
+.poll-opt[data-vote="no"] .sign{color:var(--red)}
+.poll-answer{border-radius:12px;padding:13px 18px;background:var(--indigo-lt);color:var(--indigo-dk);font-weight:700;font-size:.95rem}
+
+/* S2: RESPONSIBILITY GRID */
+.resp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+@media (max-width:800px){.resp-grid{grid-template-columns:1fr}}
+.resp-card p.rc-name{font-weight:800;margin-bottom:6px;font-size:1rem}
+.resp-card p.rc-amount{font-weight:900;font-size:1.2rem;color:var(--indigo-dk);margin-bottom:8px}
+.resp-card p:not(.rc-name):not(.rc-amount){color:var(--muted);font-size:.9rem;line-height:1.6}
+.note-callout{background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:14px;padding:16px 20px;margin-bottom:24px}
+.note-callout p{color:var(--indigo-dk);font-size:.92rem;line-height:1.7}
+
+.fine-table-wrap{overflow-x:auto;margin-bottom:20px;border:1px solid var(--border);border-radius:14px}
+table.fine-table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+table.fine-table caption{text-align:left;font-weight:700;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--border);caption-side:top}
+table.fine-table th{text-align:left;padding:10px 14px;background:var(--indigo-lt);color:var(--indigo-dk);font-weight:700}
+table.fine-table td{padding:10px 14px;border-top:1px solid var(--border);color:var(--text)}
+
+/* FIVE-STYLE CARD GRIDS (переиспользуется в блоках качества данных, вопросов сервису, гигиены) */
+.five-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.five-card p.fq-name{font-weight:800;margin-bottom:8px;font-size:.96rem}
+.five-card p:not(.fq-name){color:var(--muted);font-size:.88rem;line-height:1.6}
+
+/* S2: DATA QUALITY */
+.filename-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:20px}
+@media (max-width:700px){.filename-compare{grid-template-columns:1fr}}
+.filename-compare .fc-arrow{font-size:1.6rem;color:var(--indigo);text-align:center}
+.filename-compare .fc-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px}
+.filename-compare .fc-box.bad code{color:var(--red);text-decoration:line-through;opacity:.75}
+.filename-compare .fc-box.good code{color:var(--green)}
+.filename-compare .fc-box p{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+.filename-compare .fc-box code{display:block;font-family:'SFMono-Regular',Consolas,monospace;font-size:.84rem;line-height:1.9}
+
+/* S5: DIGITAL HYGIENE */
+.hygiene-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media (max-width:700px){.hygiene-grid{grid-template-columns:1fr}}
+.hygiene-card p.hg-name{font-weight:800;margin-bottom:8px;font-size:1rem}
+.hygiene-card ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.hygiene-card li{padding-left:22px;position:relative;color:var(--muted);font-size:.9rem;line-height:1.55}
+.hygiene-card li::before{content:"—";position:absolute;left:0;color:var(--indigo)}
+
+/* S6: PROMPT + STEPS */
+.prompt-box{background:#0f172a;border-radius:14px;overflow:hidden;margin-bottom:18px}
+.prompt-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1e293b;color:#e2e8f0;font-size:.82rem;font-weight:700}
+.copy-btn{padding:5px 12px;border-radius:8px;border:1px solid #475569;background:transparent;color:#e2e8f0;font-size:.76rem;font-weight:700;cursor:pointer;transition:background .2s}
+.copy-btn:hover{background:#334155}
+.prompt-box pre{margin:0;padding:18px 16px;color:#e2e8f0;font-size:.82rem;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.step-list{list-style:none;counter-reset:pstep;display:flex;flex-direction:column;gap:8px}
+.step-list li{counter-increment:pstep;padding-left:30px;position:relative;color:var(--text);font-size:.92rem}
+.step-list li::before{content:counter(pstep);position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:var(--indigo);color:#fff;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+/* exception callout (amber) */
+.exception-note{background:var(--amber-lt);border:1px solid #fcd34d;border-radius:16px;padding:20px 24px;margin-top:20px}
+.exception-note p{color:#78350f;line-height:1.7;font-size:.93rem}
+.exception-note p strong{display:block;margin-bottom:4px}
+
+/* CHECKLIST */
+.checklist-progress-bar{height:10px;border-radius:100px;background:var(--indigo-lt);overflow:hidden;margin-bottom:20px}
+.checklist-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--indigo),var(--cyan));border-radius:100px;transition:width .3s ease}
+.check-group{margin-bottom:20px}
+.check-group:last-child{margin-bottom:0}
+.check-group h3{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:10px}
+.checklist-items{list-style:none;display:flex;flex-direction:column;gap:12px}
+.checklist-items label{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.95rem}
+.checklist-items input{width:18px;height:18px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0}
+.checklist-done{margin-top:18px;padding:12px 16px;background:var(--green-lt);color:var(--green);border-radius:10px;font-weight:700}
+
+.quiz{display:flex;flex-direction:column;gap:18px}
+.quiz-question{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.quiz-text{font-weight:700;margin-bottom:12px}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-options label{display:flex;align-items:center;gap:8px;font-size:.92rem;cursor:pointer}
+.quiz-options label.quiz-correct-answer{color:var(--green);font-weight:700}
+.quiz-options input{accent-color:var(--indigo)}
+.quiz-check{padding:8px 16px;border-radius:9px;border:none;background:var(--indigo);color:#fff;font-weight:700;font-size:.82rem;cursor:pointer}
+.quiz-check:hover{background:var(--indigo-dk)}
+.quiz-feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.9rem}
+.quiz-feedback.correct{background:var(--green-lt);color:var(--green)}
+.quiz-feedback.incorrect{background:var(--red-lt);color:var(--red)}
+.quiz-score-box{text-align:center;font-weight:800;color:var(--indigo-dk)}
+
+.conclusion-list{list-style:none;counter-reset:concl;display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.conclusion-list li{counter-increment:concl;padding-left:38px;position:relative;font-size:1rem}
+.conclusion-list li::before{content:counter(concl);position:absolute;left:0;top:-2px;width:26px;height:26px;border-radius:50%;background:var(--indigo);color:#fff;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+.prev-link{
+  display:flex;align-items:center;gap:12px;padding:16px 22px;background:#f0f9ff;border:1px solid #bae6fd;
+  border-radius:12px;text-decoration:none;color:#0891b2;font-weight:600;font-size:.93rem;
+  transition:background .2s,transform .15s,box-shadow .2s;margin-top:24px;
+}
+.prev-link:hover{background:#e0f2fe;transform:translateY(-1px);box-shadow:0 6px 20px rgba(56,189,248,.14)}
+
+footer{text-align:center;padding:32px 20px 48px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Навигация по странице">
+  <a class="nav-link" href="../oglavlenie.html">← Оглавление</a>
+  <span class="nav-sep"></span>
+  <span class="nav-logo">Качество и безопасность</span>
+  <span class="nav-sep"></span>
+  <a class="nav-link" href="#s1">От этики к закону</a>
+  <a class="nav-link" href="#s2">Качество данных</a>
+  <a class="nav-link" href="#s3">Ответственность</a>
+  <a class="nav-link" href="#s4">Кейс и штрафы</a>
+  <a class="nav-link" href="#s5">Цифровая гигиена</a>
+  <a class="nav-link" href="#s6">5 вопросов</a>
+  <a class="nav-link" href="#s7">Сравнение сервисов</a>
+  <a class="nav-link" href="#s8">Промпт-проверка</a>
+  <a class="nav-link" href="#s9">При инциденте</a>
+  <a class="nav-link" href="#checklist">Чек-лист</a>
+  <a class="nav-link" href="#quiz">Квиз</a>
+</nav>
+
+<header id="hero">
+  <div class="hero-badges">
+    <span class="hero-badge">Раздел 4 · Лекция 4.4</span>
+    <span class="hero-badge">45 минут</span>
+    <span class="hero-badge">Для преподавателей</span>
+  </div>
+  <h1 class="hero-title">Качество данных и <em>цифровая безопасность</em></h1>
+  <p class="hero-sub">Как системно поддерживать порядок в данных, сколько стоит нарушение 152-ФЗ и как защитить себя и студентов — от паролей и фишинга до утечки — за 10 минут в день.</p>
+  <figure class="img-card hero-img" data-lightbox>
+    <img src="../png/bezopasnost_dannyh/01_hero_kachestvo_i_bezopasnost.webp" alt="Инфографика: путь от разрозненных и уязвимых данных к качественным и защищённым — качество, безопасность, закон, готовность к инциденту" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Качество данных и цифровая безопасность — обзор лекции (сгенерируйте по промпту 01 из плана)</figcaption>
+  </figure>
+  <nav class="hero-nav" aria-label="Разделы страницы">
+    <a href="#s2">Управление качеством данных</a>
+    <a href="#s4">Сколько стоит утечка</a>
+    <a href="#s5">Цифровая гигиена</a>
+    <a href="#s7">GigaChat против ChatGPT</a>
+    <a href="#s9">Алгоритм при инциденте</a>
+    <a href="#quiz">Проверить себя</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ БЛОК 1 ══════════ -->
+<section class="sec" id="s1">
+  <div class="sec-head fade">
+    <div class="num-badge n1">1</div>
+    <h2 class="sec-title">От этики к закону</h2>
+    <p class="sec-desc">Мы уже дважды говорили о том, что считается конфиденциальными данными и почему их нельзя загружать в ИИ. Сегодня завершаем раздел 4 — и решаем сразу две задачи: наводим системный порядок в данных и разбираемся с цифровой безопасностью не только на уровне закона, а на уровне ежедневных привычек — паролей, проверки сервисов и действий при инциденте.</p>
+  </div>
+
+  <div class="poll-duo fade">
+    <button type="button" class="poll-opt" data-vote="yes">
+      <span class="sign">Да</span>
+      Я читал(а) политику конфиденциальности хотя бы одного ИИ-сервиса
+    </button>
+    <button type="button" class="poll-opt" data-vote="no">
+      <span class="sign">Нет</span>
+      Ни разу не открывал(а) политику конфиденциальности сервиса
+    </button>
+  </div>
+  <div class="poll-answer fade" id="poll-answer">Ответьте честно — как на лекции, в чат.</div>
+</section>
+
+<!-- ══════════ БЛОК 2 (НОВЫЙ): УПРАВЛЕНИЕ КАЧЕСТВОМ ДАННЫХ ══════════ -->
+<section class="sec" id="s2">
+  <div class="sec-head fade">
+    <div class="num-badge n2">2</div>
+    <h2 class="sec-title">Управление качеством данных</h2>
+    <p class="sec-desc">В лекции 4.2 мы один раз почистили «грязную» таблицу. Но название раздела не зря звучит как «управление» — это не разовая уборка, а система: пять признаков, по которым стоит регулярно проверять любой рабочий файл.</p>
+  </div>
+
+  <div class="five-grid fade" style="margin-bottom:24px">
+    <div class="card five-card">
+      <p class="fq-name">Точность 🎯</p>
+      <p>Оценки и даты введены без опечаток и соответствуют реальности — «5» не превратилась в «S», а дата пересдачи не в будущем веке.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">Полнота 🧩</p>
+      <p>Нет пустых ячеек там, где данные обязательны: у каждого студента заполнены все текущие оценки и отметки посещаемости.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">Согласованность 🔗</p>
+      <p>Одно и то же обозначено одинаково во всех файлах: «Н» для пропуска — везде «Н», а не «н», «неявка» и «0» вперемешку.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">Актуальность ⏰</p>
+      <p>Файл обновлён недавно и понятно, когда — а не «черновик_финал_v3», который никто не открывал два месяца.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">Уникальность 🧬</p>
+      <p>Один студент — одна строка. Нет случайно продублированных записей после копирования между листами.</p>
+    </div>
+  </div>
+
+  <div class="card fade" style="margin-bottom:24px">
+    <p style="font-weight:700;margin-bottom:14px">Узнаёте свою папку с файлами?</p>
+    <div class="filename-compare">
+      <div class="fc-box bad">
+        <p>Было</p>
+        <code>итог2_финал.xlsx</code>
+        <code>итог2_финал_ИСПРАВЛЕНО.xlsx</code>
+        <code>копия копии (2).xlsx</code>
+      </div>
+      <div class="fc-arrow">→</div>
+      <div class="fc-box good">
+        <p>Стало</p>
+        <code>uspevaemost_2026-10-15.xlsx</code>
+        <p style="margin-top:8px;font-size:.82rem;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:600">дата в названии + единый шаблон = всегда понятно, какой файл актуальный</p>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem">Один узнаваемый шаблон имени файла экономит больше времени, чем кажется — особенно когда файл открывает коллега или вы сами через полгода.</p>
+  </div>
+
+  <div class="card fade">
+    <p style="font-weight:700;margin-bottom:10px">Практика на каждый день</p>
+    <ol class="step-list">
+      <li>Заведите единый шаблон таблицы для всех групп и предметов</li>
+      <li>Проверяйте файл на пять признаков выше перед началом и в середине четверти</li>
+      <li>Делайте резервную копию перед крупными правками — не поверх оригинала</li>
+      <li>Кратко документируйте, что означает каждый нестандартный столбец</li>
+    </ol>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:28px">
+    <img decoding="async" src="../png/bezopasnost_dannyh/02_upravlenie_kachestvom_dannyh.webp" alt="Инфографика управления качеством данных: пять признаков — точность, полнота, согласованность, актуальность, уникальность — и переход от хаоса файлов к системе" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Управление качеством данных (сгенерируйте по промпту 02 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 3 ══════════ -->
+<section class="sec" id="s3">
+  <div class="sec-head fade">
+    <div class="num-badge n3">3</div>
+    <h2 class="sec-title">152-ФЗ: кто отвечает и сколько это стоит</h2>
+    <p class="sec-desc">Когда происходит утечка данных, отвечать могут и преподаватель лично, и образовательная организация. Три категории ответственности по КоАП РФ — и штрафы, которые с 30 мая 2025 года выросли в разы.</p>
+  </div>
+
+  <div class="resp-grid fade">
+    <div class="card resp-card">
+      <p class="rc-name">Физическое лицо 🧑</p>
+      <p class="rc-amount">10 000 – 500 000 ₽</p>
+      <p>Учителя, преподаватели, классные руководители, кураторы без управленческих функций.</p>
+    </div>
+    <div class="card resp-card">
+      <p class="rc-name">Должностное лицо 🧑‍💼</p>
+      <p class="rc-amount">50 000 – 1 300 000 ₽</p>
+      <p>Директор, заместители директора, завучи, руководители подразделений — те, кто наделён правом принимать решения.</p>
+    </div>
+    <div class="card resp-card">
+      <p class="rc-name">Организация 🏫</p>
+      <p class="rc-amount">150 000 – 20 000 000 ₽</p>
+      <p>Школа, колледж, вуз как оператор персональных данных — отвечает всегда, независимо от конкретного виновника.</p>
+    </div>
+  </div>
+
+  <div class="note-callout fade">
+    <p>💡 <strong>Важно:</strong> обычный преподаватель по КоАП — «гражданин». Должностным лицом он становится только при особых полномочиях: член приёмной или аттестационной комиссии, заведующий кафедрой.</p>
+  </div>
+
+  <div class="fine-table-wrap fade">
+    <table class="fine-table">
+      <caption>За нарушение правил обработки персональных данных</caption>
+      <thead><tr><th>Категория</th><th>Первичное нарушение</th><th>Повторное нарушение</th></tr></thead>
+      <tbody>
+        <tr><td>Физическое лицо</td><td>10 000 – 15 000 ₽</td><td>15 000 – 30 000 ₽</td></tr>
+        <tr><td>Должностное лицо</td><td>50 000 – 100 000 ₽</td><td>100 000 – 200 000 ₽</td></tr>
+        <tr><td>Организация</td><td>150 000 – 300 000 ₽</td><td>300 000 – 500 000 ₽</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="fine-table-wrap fade">
+    <table class="fine-table">
+      <caption>За утечку персональных данных — по объёму</caption>
+      <thead><tr><th>Объём утечки</th><th>Физлицо</th><th>Должностное лицо</th><th>Организация</th></tr></thead>
+      <tbody>
+        <tr><td>1 000 – 10 000 субъектов</td><td>100–200 тыс. ₽</td><td>200–400 тыс. ₽</td><td>3–5 млн ₽</td></tr>
+        <tr><td>10 000 – 100 000 субъектов</td><td>200–300 тыс. ₽</td><td>300–500 тыс. ₽</td><td>5–10 млн ₽</td></tr>
+        <tr><td>Более 100 000 субъектов</td><td>300–400 тыс. ₽</td><td>400–600 тыс. ₽</td><td>10–15 млн ₽</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="img-card fade" data-lightbox>
+    <img decoding="async" src="../png/bezopasnost_dannyh/03_otvetstvennost_i_shtrafy.webp" alt="Инфографика: три категории ответственности по 152-ФЗ — физическое лицо, должностное лицо, организация — с диапазонами штрафов" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Кто отвечает — и сколько это стоит (промпт 03 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 4 ══════════ -->
+<section class="sec" id="s4">
+  <div class="sec-head fade">
+    <div class="num-badge n4">4</div>
+    <h2 class="sec-title">Реальный кейс: утечка в Минпросвещении</h2>
+    <p class="sec-desc">В июле 2023 года из-за всероссийского конкурса «Большая перемена» утекли данные 3,4 миллиона участников: ФИО, телефоны, email, даты рождения, места работы и учёбы. Роскомнадзор обнаружил базу свободно доступной в Telegram-каналах.</p>
+  </div>
+
+  <div class="card fade" style="margin-bottom:20px">
+    <p style="font-weight:700;margin-bottom:8px">Итог по правилам 2023 года</p>
+    <p style="color:var(--muted)">Судебный участок № 423 мирового судьи Тверского района Москвы вынес решение: штраф Минпросвещению — <strong style="color:var(--text)">60 000 рублей</strong> (сентябрь 2023), нарушение квалифицировано по ч. 1 ст. 13.11 КоАП РФ.
+    Источники: <a class="svc-link" href="https://rvs.su/novosti/2023/minprosveshcheniya-poluchilo-shtraf-za-utechku-personalnyh-dannyh-uchastnikov-konkursa" target="_blank" rel="noopener">РВС</a>, <a class="svc-link" href="https://www.nakanune.ru/news/2023/09/21/22737625/" target="_blank" rel="noopener">Накануне.RU</a>.</p>
+  </div>
+
+  <div class="note-callout fade">
+    <p>Критически важно понимать: это цифра по <strong>старым, куда более мягким правилам</strong> 2023 года. По правилам, действующим с 30 мая 2025 года, такая же утечка обошлась бы организации в <strong>10–15 млн ₽</strong>, должностному лицу — до <strong>600 тыс. ₽</strong>, а при повторной утечке — вплоть до <strong>500 млн ₽ или 3% выручки</strong>. Законодательство стало жёстче примерно в <strong>250 раз</strong>: то, что раньше стоило как подержанная машина, теперь может стоить как квартира в Москве.</p>
+  </div>
+
+  <div class="viz fade">
+    <div class="viz-bar">
+      <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+      <span class="viz-lbl">Калькулятор штрафа 152-ФЗ — сравните 2023 и 2025 годы</span>
+      <button type="button" class="viz-fs" data-fs-src="shtraf_kalkulyator.html" data-fs-title="Калькулятор штрафа 152-ФЗ">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        На весь экран
+      </button>
+    </div>
+    <iframe src="shtraf_kalkulyator.html" height="600" title="Калькулятор штрафа 152-ФЗ" loading="lazy"></iframe>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:28px">
+    <img decoding="async" src="../png/bezopasnost_dannyh/04_keys_minprosvescheniya.webp" alt="Инфографика с таймлайном кейса Минпросвещения и сравнением штрафа: 60 тысяч рублей в 2023 году против 10-15 миллионов в 2025" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Один и тот же случай — разная цена (промпт 04 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 5 (НОВЫЙ): ЦИФРОВАЯ ГИГИЕНА ══════════ -->
+<section class="sec" id="s5">
+  <div class="sec-head fade">
+    <div class="num-badge n5">5</div>
+    <h2 class="sec-title">Цифровая безопасность шире одного закона</h2>
+    <p class="sec-desc">152-ФЗ регулирует персональные данные, но большинство реальных инцидентов начинается не с закона, а с обычной цифровой неряшливости: слабого пароля, клика по фишинговой ссылке или отсутствия резервной копии. Четыре привычки, которые снижают риск ещё до того, как дело доходит до утечки.</p>
+  </div>
+
+  <div class="hygiene-grid fade">
+    <div class="card hygiene-card">
+      <p class="hg-name">Пароли и доступ 🔑</p>
+      <ul>
+        <li>Уникальный пароль для каждого сервиса — не переиспользуйте один и тот же</li>
+        <li>Менеджер паролей вместо запоминания или файла «пароли.txt»</li>
+        <li>Двухфакторная аутентификация (2FA) везде, где она есть</li>
+      </ul>
+    </div>
+    <div class="card hygiene-card">
+      <p class="hg-name">Фишинг и социальная инженерия ⚠️</p>
+      <ul>
+        <li>Проверяйте адрес отправителя, а не только имя в письме</li>
+        <li>Не переходите по ссылкам из неожиданных писем — открывайте сайт вручную</li>
+        <li>Не вводите пароль на странице, куда попали по ссылке из письма</li>
+      </ul>
+    </div>
+    <div class="card hygiene-card">
+      <p class="hg-name">Устройства 💻</p>
+      <ul>
+        <li>Блокируйте экран компьютера, уходя из кабинета</li>
+        <li>Обновляйте систему и браузер — обновления часто закрывают уязвимости</li>
+        <li>Не работайте с данными студентов через случайный публичный Wi-Fi</li>
+      </ul>
+    </div>
+    <div class="card hygiene-card">
+      <p class="hg-name">Резервные копии 💾</p>
+      <ul>
+        <li>Регулярно копируйте важные файлы отдельно от рабочего компьютера</li>
+        <li>Не храните единственную копию журнала в одном месте</li>
+        <li>Проверяйте, что копия действительно открывается, а не только создаётся</li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:28px">
+    <img decoding="async" src="../png/bezopasnost_dannyh/05_cifrovaya_gigiena.webp" alt="Инфографика цифровой гигиены: пароли и двухфакторная аутентификация, распознавание фишинга, безопасность устройств, резервное копирование" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Цифровая безопасность шире одного закона (промпт 05 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 6 ══════════ -->
+<section class="sec" id="s6">
+  <div class="sec-head fade">
+    <div class="num-badge n6">6</div>
+    <h2 class="sec-title">Пять вопросов к любому ИИ-сервису</h2>
+    <p class="sec-desc">Каждый раз, когда вы загружаете данные в ИИ-сервис, вы фактически передаёте их третьей стороне. Эти пять вопросов покажут, стоит ли этой стороне доверять.</p>
+  </div>
+
+  <div class="five-grid fade">
+    <div class="card five-card">
+      <p class="fq-name">1. Где хранятся данные? 🌍</p>
+      <p>Россия — ✅ соответствует 152-ФЗ. Зарубежные серверы — ❌ нарушение для персональных данных граждан РФ.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">2. Используются для обучения? 🧠</p>
+      <p>Нет — ✅ безопасно. Да — ❌ ваши данные станут частью модели. Можно отключить — ⚠️ найдите, где именно.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">3. Как долго хранятся? ⏳</p>
+      <p>Удаляются после сессии — ✅ идеально. Хранятся определённый срок — ⚠️ уточните, сколько. Бессрочно — ❌ риск утечки.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">4. Можно ли их удалить? 🗑️</p>
+      <p>Да, в любой момент — ✅ хорошо. С задержкой — ⚠️ приемлемо. Нет или неясно — ❌ избегайте сервиса.</p>
+    </div>
+    <div class="card five-card">
+      <p class="fq-name">5. Кто ещё имеет доступ? 👁️</p>
+      <p>Только техподдержка при необходимости — ✅. Партнёры компании — ⚠️ читайте подробнее. Третьи лица без уточнения — ❌ опасно.</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════ БЛОК 7 ══════════ -->
+<section class="sec" id="s7">
+  <div class="sec-head fade">
+    <div class="num-badge n7">7</div>
+    <h2 class="sec-title">Практический разбор: GigaChat, ChatGPT, Claude</h2>
+    <p class="sec-desc">Разберём три популярных сервиса и научимся находить в их политике конфиденциальности главное — без чтения 50 страниц юридического текста: <a class="svc-link" href="https://developers.sber.ru/docs/ru/policies/gigachat-agreement/individuals" target="_blank" rel="noopener">GigaChat</a>, <a class="svc-link" href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">ChatGPT</a> и <a class="svc-link" href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">Claude</a>.</p>
+  </div>
+
+  <div class="viz fade">
+    <div class="viz-bar">
+      <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+      <span class="viz-lbl">Читаем политику конфиденциальности — переключайте вкладки</span>
+      <button type="button" class="viz-fs" data-fs-src="sravnenie_servisov.html" data-fs-title="GigaChat vs ChatGPT vs Claude">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        На весь экран
+      </button>
+    </div>
+    <iframe src="sravnenie_servisov.html" height="660" title="GigaChat vs ChatGPT vs Claude" loading="lazy"></iframe>
+  </div>
+
+  <div class="fine-table-wrap fade" style="margin-top:28px">
+    <table class="fine-table">
+      <caption>Сравнительная таблица: что можно и нельзя</caption>
+      <thead><tr><th>Критерий</th><th>GigaChat</th><th>ChatGPT</th><th>Claude</th></tr></thead>
+      <tbody>
+        <tr><td>Серверы в РФ</td><td>✅ Да</td><td>❌ Нет</td><td>❌ Нет</td></tr>
+        <tr><td>Соответствие 152-ФЗ</td><td>✅ Да</td><td>❌ Нет</td><td>❌ Нет</td></tr>
+        <tr><td>Обучение на данных</td><td>⚠️ Обезличенные</td><td>⚠️ Можно отключить</td><td>✅ Не обучается</td></tr>
+        <tr><td>Корпоративная версия</td><td>✅ Есть</td><td>✅ Есть</td><td>✅ Есть</td></tr>
+        <tr><td>Можно для педагогов РФ</td><td>✅ Да</td><td>⚠️ Только без перс. данных</td><td>⚠️ Только без перс. данных</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="exception-note fade">
+    <p><strong>Зачем здесь зарубежные сервисы</strong>
+    ChatGPT и Claude разобраны не как рекомендация, а как учебный кейс: увидеть, как выглядит несовместимый с 152-ФЗ сервис, и научиться быстро это определять. Для работы с данными студентов используйте <a class="svc-link" href="https://developers.sber.ru/portal/products/gigachat" target="_blank" rel="noopener">GigaChat</a> или <a class="svc-link" href="https://ya.ru/ai" target="_blank" rel="noopener">YandexGPT</a> — оба соответствуют закону и часто бесплатны для образования.</p>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:12px">
+    <img decoding="async" src="../png/bezopasnost_dannyh/06_sravnenie_treh_servisov.webp" alt="Инфографика-скоркарта: GigaChat, ChatGPT и Claude по пяти критериям с цветными индикаторами можно/нельзя" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">GigaChat, ChatGPT, Claude — что можно педагогу (промпт 06 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 8 ══════════ -->
+<section class="sec" id="s8">
+  <div class="sec-head fade">
+    <div class="num-badge n8">8</div>
+    <h2 class="sec-title">Промпт: пусть ИИ сам расскажет о своей политике</h2>
+    <p class="sec-desc">Не хотите читать 50 страниц юридического текста? Используйте сам ИИ — только обязательно проверьте ссылки в ответе.</p>
+  </div>
+
+  <div class="prompt-box fade">
+    <div class="prompt-head">
+      <span>Промпт для проверки нового сервиса</span>
+      <button type="button" class="copy-btn" data-copy="prompt-check">Скопировать</button>
+    </div>
+    <pre id="prompt-check">Я преподаватель и хочу использовать ваш сервис.
+Помоги мне понять вашу политику конфиденциальности.
+Ответь на эти вопросы:
+
+1. Где физически хранятся данные пользователей?
+   (В какой стране находятся серверы?)
+
+2. Будут ли мои диалоги использоваться для обучения модели?
+   Могу ли я это отключить? Как?
+
+3. Как долго хранится история моих диалогов?
+   Могу ли я удалить их? Как?
+
+4. Кто ещё, кроме меня, может видеть мои данные?
+
+5. Есть ли у вас корпоративная версия с повышенной защитой данных?
+
+Дай краткие ответы со ссылками на конкретные пункты вашей
+политики конфиденциальности.</pre>
+  </div>
+
+  <div class="card fade">
+    <p style="font-weight:700;margin-bottom:10px">Что делать с ответом</p>
+    <ol class="step-list">
+      <li>Проверьте ссылки на документы</li>
+      <li>Сами откройте указанные разделы и убедитесь</li>
+      <li>Если что-то неясно — уточните дополнительными вопросами</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══════════ БЛОК 9 ══════════ -->
+<section class="sec" id="s9">
+  <div class="sec-head fade">
+    <div class="num-badge n9">9</div>
+    <h2 class="sec-title">Алгоритм действий при инциденте</h2>
+    <p class="sec-desc">Утечка данных, взлом аккаунта из-за фишинга или вы поняли, что случайно загрузили конфиденциальную информацию — важны первые часы, а не идеальность действий.</p>
+  </div>
+
+  <div class="viz fade">
+    <div class="viz-bar">
+      <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+      <span class="viz-lbl">Что делать по шагам — первые 15 минут, час, сутки</span>
+      <button type="button" class="viz-fs" data-fs-src="algoritm_incidenta.html" data-fs-title="Алгоритм действий при инциденте">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        На весь экран
+      </button>
+    </div>
+    <iframe src="algoritm_incidenta.html" height="600" title="Алгоритм действий при инциденте" loading="lazy"></iframe>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin-top:28px">
+    <img decoding="async" src="../png/bezopasnost_dannyh/07_algoritm_incidenta.webp" alt="Инфографика: что делать при утечке данных — первые 15 минут, первый час, первые сутки и чего не делать никогда" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Что делать при инциденте (промпт 07 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ ЧЕК-ЛИСТ ══════════ -->
+<section class="sec" id="checklist">
+  <div class="sec-head fade">
+    <div class="num-badge n10">10</div>
+    <h2 class="sec-title">Чек-лист проверки нового ИИ-сервиса</h2>
+    <p class="sec-desc">Пройдитесь по списку перед использованием любого нового сервиса — отмеченные пункты сохраняются в этом браузере.</p>
+  </div>
+
+  <div class="card fade">
+    <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="checklist-progress"></div></div>
+
+    <div class="check-group">
+      <h3>Перед регистрацией</h3>
+      <ul class="checklist-items">
+        <li><label><input type="checkbox" data-checklist-item="0"> Нашёл политику конфиденциальности на сайте</label></li>
+        <li><label><input type="checkbox" data-checklist-item="1"> Проверил, где хранятся данные (Россия/за рубежом)</label></li>
+        <li><label><input type="checkbox" data-checklist-item="2"> Узнал, используются ли данные для обучения</label></li>
+        <li><label><input type="checkbox" data-checklist-item="3"> Понял, как удалить свои данные при необходимости</label></li>
+      </ul>
+    </div>
+
+    <div class="check-group">
+      <h3>После регистрации</h3>
+      <ul class="checklist-items">
+        <li><label><input type="checkbox" data-checklist-item="4"> Зашёл в настройки конфиденциальности</label></li>
+        <li><label><input type="checkbox" data-checklist-item="5"> Отключил использование данных для обучения (если есть опция)</label></li>
+        <li><label><input type="checkbox" data-checklist-item="6"> Настроил автоудаление истории (если есть)</label></li>
+        <li><label><input type="checkbox" data-checklist-item="7"> Проверил, какие данные о мне уже собраны</label></li>
+      </ul>
+    </div>
+
+    <div class="check-group">
+      <h3>Перед загрузкой данных</h3>
+      <ul class="checklist-items">
+        <li><label><input type="checkbox" data-checklist-item="8"> Убедился, что это НЕ персональные данные</label></li>
+        <li><label><input type="checkbox" data-checklist-item="9"> Если всё же есть ПД — анонимизировал их</label></li>
+        <li><label><input type="checkbox" data-checklist-item="10"> Понимаю, что будет с данными после загрузки</label></li>
+        <li><label><input type="checkbox" data-checklist-item="11"> Готов к тому, что их увидят администраторы сервиса</label></li>
+      </ul>
+    </div>
+
+    <div class="check-group">
+      <h3>Регулярно (раз в месяц)</h3>
+      <ul class="checklist-items">
+        <li><label><input type="checkbox" data-checklist-item="12"> Проверяю, не изменилась ли политика конфиденциальности</label></li>
+        <li><label><input type="checkbox" data-checklist-item="13"> Чищу историю диалогов</label></li>
+        <li><label><input type="checkbox" data-checklist-item="14"> Удаляю неиспользуемые сервисы</label></li>
+      </ul>
+    </div>
+
+    <p class="checklist-done" id="checklist-done" hidden>Все пункты отмечены — вы проверяете сервисы как профессионал!</p>
+  </div>
+</section>
+
+<!-- ══════════ КВИЗ ══════════ -->
+<section class="sec" id="quiz">
+  <div class="sec-head fade">
+    <div class="num-badge n11">11</div>
+    <h2 class="sec-title">Проверьте себя</h2>
+    <p class="sec-desc">Семь вопросов по материалу лекции — ответьте и посмотрите разбор.</p>
+  </div>
+
+  <div class="quiz fade">
+    <div class="quiz-question" data-quiz="0">
+      <p class="quiz-text">1. Кто может нести ответственность при утечке персональных данных студентов?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q0" value="wrong"> Только образовательная организация</label>
+        <label><input type="radio" name="q0" value="right"> И организация, и должностные лица, и рядовые преподаватели — каждый по своей статье</label>
+        <label><input type="radio" name="q0" value="wrong"> Только лично тот преподаватель, который загрузил файл</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="0">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="0" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="1">
+      <p class="quiz-text">2. Насколько выросли штрафы за утечку персональных данных с 30 мая 2025 года по сравнению с делом Минпросвещения 2023 года?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q1" value="wrong"> Не изменились</label>
+        <label><input type="radio" name="q1" value="wrong"> Выросли примерно вдвое</label>
+        <label><input type="radio" name="q1" value="right"> Выросли примерно в 250 раз</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="1">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="1" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="2">
+      <p class="quiz-text">3. Где физически находятся серверы GigaChat согласно его пользовательскому соглашению?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q2" value="right"> На территории Российской Федерации</label>
+        <label><input type="radio" name="q2" value="wrong"> За рубежом, как у большинства ИИ-сервисов</label>
+        <label><input type="radio" name="q2" value="wrong"> Это нигде не указано</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="2">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="2" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="3">
+      <p class="quiz-text">4. Что нужно сделать в первую очередь, если вы случайно загрузили персональные данные во внешний сервис?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q3" value="right"> Прекратить дальнейшую загрузку и сделать скриншоты произошедшего</label>
+        <label><input type="radio" name="q3" value="wrong"> Сразу удалить все следы и никому не говорить</label>
+        <label><input type="radio" name="q3" value="wrong"> Ничего — инцидент обычно решается сам</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="3">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="3" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="4">
+      <p class="quiz-text">5. Claude не обучает модели на данных диалогов пользователей. Почему он всё равно не подходит для персональных данных граждан РФ?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q4" value="wrong"> Потому что Claude платный</label>
+        <label><input type="radio" name="q4" value="right"> Потому что его серверы физически находятся в США, а не в России</label>
+        <label><input type="radio" name="q4" value="wrong"> Потому что Claude не понимает русский язык</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="4">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="4" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="5">
+      <p class="quiz-text">6. Что из перечисленного — пример управления качеством данных как системы, а не разовой уборки?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q5" value="wrong"> Один раз почистить файл перед сдачей отчёта и больше не проверять</label>
+        <label><input type="radio" name="q5" value="right"> Единый шаблон таблицы и регулярный аудит на пять признаков качества каждую четверть</label>
+        <label><input type="radio" name="q5" value="wrong"> Хранить пять версий файла с разными названиями на всякий случай</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="5">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="5" hidden></p>
+    </div>
+
+    <div class="quiz-question" data-quiz="6">
+      <p class="quiz-text">7. Почему двухфакторная аутентификация (2FA) — важная привычка цифровой безопасности?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q6" value="wrong"> Она ускоряет вход в сервис</label>
+        <label><input type="radio" name="q6" value="right"> Даже если пароль украдут, зайти в аккаунт без второго фактора не получится</label>
+        <label><input type="radio" name="q6" value="wrong"> Это требование, актуальное только для банковских приложений</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="6">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="6" hidden></p>
+    </div>
+
+    <div class="quiz-score-box">
+      <p id="quiz-score">Отвечено: 0 / 7</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ЗАКЛЮЧЕНИЕ ══════════ -->
+<section class="sec" id="final">
+  <div class="sec-head fade">
+    <h2 class="sec-title">Заключение: пять ключевых выводов</h2>
+  </div>
+  <ol class="conclusion-list fade">
+    <li><strong>Качество данных — это система, а не разовая уборка</strong>: единый шаблон, регулярный аудит и резервные копии экономят часы работы и нервы</li>
+    <li><strong>Закон стал жёстче</strong> — штрафы выросли в 250 раз, отвечают все: организация, должностные лица, рядовые сотрудники. «Не знал» не освобождает от ответственности</li>
+    <li><strong>Цифровая безопасность не заканчивается на 152-ФЗ</strong> — уникальные пароли, двухфакторная аутентификация и умение распознать фишинг защищают там, где начинается закон</li>
+    <li><strong>Проверка сервиса — это 10 минут</strong>, которые могут сэкономить 600 000 рублей: всегда читайте политику конфиденциальности (или используйте промпт из блока 8) и проверяйте, где хранятся данные</li>
+    <li><strong>В России есть легальные и качественные инструменты</strong> — GigaChat, YandexGPT и другие соответствуют 152-ФЗ и часто бесплатны для образования</li>
+  </ol>
+
+  <figure class="img-card fade" data-lightbox style="margin:28px 0">
+    <img decoding="async" src="../png/bezopasnost_dannyh/08_final_tri_vyvoda.webp" alt="Итоговая инфографика с ключевыми выводами лекции: качество данных, закон, цифровая гигиена, проверка сервиса, легальные инструменты" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Берегите данные — и свою карьеру (промпт 08 из плана)</figcaption>
+  </figure>
+
+  <p class="fade" style="color:var(--muted);max-width:760px">Проверка политики конфиденциальности — это не паранойя, а профессиональная гигиена преподавателя. Те 10 минут, которые вы потратите на чтение перед использованием сервиса, могут уберечь вас от 600 000 рублей штрафа и увольнения. Берегите данные — и свою карьеру! 🛡️</p>
+
+  <a class="prev-link fade" href="ochistka_dannyh.html">
+    ← Лекция 4.2 «Подготовка, очистка и визуализация данных»
+  </a>
+</section>
+
+</main>
+
+<div class="overlay" id="lightbox" aria-hidden="true">
+  <a class="overlay-download" id="lightbox-download" download aria-label="Скачать изображение">⬇ Скачать</a>
+  <button class="overlay-close" id="lightbox-close" aria-label="Закрыть">✕</button>
+  <img id="lightbox-img" alt="">
+</div>
+
+<div id="fs-overlay" aria-hidden="true">
+  <div id="fs-bar">
+    <span id="fs-title"></span>
+    <button type="button" id="fs-close" aria-label="Закрыть полноэкранный режим">✕</button>
+  </div>
+  <iframe id="fs-frame" title="Полноэкранная визуализация"></iframe>
+</div>
+
+<footer>
+  <p>Лекция 4.4 «Управление качеством данных и цифровая безопасность» · Клуб Образование · 2026</p>
+  <p style="margin-top:6px"><a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="color:#6366f1;font-weight:700;text-decoration:none">iivobrazovanii.club</a></p>
+</footer>
+
+<script>
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (!reduceMotion && "IntersectionObserver" in window) {
+  const reveal = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in");
+        reveal.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.06, rootMargin: "0px 0px -24px"});
+  document.querySelectorAll(".fade").forEach((element) => reveal.observe(element));
+} else {
+  document.querySelectorAll(".fade").forEach((element) => element.classList.add("in"));
+}
+
+const navLinks = [...document.querySelectorAll(".nav-link")];
+const sections = [...document.querySelectorAll("main section[id]")];
+if ("IntersectionObserver" in window) {
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach((link) => {
+        link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`);
+      });
+    });
+  }, {rootMargin: "-35% 0px -55%", threshold: 0});
+  sections.forEach((section) => sectionObserver.observe(section));
+}
+
+/* Лайтбокс */
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+const lightboxDownload = document.getElementById("lightbox-download");
+function brandedFilename(url) {
+  const name = url.split("/").pop().split("?")[0];
+  return `iivobrazovanii-club_${name}`;
+}
+document.querySelectorAll(".img-card[data-lightbox]").forEach((card) => {
+  card.addEventListener("click", () => {
+    if (card.classList.contains("img-missing")) return;
+    const img = card.querySelector("img");
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightboxDownload.href = img.src.replace(/\.webp$/i, ".png");
+    lightboxDownload.download = brandedFilename(img.src.replace(/\.webp$/i, ".png"));
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+  });
+});
+function closeLightbox() {
+  if (lightbox.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  lightbox.classList.remove("open");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightboxImg.src = "";
+}
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", (event) => { if (event.target === lightbox) closeLightbox(); });
+
+/* Фуллскрин для iframe-карточек */
+const fsOverlay = document.getElementById("fs-overlay");
+const fsFrame = document.getElementById("fs-frame");
+const fsTitle = document.getElementById("fs-title");
+document.querySelectorAll(".viz-fs").forEach((button) => {
+  button.addEventListener("click", () => {
+    fsFrame.src = button.dataset.fsSrc;
+    fsTitle.textContent = button.dataset.fsTitle;
+    fsOverlay.classList.add("open");
+    fsOverlay.setAttribute("aria-hidden", "false");
+  });
+});
+function closeFs() {
+  if (fsOverlay.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  fsOverlay.classList.remove("open");
+  fsOverlay.setAttribute("aria-hidden", "true");
+  fsFrame.src = "";
+}
+document.getElementById("fs-close").addEventListener("click", closeFs);
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (fsOverlay.classList.contains("open")) { closeFs(); } else { closeLightbox(); }
+});
+
+/* Блок 1: опрос Да/Нет */
+const pollAnswer = document.getElementById("poll-answer");
+document.querySelectorAll(".poll-opt").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".poll-opt").forEach((b) => b.classList.remove("chosen"));
+    button.classList.add("chosen");
+    pollAnswer.textContent = button.dataset.vote === "yes"
+      ? "Вы в меньшинстве — и это здорово. Сегодня разберём, как делать это ещё быстрее: за 10 минут вместо часа."
+      : "Как и у подавляющего большинства коллег — единицы читают политику конфиденциальности. Сегодня научимся делать это быстро и по существу.";
+  });
+});
+
+/* Копирование промпта */
+document.querySelectorAll("[data-copy]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const code = document.getElementById(button.dataset.copy);
+    if (!code) return;
+    const original = button.textContent;
+    try {
+      await navigator.clipboard.writeText(code.innerText);
+      button.textContent = "Скопировано";
+    } catch {
+      button.textContent = "Выделите текст";
+    }
+    window.setTimeout(() => { button.textContent = original; }, 1600);
+  });
+});
+
+/* Чек-лист готовности */
+const CHECKLIST_KEY = "bezopasnost-dannyh-checklist";
+const checklistInputs = [...document.querySelectorAll("[data-checklist-item]")];
+const checklistProgress = document.getElementById("checklist-progress");
+const checklistDone = document.getElementById("checklist-done");
+function loadChecklistState() {
+  try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) || "{}"); } catch { return {}; }
+}
+function saveChecklistState(state) {
+  try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state)); } catch { /* приватный режим */ }
+}
+function renderChecklistProgress() {
+  const checked = checklistInputs.filter((input) => input.checked).length;
+  checklistProgress.style.width = `${Math.round((checked / checklistInputs.length) * 100)}%`;
+  checklistDone.hidden = checked !== checklistInputs.length;
+}
+const savedChecklist = loadChecklistState();
+checklistInputs.forEach((input) => {
+  const key = input.dataset.checklistItem;
+  input.checked = Boolean(savedChecklist[key]);
+  input.addEventListener("change", () => {
+    const state = loadChecklistState();
+    state[key] = input.checked;
+    saveChecklistState(state);
+    renderChecklistProgress();
+  });
+});
+renderChecklistProgress();
+
+/* Квиз */
+let quizAnswered = 0;
+const quizScoreEl = document.getElementById("quiz-score");
+document.querySelectorAll(".quiz-check").forEach((button) => {
+  button.addEventListener("click", () => {
+    const index = button.dataset.quizCheck;
+    const question = document.querySelector(`.quiz-question[data-quiz="${index}"]`);
+    const selected = question.querySelector(`input[name="q${index}"]:checked`);
+    const feedback = document.querySelector(`[data-quiz-feedback="${index}"]`);
+    if (!selected) {
+      feedback.textContent = "Выберите вариант ответа.";
+      feedback.className = "quiz-feedback incorrect";
+      feedback.hidden = false;
+      return;
+    }
+    const alreadyAnswered = button.disabled;
+    const isCorrect = selected.value === "right";
+    feedback.textContent = isCorrect ? "Верно!" : "Не совсем — посмотрите выделенный правильный вариант выше.";
+    feedback.className = `quiz-feedback ${isCorrect ? "correct" : "incorrect"}`;
+    feedback.hidden = false;
+    question.querySelectorAll("input").forEach((input) => { input.disabled = true; });
+    question.querySelector('input[value="right"]').closest("label").classList.add("quiz-correct-answer");
+    button.disabled = true;
+    if (!alreadyAnswered) {
+      quizAnswered += 1;
+      quizScoreEl.textContent = `Отвечено: ${quizAnswered} / 7`;
+    }
+  });
+});
+</script>
+</body>
+</html>

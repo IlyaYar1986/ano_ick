@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инференс и Сэмплирование LLM</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        
+        .pipeline-stage {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .stage-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #95a5a6;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .arrow-down {
+            text-align: center;
+            font-size: 24px;
+            color: #bdc3c7;
+            margin: -10px 0 10px 0;
+        }
+
+        /* Input / Output */
+        .text-box {
+            font-size: 18px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            min-height: 25px;
+        }
+        .generated-token {
+            color: #2ecc71;
+            font-weight: bold;
+            background: #e8f8f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            animation: highlight 1s ease;
+        }
+        @keyframes highlight { 0% { background: #f1c40f; } 100% { background: #e8f8f5; } }
+
+        /* Logits & Softmax Table */
+        .data-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr;
+            gap: 10px;
+            align-items: center;
+        }
+        .token-row {
+            display: contents;
+            transition: all 0.3s;
+        }
+        .token-word { font-weight: bold; padding: 5px; background: #fff; border-radius: 4px; border: 1px solid #eee; text-align: center;}
+        .token-logit { text-align: center; font-family: monospace; font-size: 16px; color: #e67e22; }
+        .token-prob { display: flex; align-items: center; gap: 10px; }
+        .prob-bar-container { flex-grow: 1; height: 12px; background: #eee; border-radius: 6px; overflow: hidden; }
+        .prob-bar { height: 100%; background: #3498db; width: 0%; transition: width 0.5s; }
+        .prob-value { width: 50px; font-weight: bold; color: #3498db; text-align: right; }
+
+        /* Sampling Roulette */
+        .roulette-container {
+            width: 100%;
+            height: 40px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #bdc3c7;
+            margin-top: 15px;
+        }
+        .roulette-segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: width 0.5s;
+        }
+        .roulette-pointer {
+            position: absolute;
+            top: -5px;
+            bottom: -5px;
+            width: 4px;
+            background: #e74c3c;
+            left: 0%; /* Animates */
+            transition: left 1s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .roulette-pointer::after {
+            content: "▼";
+            position: absolute;
+            top: -12px;
+            left: -5px;
+            color: #e74c3c;
+            font-size: 14px;
+        }
+
+        /* Button */
+        .btn-generate {
+            display: block;
+            width: 100%;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .btn-generate:hover { background: #8e44ad; }
+        .btn-generate:active { transform: scale(0.98); }
+        .btn-generate:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        /* Colors for tokens */
+        .color-0 { background: #3498db; }
+        .color-1 { background: #2ecc71; }
+        .color-2 { background: #f1c40f; color: #333 !important; }
+        .color-3 { background: #e67e22; }
+        .color-4 { background: #e74c3c; }
+        .color-5 { background: #9b59b6; }
+
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Инференс и Сэмплирование</h1>
+    <div class="subtitle">Как нейросеть выбирает следующее слово (токен)</div>
+
+    <div class="pipeline-stage" style="border-color: #3498db;">
+        <div class="stage-title">1. Текущий контекст (Промт)</div>
+        <div class="text-box" id="prompt-box">Привет, как</div>
+    </div>
+
+    <div class="arrow-down">⬇️ Миллиарды замороженных весов делают вычисления...</div>
+
+    <div class="pipeline-stage" style="border-color: #e67e22;">
+        <div class="stage-title">2. Логиты (Оценки) → 3. Softmax (Вероятности)</div>
+        <p style="font-size: 14px; color: #7f8c8d; margin-top: -10px;">Нейросеть оценивает все слова в словаре. Softmax превращает эти сырые оценки (логиты) в проценты, сумма которых равна 100%.</p>
+        
+        <div class="data-grid" id="data-grid">
+            <div style="font-weight: bold; color: #95a5a6; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Токен-кандидат</div>
+            <div style="font-weight: bold; color: #95a5a6; border-bottom: 1px solid #ddd; padding-bottom: 5px; text-align: center;">Логит (Оценка)</div>
+            <div style="font-weight: bold; color: #95a5a6; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Softmax (Вероятность)</div>
+        </div>
+    </div>
+
+    <div class="arrow-down">⬇️ Бросок многогранной кости (Сэмплирование)</div>
+
+    <div class="pipeline-stage" style="border-color: #2ecc71;">
+        <div class="stage-title">4. Сэмплирование (Weighted Random)</div>
+        <p style="font-size: 14px; color: #7f8c8d; margin-top: -10px;">Мы не всегда берем слово №1. Мы бросаем "кубик" (красный ползунок). Чем больше процент, тем шире сектор слова на рулетке.</p>
+        
+        <div class="roulette-container" id="roulette">
+            <div class="roulette-pointer" id="roulette-pointer"></div>
+            </div>
+        <div id="sampling-result-text" style="text-align: center; margin-top: 10px; font-weight: bold; color: #e74c3c; height: 20px;"></div>
+    </div>
+
+    <button id="generate-btn" class="btn-generate" onclick="generateNextToken()">Сгенерировать следующий токен 🎲</button>
+
+</div>
+
+<script>
+    // Наш воображаемый словарь кандидатов для продолжения фразы "Привет, как..."
+    const candidatePools = [
+        ['дела', 'твои', 'настроение', 'ты', 'жизнь', 'успехи'],
+        ['?', '!', '.', 'вообще', 'там', 'сегодня'],
+        ['Всё', 'Я', 'Нормально', 'Что', 'Мы', 'Как'],
+        ['хорошо', 'супер', 'отлично', 'нормально', 'плохо', 'так']
+    ];
+    let stepCount = 0;
+
+    function generateNextToken() {
+        const btn = document.getElementById('generate-btn');
+        btn.disabled = true;
+        document.getElementById('sampling-result-text').innerText = "";
+        document.getElementById('roulette-pointer').style.transition = "none";
+        document.getElementById('roulette-pointer').style.left = "0%";
+
+        // 1. Выбираем набор кандидатов для текущего шага
+        const words = candidatePools[stepCount % candidatePools.length];
+        stepCount++;
+
+        // 2. Генерируем сырые "Логиты" (случайные оценки для симуляции)
+        // Для наглядности сделаем один логит большим, пару средних и остальные маленькие
+        let tokens = words.map(word => {
+            // Случайный логит от -2.0 до +4.0
+            let logit = (Math.random() * 6 - 2).toFixed(2);
+            return { word: word, logit: parseFloat(logit) };
+        });
+        
+        // Сортируем по убыванию логита
+        tokens.sort((a, b) => b.logit - a.logit);
+
+        // 3. Вычисляем Softmax: e^logit / sum(e^logits)
+        let sumExp = 0;
+        tokens.forEach(t => sumExp += Math.exp(t.logit));
+        tokens.forEach(t => {
+            t.prob = Math.exp(t.logit) / sumExp;
+            t.probPercent = (t.prob * 100).toFixed(1);
+        });
+
+        // 4. Отрисовка интерфейса (Таблица и Рулетка)
+        renderTableAndRoulette(tokens);
+
+        // 5. Симуляция "Броска кости" (Сэмплирование)
+        setTimeout(() => performSampling(tokens), 500);
+    }
+
+    function renderTableAndRoulette(tokens) {
+        const grid = document.getElementById('data-grid');
+        const roulette = document.getElementById('roulette');
+        
+        // Очищаем старые данные (оставляем только заголовки сетки)
+        grid.innerHTML = `
+            <div style="font-weight: bold; color: #95a5a6; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Токен-кандидат</div>
+            <div style="font-weight: bold; color: #95a5a6; border-bottom: 1px solid #ddd; padding-bottom: 5px; text-align: center;">Логит (Оценка)</div>
+            <div style="font-weight: bold; color: #95a5a6; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Softmax (Вероятность)</div>
+        `;
+        
+        // Убираем старые сектора, оставляем только курсор
+        const pointer = document.getElementById('roulette-pointer');
+        roulette.innerHTML = '';
+        roulette.appendChild(pointer);
+
+        tokens.forEach((token, index) => {
+            // --- Таблица ---
+            const row = document.createElement('div');
+            row.className = 'token-row';
+            row.innerHTML = `
+                <div class="token-word">"${token.word}"</div>
+                <div class="token-logit">${token.logit > 0 ? '+'+token.logit : token.logit}</div>
+                <div class="token-prob">
+                    <div class="prob-bar-container">
+                        <div class="prob-bar color-${index}" style="width: ${token.probPercent}%;"></div>
+                    </div>
+                    <div class="prob-value">${token.probPercent}%</div>
+                </div>
+            `;
+            grid.appendChild(row);
+
+            // --- Рулетка ---
+            const segment = document.createElement('div');
+            segment.className = `roulette-segment color-${index}`;
+            segment.style.width = `${token.probPercent}%`;
+            // Показывать текст только если сектор достаточно широкий
+            if(token.probPercent > 10) {
+                segment.innerText = token.word;
+            }
+            roulette.appendChild(segment);
+        });
+    }
+
+    function performSampling(tokens) {
+        // Бросаем случайное число от 0 до 1
+        const randomRoll = Math.random();
+        
+        // Определяем, куда упал шарик
+        let cumulativeProb = 0;
+        let selectedToken = tokens[tokens.length - 1]; // По умолчанию последний
+        
+        for (let t of tokens) {
+            cumulativeProb += t.prob;
+            if (randomRoll <= cumulativeProb) {
+                selectedToken = t;
+                break;
+            }
+        }
+
+        // Анимация рулетки
+        const pointer = document.getElementById('roulette-pointer');
+        pointer.style.transition = "left 1s cubic-bezier(0.25, 1, 0.5, 1)";
+        
+        // Позиция: ставим курсор в середину выбранного сектора (визуальный трюк)
+        let targetPercent = randomRoll * 100;
+        pointer.style.left = `${targetPercent}%`;
+
+        setTimeout(() => {
+            // Вывод результата
+            document.getElementById('sampling-result-text').innerHTML = 
+                `Случайное число указало на сектор: <span style="background: #eee; padding: 2px 5px; border-radius: 4px;">"${selectedToken.word}"</span> (Вероятность: ${selectedToken.probPercent}%)`;
+            
+            // Добавляем текст в промпт
+            const promptBox = document.getElementById('prompt-box');
+            promptBox.innerHTML += ` <span class="generated-token">${selectedToken.word}</span>`;
+            
+            document.getElementById('generate-btn').disabled = false;
+        }, 1100);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор штрафа 152-ФЗ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --red:#ef4444;
+  --red-lt:#fef2f2;
+  --green:#10b981;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 16px}
+
+.row-label{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+.choices{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.choice-btn{
+  padding:9px 16px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.85rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .18s;
+}
+.choice-btn.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.choice-btn:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.result{
+  border:1px solid var(--border);border-radius:14px;padding:20px 24px;background:#f8fafc;
+  text-align:center;margin-bottom:18px;
+}
+.result .r-label{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+.result .r-amount{font-size:2.1rem;font-weight:900;color:var(--red);line-height:1.15}
+.result .r-note{font-size:.84rem;color:var(--muted);margin-top:6px}
+
+.year-toggle{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.year-btn{
+  flex:1;padding:11px 0;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.9rem;font-weight:800;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center;
+}
+.year-btn.active.old{background:#f1f5f9;border-color:#cbd5e1;color:#475569}
+.year-btn.active.new{background:var(--red);border-color:var(--red);color:#fff}
+
+.case-box{
+  border:1px solid var(--border);border-radius:14px;padding:16px 20px;background:#fff;margin-top:6px;
+}
+.case-box .c-title{font-weight:700;font-size:.9rem;margin-bottom:10px}
+.scale{position:relative;height:34px;border-radius:100px;background:var(--indigo-lt);overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+.scale-fill{height:100%;min-width:22px;border-radius:100px;background:linear-gradient(90deg,var(--indigo),var(--cyan));width:0%;transition:width 1s cubic-bezier(.2,.7,.3,1);box-shadow:0 0 0 2px #fff inset}
+.scale-fill.alert{background:linear-gradient(90deg,#f87171,var(--red))}
+.scale-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted)}
+.multiplier{
+  text-align:center;margin-top:12px;font-size:1.3rem;font-weight:900;color:var(--red);
+  opacity:0;transition:opacity .4s;
+}
+.multiplier.show{opacity:1}
+</style>
+</head>
+<body>
+
+<h1>Калькулятор штрафа по 152-ФЗ</h1>
+<p class="sub">Выберите роль и тип нарушения — увидите актуальный диапазон штрафа. Ниже — наглядное сравнение старых и новых правил на реальном кейсе.</p>
+
+<div class="row-label">Кто вы</div>
+<div class="choices" id="role-choices">
+  <button type="button" class="choice-btn active" data-role="person">Физическое лицо</button>
+  <button type="button" class="choice-btn" data-role="official">Должностное лицо</button>
+  <button type="button" class="choice-btn" data-role="org">Организация</button>
+</div>
+
+<div class="row-label">Что произошло</div>
+<div class="choices" id="violation-choices">
+  <button type="button" class="choice-btn active" data-violation="rules">Нарушение правил обработки</button>
+  <button type="button" class="choice-btn" data-violation="leak1">Утечка 1–10 тыс. записей</button>
+  <button type="button" class="choice-btn" data-violation="leak2">Утечка 10–100 тыс. записей</button>
+  <button type="button" class="choice-btn" data-violation="leak3">Утечка более 100 тыс. записей</button>
+</div>
+
+<div class="result">
+  <div class="r-label">Диапазон штрафа за первичное нарушение</div>
+  <div class="r-amount" id="r-amount">10 000 – 15 000 ₽</div>
+  <div class="r-note" id="r-note">Физическое лицо · нарушение правил обработки персональных данных</div>
+</div>
+
+<div class="case-box">
+  <div class="c-title">Реальный кейс: утечка 3,4 млн записей, Минпросвещение</div>
+  <div class="year-toggle">
+    <button type="button" class="year-btn active old" data-year="2023">2023 год</button>
+    <button type="button" class="year-btn new" data-year="2025">2025 год (сейчас)</button>
+  </div>
+  <div class="scale"><div class="scale-fill" id="case-fill"></div></div>
+  <div class="scale-label"><span>0 ₽</span><span id="case-amount">60 000 ₽</span></div>
+  <div class="multiplier" id="multiplier">Штраф вырос в ×250</div>
+</div>
+
+<script>
+const FINES = {
+  person: {
+    rules: "10 000 – 15 000 ₽",
+    leak1: "100 000 – 200 000 ₽",
+    leak2: "200 000 – 300 000 ₽",
+    leak3: "300 000 – 400 000 ₽",
+  },
+  official: {
+    rules: "50 000 – 100 000 ₽",
+    leak1: "200 000 – 400 000 ₽",
+    leak2: "300 000 – 500 000 ₽",
+    leak3: "400 000 – 600 000 ₽",
+  },
+  org: {
+    rules: "150 000 – 300 000 ₽",
+    leak1: "3 000 000 – 5 000 000 ₽",
+    leak2: "5 000 000 – 10 000 000 ₽",
+    leak3: "10 000 000 – 15 000 000 ₽",
+  },
+};
+const ROLE_LABELS = {person: "Физическое лицо", official: "Должностное лицо", org: "Организация"};
+const VIOLATION_LABELS = {
+  rules: "нарушение правил обработки персональных данных",
+  leak1: "утечка 1–10 тыс. записей",
+  leak2: "утечка 10–100 тыс. записей",
+  leak3: "утечка более 100 тыс. записей",
+};
+
+let role = "person";
+let violation = "rules";
+
+function renderResult() {
+  document.getElementById("r-amount").textContent = FINES[role][violation];
+  document.getElementById("r-note").textContent = `${ROLE_LABELS[role]} · ${VIOLATION_LABELS[violation]}`;
+}
+
+document.querySelectorAll("#role-choices .choice-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("#role-choices .choice-btn").forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    role = button.dataset.role;
+    renderResult();
+  });
+});
+document.querySelectorAll("#violation-choices .choice-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("#violation-choices .choice-btn").forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    violation = button.dataset.violation;
+    renderResult();
+  });
+});
+
+const caseFill = document.getElementById("case-fill");
+const caseAmount = document.getElementById("case-amount");
+const multiplier = document.getElementById("multiplier");
+document.querySelectorAll(".year-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".year-btn").forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    if (button.dataset.year === "2023") {
+      caseFill.style.width = "3%";
+      caseFill.classList.remove("alert");
+      caseAmount.textContent = "60 000 ₽";
+      multiplier.classList.remove("show");
+    } else {
+      caseFill.style.width = "100%";
+      caseFill.classList.add("alert");
+      caseAmount.textContent = "10 000 000 – 15 000 000 ₽";
+      window.setTimeout(() => multiplier.classList.add("show"), 500);
+    }
+  });
+});
+
+renderResult();
+</script>
+</body>
+</html>

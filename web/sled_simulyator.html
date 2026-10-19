@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Симулятор цифрового следа</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --cyan-lt:#e0f2fe;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.55;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:.88rem;margin-top:2px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 18px}
+.filter{
+  padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.85rem;font-weight:700;color:var(--muted);cursor:pointer;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.filter[data-type="active"].on{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.filter[data-type="passive"].on{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.filter:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+.timeline-wrap{overflow-x:auto;padding-bottom:6px}
+.timeline{
+  display:flex;gap:10px;min-width:640px;position:relative;padding-top:14px;
+}
+.timeline::before{
+  content:"";position:absolute;top:6px;left:0;right:0;height:3px;border-radius:3px;
+  background:linear-gradient(90deg,var(--indigo-lt),#c7d2fe,var(--cyan-lt));
+}
+.event{
+  flex:1;min-width:76px;border:1px solid var(--border);border-radius:12px;background:#fff;
+  padding:10px 8px;text-align:center;cursor:pointer;position:relative;
+  transition:opacity .25s,border-color .25s,box-shadow .25s,transform .15s;
+}
+.event::before{
+  content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  width:11px;height:11px;border-radius:50%;background:#cbd5e1;border:2px solid #fff;
+  box-shadow:0 0 0 1px var(--border);transition:background .25s;
+}
+.event:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(15,23,42,.08)}
+.event .t{display:block;font-size:.72rem;font-weight:800;color:var(--muted)}
+.event .ico{display:block;font-size:1.25rem;line-height:1.5}
+.event .name{display:block;font-size:.73rem;font-weight:600;line-height:1.3}
+.event.is-active.hl{border-color:var(--indigo);box-shadow:0 4px 16px rgba(99,102,241,.18)}
+.event.is-active.hl::before{background:var(--indigo)}
+.event.is-passive.hl{border-color:var(--cyan);box-shadow:0 4px 16px rgba(14,165,233,.18)}
+.event.is-passive.hl::before{background:var(--cyan)}
+.event.dim{opacity:.32}
+.event.selected{outline:2px solid var(--indigo-dk);outline-offset:1px}
+.event:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.detail{
+  margin-top:16px;border:1px solid var(--border);border-radius:12px;padding:14px 18px;
+  background:#f8fafc;min-height:76px;font-size:.92rem;
+}
+.detail .tag{
+  display:inline-block;padding:2px 10px;border-radius:100px;font-size:.72rem;font-weight:800;
+  margin-bottom:6px;
+}
+.detail .tag.a{background:var(--indigo-lt);color:var(--indigo-dk)}
+.detail .tag.p{background:var(--cyan-lt);color:#0369a1}
+.detail p{color:var(--muted)}
+.detail p strong{color:var(--text)}
+
+.footer-row{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.reveal-btn{
+  padding:10px 20px;border-radius:10px;border:none;background:var(--indigo);color:#fff;
+  font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s;
+}
+.reveal-btn:hover{background:var(--indigo-dk)}
+.conclusion{
+  flex:1;min-width:260px;padding:12px 18px;border-radius:12px;font-weight:700;font-size:.95rem;
+  background:linear-gradient(90deg,var(--indigo-lt),var(--cyan-lt));color:var(--indigo-dk);
+  opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;
+}
+.conclusion.show{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .event,.conclusion{transition:none}
+}
+</style>
+</head>
+<body>
+
+<h1>Один день студента Ивана — глазами цифрового следа</h1>
+<p class="sub">Включайте фильтры и кликайте по событиям: активный след Иван оставляет сознательно, пассивный собирается сам.</p>
+
+<div class="filters">
+  <button type="button" class="filter on" data-type="active">Активный след 🎯</button>
+  <button type="button" class="filter on" data-type="passive">Пассивный след 👁</button>
+</div>
+
+<div class="timeline-wrap">
+  <div class="timeline" id="timeline"></div>
+</div>
+
+<div class="detail" id="detail">
+  <p>Кликните по событию на шкале, чтобы увидеть, что это за данные и что они могут значить для преподавателя.</p>
+</div>
+
+<div class="footer-row">
+  <button type="button" class="reveal-btn" id="reveal">Показать вывод</button>
+  <div class="conclusion" id="conclusion">Оценка одна и та же — а картина дня совсем разная.</div>
+</div>
+
+<script>
+const EVENTS = [
+  {t: "10:12", ico: "💬", name: "Вопрос в чате группы", type: "active",
+   what: "Иван сознательно написал сообщение — это активный след.",
+   mean: "Есть включённость в тему: студент не боится спрашивать."},
+  {t: "12:40", ico: "📖", name: "Читал материалы 4 минуты", type: "passive",
+   what: "Платформа сама зафиксировала, что раздел был открыт 4 минуты.",
+   mean: "Четырёх минут мало для 12 страниц — чтение было беглым."},
+  {t: "15:30", ico: "🔁", name: "3 попытки решить задачу", type: "passive",
+   what: "Счётчик попыток собирается автоматически, незаметно для студента.",
+   mean: "Тема даётся с трудом — возможно, нужен другой пример или разбор."},
+  {t: "18:20", ico: "📥", name: "Скачал презентацию", type: "passive",
+   what: "Движение по материалам курса — часть пассивного следа.",
+   mean: "Материал нужен: студент готовится, пусть и в своём ритме."},
+  {t: "23:45", ico: "🕐", name: "Вход в курс", type: "passive",
+   what: "Время входа записывается автоматически.",
+   mean: "Работа за 15 минут до полуночи — признак отложенного «на потом»."},
+  {t: "23:47", ico: "🎬", name: "Лекция 20 минут — за 5", type: "passive",
+   what: "Плеер зафиксировал перемотки: из 20 минут просмотрено 5.",
+   mean: "Видео «просмотрено» только формально — понимания оно не дало."},
+  {t: "23:52", ico: "📤", name: "Отправил эссе", type: "active",
+   what: "Сознательное действие: работа сдана — активный след.",
+   mean: "Дедлайн соблюдён, но подготовка заняла считанные минуты."},
+  {t: "23:55", ico: "📝", name: "Заполнил форму обратной связи", type: "active",
+   what: "Ответ на анкету — активный след.",
+   mean: "Форму заполнил за минуту: ответы, скорее всего, формальные."},
+];
+
+const timeline = document.getElementById("timeline");
+const detail = document.getElementById("detail");
+const filters = {active: true, passive: true};
+
+EVENTS.forEach((event, index) => {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = `event is-${event.type} hl`;
+  card.dataset.index = String(index);
+  card.innerHTML = `<span class="t">${event.t}</span><span class="ico">${event.ico}</span><span class="name">${event.name}</span>`;
+  card.addEventListener("click", () => selectEvent(index));
+  timeline.appendChild(card);
+});
+
+function selectEvent(index) {
+  const event = EVENTS[index];
+  document.querySelectorAll(".event").forEach((el) => {
+    el.classList.toggle("selected", el.dataset.index === String(index));
+  });
+  const tagClass = event.type === "active" ? "a" : "p";
+  const tagText = event.type === "active" ? "Активный след 🎯" : "Пассивный след 👁";
+  detail.innerHTML = `<span class="tag ${tagClass}">${tagText}</span>` +
+    `<p><strong>${event.t} · ${event.name}.</strong> ${event.what}</p>` +
+    `<p><strong>Что это значит:</strong> ${event.mean}</p>`;
+}
+
+function applyFilters() {
+  document.querySelectorAll(".event").forEach((el) => {
+    const type = el.classList.contains("is-active") ? "active" : "passive";
+    const on = filters[type];
+    el.classList.toggle("hl", on);
+    el.classList.toggle("dim", !on);
+  });
+}
+
+document.querySelectorAll(".filter").forEach((button) => {
+  button.addEventListener("click", () => {
+    const type = button.dataset.type;
+    filters[type] = !filters[type];
+    button.classList.toggle("on", filters[type]);
+    applyFilters();
+  });
+});
+
+document.getElementById("reveal").addEventListener("click", () => {
+  document.getElementById("conclusion").classList.add("show");
+});
+</script>
+</body>
+</html>

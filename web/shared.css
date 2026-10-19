@@ -1,0 +1,232 @@
+/* ═══════════════════════════════════════════════════
+   LLM Seminar — Unified Design System
+   Подключается к каждой визуализации через <link>
+   Механика JS не затрагивается — только стили
+═══════════════════════════════════════════════════ */
+
+:root {
+  --p:      #4f46e5;   /* primary indigo */
+  --p-lt:   #eef2ff;   /* light indigo bg */
+  --p-dk:   #4338ca;   /* dark indigo */
+  --cyan:   #0ea5e9;
+  --green:  #10b981;
+  --amber:  #f59e0b;
+  --red:    #ef4444;
+  --bg:     #f0f4f8;
+  --card:   #ffffff;
+  --border: #e2e8f0;
+  --text:   #0f172a;
+  --muted:  #64748b;
+  --r:      12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+/* ── Base ── */
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  line-height: 1.65 !important;
+}
+
+/* ── Main container card ── */
+.container {
+  background: var(--card) !important;
+  border-radius: var(--r) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* ── Typography ── */
+/* Не форсируем color на h1/h2 — тёмные шапки (.header) должны сохранять белый текст через наследование */
+h1 {
+  font-weight: 800 !important;
+  letter-spacing: -.3px !important;
+}
+h2 {
+  font-weight: 700 !important;
+}
+
+/* Тёмные шапки — явно восстанавливаем белый текст */
+.header h1, .header h2, .header p,
+.header .subtitle {
+  color: #fff !important;
+}
+
+/* Светлые контейнеры — заголовки тёмные */
+.container > h1, .container > h2,
+.container > .subtitle {
+  color: var(--text) !important;
+}
+.subtitle {
+  color: var(--muted) !important;
+}
+
+/* ── Tabs ── */
+.tabs {
+  border-bottom-color: var(--border) !important;
+  gap: 0 !important;
+}
+.tab {
+  color: var(--muted) !important;
+  font-size: 0.95rem !important;
+  transition: all .2s !important;
+}
+.tab:hover  { color: var(--p) !important; }
+.tab.active {
+  color: var(--p) !important;
+  border-bottom-color: var(--p) !important;
+}
+
+/* ── All buttons — base reset ── */
+button {
+  font-family: 'Segoe UI', system-ui, sans-serif !important;
+  border-radius: 10px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: opacity .2s, transform .1s !important;
+  font-weight: 600 !important;
+}
+button:hover   { opacity: .9 !important; }
+button:active  { transform: scale(.98) !important; }
+button:disabled {
+  opacity: .45 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* PRIMARY — all main action buttons → indigo */
+#btn-start, #btn-merge, #btn-next,
+.btn-next, .btn-train, .btn-action, .btn-run,
+button.active, #ppo-btn {
+  background: var(--p) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(79,70,229,.25) !important;
+}
+
+/* SECONDARY / RESET → light gray */
+#btn-reset, .btn-reset, #btn-stop {
+  background: var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+
+/* STOP / DANGER keeps red */
+#btn-stop {
+  background: #fee2e2 !important;
+  color: var(--red) !important;
+}
+
+/* Context toggle buttons (Attension2) — inactive */
+.btn-ctx {
+  background: #334155 !important;
+  color: #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+.btn-ctx.active {
+  background: var(--p) !important;
+  color: #fff !important;
+  box-shadow: 0 0 12px rgba(79,70,229,.4) !important;
+}
+
+/* PRM dual buttons keep distinct meaning colors */
+.btn-sft { background: #2563eb !important; color: #fff !important; }
+.btn-rl  { background: #7c3aed !important; color: #fff !important; }
+.btn-sft:hover { background: #1d4ed8 !important; }
+.btn-rl:hover  { background: #6d28d9 !important; }
+
+/* ── Control panels ── */
+.controls,
+.lora-controls {
+  background: var(--bg) !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* ── Pipeline / training stages ── */
+.pipeline-stage {
+  background: #f8fafc !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+.training-loop {
+  background: #f8fafc !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+}
+
+/* ── Stage / box labels ── */
+.stage-title, .box-title {
+  color: var(--muted) !important;
+  font-size: 11px !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+}
+
+/* ── Inner boxes ── */
+.box {
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Value badges ── */
+.val-badge {
+  background: var(--p) !important;
+  color: #fff !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+}
+
+/* ── Range sliders ── */
+input[type="range"] {
+  accent-color: var(--p) !important;
+  cursor: pointer !important;
+}
+
+/* ── Select dropdowns ── */
+select {
+  border-radius: 8px !important;
+  border: 1.5px solid var(--border) !important;
+  font-family: 'Segoe UI', system-ui, sans-serif !important;
+  background: #fff !important;
+  color: var(--text) !important;
+  transition: border-color .2s !important;
+}
+select:focus { border-color: var(--p) !important; outline: none !important; }
+
+/* ── Explanation / subtext panels ── */
+.explanation, .subtext-area {
+  border-left-color: var(--p) !important;
+  border-radius: 0 10px 10px 0 !important;
+  background: #fff !important;
+}
+
+/* ── Stat boxes ── */
+.stat-box {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Chart containers (Рычаги) ── */
+.chart-container {
+  border: 1.5px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+
+/* ── Arena (PRM) ── */
+.arena {
+  border: 1.5px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+
+/* ── Prompt / task boxes ── */
+.prompt-box, .task-box {
+  border-radius: 10px !important;
+  border: 2px solid #334155 !important;
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Arrows ── */
+.arrow-down { color: var(--muted) !important; }

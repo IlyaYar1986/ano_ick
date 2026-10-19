@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Воронка QR-кода</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.55;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 16px}
+.controls{display:flex;gap:10px;margin-bottom:18px}
+.btn{
+  padding:9px 20px;border-radius:10px;border:none;background:var(--indigo);color:#fff;
+  font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s;
+}
+.btn:hover{background:var(--indigo-dk)}
+.btn.ghost{background:#fff;border:1px solid var(--border);color:var(--muted)}
+.btn.ghost:hover{background:var(--indigo-lt);color:var(--indigo-dk)}
+.btn:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.funnel{display:flex;flex-direction:column;gap:10px;align-items:center}
+.step{width:100%;display:flex;align-items:center;gap:12px}
+.step .side{width:150px;flex-shrink:0;text-align:right;font-size:.84rem;font-weight:700;color:var(--muted)}
+.step .track{flex:1;display:flex;justify-content:center}
+.step .fill{
+  height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;
+  color:#fff;font-weight:800;font-size:1rem;width:0%;overflow:hidden;white-space:nowrap;
+  transition:width .9s cubic-bezier(.2,.7,.3,1);
+}
+.step .pct{width:64px;flex-shrink:0;font-weight:800;font-size:.9rem;color:var(--muted);opacity:0;transition:opacity .4s}
+.step .pct.show{opacity:1}
+.s1 .fill{background:linear-gradient(135deg,var(--indigo),#818cf8)}
+.s2 .fill{background:linear-gradient(135deg,var(--cyan),#38bdf8)}
+.s3 .fill{background:linear-gradient(135deg,var(--amber),#fbbf24)}
+.s4 .fill{background:linear-gradient(135deg,var(--red),#f87171)}
+.people{font-size:.82rem;letter-spacing:1px}
+
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:20px}
+.insight{
+  border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:.86rem;line-height:1.5;
+  background:#f8fafc;color:var(--text);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s;
+}
+.insight.show{opacity:1;transform:none}
+.insight strong{display:block;margin-bottom:2px;color:var(--indigo-dk)}
+@media (max-width:640px){
+  .step .side{width:106px;font-size:.74rem}
+  .step .pct{width:48px}
+}
+@media (prefers-reduced-motion:reduce){
+  .step .fill{transition:none}
+  .insight{transition:none}
+}
+</style>
+</head>
+<body>
+
+<h1>Воронка QR-кода: 25 студентов получили ссылку</h1>
+<p class="sub">Преподаватель раздал QR-код с дополнительными материалами. Запустите воронку и посмотрите, что показала статистика через неделю.</p>
+
+<div class="controls">
+  <button type="button" class="btn" id="run">Запустить</button>
+  <button type="button" class="btn ghost" id="reset">Сбросить</button>
+</div>
+
+<div class="funnel" id="funnel">
+  <div class="step s1">
+    <span class="side">Получили код</span>
+    <div class="track"><div class="fill" data-w="100"><span class="people">👥 25</span></div></div>
+    <span class="pct" data-p="100%"></span>
+  </div>
+  <div class="step s2">
+    <span class="side">Отсканировали</span>
+    <div class="track"><div class="fill" data-w="28"><span class="people">👥 7</span></div></div>
+    <span class="pct" data-p="28%"></span>
+  </div>
+  <div class="step s3">
+    <span class="side">Открыли материалы</span>
+    <div class="track"><div class="fill" data-w="16"><span class="people">👥 4</span></div></div>
+    <span class="pct" data-p="16%"></span>
+  </div>
+  <div class="step s4">
+    <span class="side">Прочитали до конца</span>
+    <div class="track"><div class="fill" data-w="8"><span class="people">👥 2</span></div></div>
+    <span class="pct" data-p="8%"></span>
+  </div>
+</div>
+
+<div class="insights">
+  <div class="insight"><strong>Вывод 1</strong>Мотивация изучать дополнительно — низкая.</div>
+  <div class="insight"><strong>Вывод 2</strong>Формат «дополнительные материалы» не работает.</div>
+  <div class="insight"><strong>Вывод 3</strong>Интегрируйте материалы в основную программу — или дайте стимул.</div>
+</div>
+
+<script>
+const fills = [...document.querySelectorAll(".fill")];
+const pcts = [...document.querySelectorAll(".pct")];
+const insights = [...document.querySelectorAll(".insight")];
+let timers = [];
+
+function clearTimers() {
+  timers.forEach((id) => window.clearTimeout(id));
+  timers = [];
+}
+
+function reset() {
+  clearTimers();
+  fills.forEach((fill) => { fill.style.width = "0%"; });
+  pcts.forEach((pct) => { pct.textContent = ""; pct.classList.remove("show"); });
+  insights.forEach((insight) => insight.classList.remove("show"));
+}
+
+function run() {
+  reset();
+  fills.forEach((fill, index) => {
+    timers.push(window.setTimeout(() => {
+      // Минимальная ширина, чтобы подпись «👥 2» не обрезалась на узких ступенях
+      fill.style.width = `max(${fill.dataset.w}%, 74px)`;
+      const pct = pcts[index];
+      pct.textContent = pct.dataset.p;
+      pct.classList.add("show");
+    }, 250 + index * 650));
+  });
+  insights.forEach((insight, index) => {
+    timers.push(window.setTimeout(() => insight.classList.add("show"), 3100 + index * 350));
+  });
+}
+
+document.getElementById("run").addEventListener("click", run);
+document.getElementById("reset").addEventListener("click", reset);
+</script>
+</body>
+</html>

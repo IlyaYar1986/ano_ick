@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLP: Математика и ReLU</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --in-color: #38bdf8;
+            --hid-color: #8b5cf6;
+            --out-color: #10b981;
+            --glow: #fbbf24;
+            --line: rgba(148, 163, 184, 0.15);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .container { width: 100%; max-width: 950px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #334155; }
+        
+        .header { background: rgba(0,0,0,0.2); padding: 20px; text-align: center; border-bottom: 1px solid #334155; }
+        h1 { margin: 0; font-size: 1.4rem; color: #e2e8f0; }
+        
+        .controls { display: flex; justify-content: center; gap: 15px; padding: 15px; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .btn-next { background: var(--in-color); color: #0f172a; }
+        .btn-next:hover { background: #0ea5e9; }
+        .btn-next:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+        .btn-reset { background: #334155; color: #e2e8f0; }
+
+        .workspace { position: relative; height: 500px; padding: 20px 60px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* SVG для линий */
+        #svg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .conn-line { stroke: var(--line); stroke-width: 2; fill: none; opacity: 0; }
+        .conn-line.active { stroke: var(--glow); stroke-width: 3; filter: drop-shadow(0 0 5px var(--glow)); z-index: 5; }
+
+        /* Колонки */
+        .column { display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 10; width: 100px; }
+        .col-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 10px; font-weight: bold; text-align: center; }
+
+        /* Узлы (числа) */
+        .node { width: 45px; height: 25px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-family: monospace; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s; opacity: 0; transform: scale(0.5); }
+        
+        .node-in { background: var(--in-color); color: #0f172a; }
+        .node-hid { background: #334155; color: white; border: 1px solid #475569; }
+        .node-out { background: var(--out-color); color: #0f172a; }
+
+        /* Состояния узлов */
+        .node.dim { opacity: 0.2 !important; background: #1e293b; color: #475569; border-color: #334155; }
+        .node.glow { background: var(--glow); color: #0f172a; border-color: #f59e0b; box-shadow: 0 0 15px var(--glow), 0 0 30px var(--glow); transform: scale(1.2) !important; }
+
+        /* Плавающие формулы и метки */
+        .badge { position: absolute; background: rgba(15, 23, 42, 0.95); border: 1px solid; padding: 10px 15px; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: white; opacity: 0; pointer-events: none; z-index: 20; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #badge-relu { border-color: var(--glow); color: var(--glow); top: 10%; left: 50%; transform: translateX(-50%); font-family: monospace; font-size: 1.2rem; }
+        #badge-result { border-color: var(--out-color); bottom: 15%; right: 5%; }
+
+        /* Пояснение */
+        .explanation { padding: 25px 30px; background: rgba(0,0,0,0.2); border-top: 1px solid #334155; font-size: 1.1rem; line-height: 1.6; color: #e2e8f0; min-height: 100px; border-left: 4px solid var(--in-color); transition: border-color 0.3s; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>MLP: Векторная математика и активация (ReLU)</h1>
+    </div>
+    
+    <div class="controls">
+        <button class="btn-next" id="btn-next" onclick="nextStep()">Следующий шаг</button>
+        <button class="btn-reset" onclick="reset()">Сброс</button>
+    </div>
+
+    <div class="workspace" id="workspace">
+        <svg id="svg-canvas"></svg>
+
+        <div class="column" id="col-in">
+            <div class="col-title">Вход<br>(Размер 3)</div>
+            <div class="node node-in">2</div>
+            <div class="node node-in">-1</div>
+            <div class="node node-in">1</div>
+        </div>
+
+        <div class="column" id="col-hid">
+            <div class="col-title">Скрытый слой W1<br>(Размер 12)</div>
+            <div class="node node-hid" data-val="-5">-5</div>
+            <div class="node node-hid" data-val="-2">-2</div>
+            <div class="node node-hid glow-target" data-val="8">8</div>
+            <div class="node node-hid" data-val="-1">-1</div>
+            <div class="node node-hid" data-val="-4">-4</div>
+            <div class="node node-hid" data-val="-3">-3</div>
+            <div class="node node-hid glow-target" data-val="6">6</div>
+            <div class="node node-hid" data-val="-7">-7</div>
+            <div class="node node-hid" data-val="-2">-2</div>
+            <div class="node node-hid glow-target" data-val="5">5</div>
+            <div class="node node-hid" data-val="-1">-1</div>
+            <div class="node node-hid" data-val="-8">-8</div>
+        </div>
+
+        <div class="column" id="col-out">
+            <div class="col-title">Выход W2<br>(Размер 3)</div>
+            <div class="node node-out">4</div>
+            <div class="node node-out">3</div>
+            <div class="node node-out">2</div>
+        </div>
+
+        <div class="badge" id="badge-relu">Активация: ReLU(x) = max(0, x)</div>
+        <div class="badge" id="badge-result">Итог: Координаты слова ПАРИЖ</div>
+    </div>
+
+    <div class="explanation" id="explanation">
+        <strong>Шаг 0:</strong> Контекст собран! Вектор [Столица] + [Франция] дал нам итоговый входной запрос: <b>[2, -1, 1]</b>.
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    const btnNext = document.getElementById('btn-next');
+    const explanation = document.getElementById('explanation');
+    const svgCanvas = document.getElementById('svg-canvas');
+
+    function drawLines(fromSelector, toSelector, lineClass, filterFn = null) {
+        const fromNodes = document.querySelectorAll(fromSelector);
+        const toNodes = document.querySelectorAll(toSelector);
+        const workspaceRect = document.getElementById('workspace').getBoundingClientRect();
+
+        fromNodes.forEach((fromNode, i) => {
+            if (filterFn && !filterFn(fromNode)) return; // Пропускаем, если фильтр не пройден
+
+            toNodes.forEach((toNode, j) => {
+                const rect1 = fromNode.getBoundingClientRect();
+                const rect2 = toNode.getBoundingClientRect();
+
+                const x1 = rect1.left - workspaceRect.left + rect1.width;
+                const y1 = rect1.top - workspaceRect.top + rect1.height / 2;
+                const x2 = rect2.left - workspaceRect.left;
+                const y2 = rect2.top - workspaceRect.top + rect2.height / 2;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const d = `M ${x1} ${y1} C ${x1 + 40} ${y1}, ${x2 - 40} ${y2}, ${x2} ${y2}`;
+                
+                path.setAttribute('d', d);
+                path.setAttribute('class', `conn-line ${lineClass}`);
+                svgCanvas.appendChild(path);
+            });
+        });
+    }
+
+    const steps = [
+        {
+            text: "<strong>Шаг 0:</strong> Контекст собран! Вектор [Столица] + [Франция] дал нам итоговый входной запрос: <b>[2, -1, 1]</b>.",
+            color: "#38bdf8",
+            action: () => {
+                anime({ targets: '.node-in', opacity: 1, scale: 1, delay: anime.stagger(100) });
+            }
+        },
+        {
+            text: "<strong>Шаг 1: Расширение (W1).</strong> Умножение на огромную матрицу W1. Вектор расширился. Заметьте: большинство чисел отрицательные (это шум), но есть три ярких положительных пика (8, 6, 5).",
+            color: "#8b5cf6",
+            action: () => {
+                svgCanvas.innerHTML = '';
+                drawLines('.node-in', '.node-hid', 'line-w1');
+                anime({ targets: '.line-w1', opacity: [0, 1], strokeDashoffset: [anime.setDashoffset, 0], easing: 'easeInOutSine', duration: 1000 });
+                anime({ targets: '.node-hid', opacity: 1, scale: 1, delay: anime.stagger(50) });
+            }
+        },
+        {
+            text: "<strong>Шаг 2: Активация (ReLU).</strong> Функция ReLU делает простую вещь: превращает все минусы в нули. Шум исчез! Остался чистый сигнал — это и есть уникальный паттерн нужного нам факта.",
+            color: "#fbbf24",
+            action: () => {
+                anime({ targets: '#badge-relu', opacity: 1, translateY: [20, 0], duration: 800 });
+                
+                // Применяем ReLU
+                document.querySelectorAll('.node-hid').forEach(node => {
+                    let val = parseInt(node.getAttribute('data-val'));
+                    if (val < 0) {
+                        // Анимируем обнуление
+                        anime({
+                            targets: node,
+                            innerHTML: [val, 0],
+                            round: 1,
+                            duration: 500,
+                            easing: 'linear',
+                            complete: () => node.classList.add('dim')
+                        });
+                    } else {
+                        node.classList.add('glow');
+                    }
+                });
+                anime({ targets: '.line-w1', opacity: 0.1, duration: 500 }); // Гасим старые линии
+            }
+        },
+        {
+            text: "<strong>Шаг 3: Сжатие (W2).</strong> Слой W2 игнорирует нули и собирает данные только с активных нейронов (8, 6, 5). Он математически сжимает их обратно в 3 числа: <b>[4, 3, 2]</b>.",
+            color: "#10b981",
+            action: () => {
+                anime({ targets: '#badge-relu', opacity: 0, duration: 300 });
+                
+                // Рисуем активные линии только от светящихся узлов
+                drawLines('.node-hid.glow', '.node-out', 'line-w2 active');
+                anime({ targets: '.line-w2', opacity: [0, 1], strokeDashoffset: [anime.setDashoffset, 0], easing: 'easeInOutSine', duration: 800, delay: anime.stagger(100) });
+                
+                anime({ targets: '.node-out', opacity: 1, scale: 1, delay: anime.stagger(100) });
+            }
+        },
+        {
+            text: "<strong>Итог: Математика сошлась!</strong> Нейросеть прогнала запрос через свои веса, отсекла лишнее нулями и физически приземлила итоговый вектор точно в смысловые координаты Парижа.",
+            color: "#10b981",
+            action: () => {
+                anime({ targets: '#badge-result', opacity: 1, translateY: [-20, 0], duration: 800, easing: 'easeOutElastic(1, .8)' });
+                btnNext.disabled = true;
+            }
+        }
+    ];
+
+    function nextStep() {
+        step++;
+        if (step < steps.length) {
+            explanation.innerHTML = steps[step].text;
+            explanation.style.borderLeftColor = steps[step].color;
+            steps[step].action();
+        }
+    }
+
+    function reset() {
+        step = 0;
+        btnNext.disabled = false;
+        explanation.innerHTML = steps[0].text;
+        explanation.style.borderLeftColor = steps[0].color;
+        
+        // Сброс состояний
+        document.querySelectorAll('.node').forEach(n => {
+            n.style.opacity = 0;
+            n.style.transform = 'scale(0.5)';
+            n.classList.remove('dim', 'glow');
+            if (n.classList.contains('node-hid')) {
+                n.innerHTML = n.getAttribute('data-val'); // Возвращаем минусы
+            }
+        });
+        
+        document.querySelectorAll('.badge').forEach(b => { b.style.opacity = 0; });
+        svgCanvas.innerHTML = '';
+        
+        // Показываем первый шаг сразу
+        steps[0].action();
+    }
+
+    // Инициализация при старте
+    window.onload = () => {
+        setTimeout(() => steps[0].action(), 100);
+    };
+</script>
+</body>
+</html>

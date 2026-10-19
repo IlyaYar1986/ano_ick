@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Таблица глазами ИИ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --red:#ef4444;
+  --red-lt:#fef2f2;
+  --amber-lt:#fffbeb;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 14px}
+.mode{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.mode-btn{
+  padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.88rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.mode-btn.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.mode-btn:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:1fr}}
+
+.table-wrap{border:1px solid var(--border);border-radius:12px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:430px}
+td,th{border:1px solid var(--border);padding:7px 10px;text-align:center;transition:background .3s,color .3s}
+.merged{background:#f8fafc;font-weight:800;font-size:.92rem}
+.hdr{background:var(--indigo-lt);font-weight:700}
+.fio{text-align:left;font-weight:600}
+.note{font-size:.78rem;color:var(--muted)}
+
+/* режим машины */
+.machine .sin-merge{background:var(--red-lt);color:#991b1b;position:relative}
+.machine .sin-attend{background:var(--amber-lt);color:#92400e}
+.machine .sin-grade{background:var(--red-lt);color:#991b1b}
+.machine .sin-fio{background:#f1f5f9;color:transparent;text-shadow:0 0 9px rgba(15,23,42,.55)}
+.machine .sin-fio::after{content:"🔒";text-shadow:none;float:right}
+.hl-merge .sin-merge,.hl-attend .sin-attend,.hl-grade .sin-grade,.hl-fio .sin-fio{
+  outline:3px solid var(--indigo);outline-offset:-3px;
+}
+
+.verdict{
+  margin-top:12px;border-radius:12px;padding:12px 16px;font-size:.9rem;font-weight:600;
+}
+.verdict.human{background:#ecfdf5;color:#065f46}
+.verdict.robot{background:var(--red-lt);color:#991b1b}
+
+.sins{display:flex;flex-direction:column;gap:8px}
+.sin{
+  text-align:left;border:1px solid var(--border);border-radius:12px;background:#fff;
+  padding:11px 14px;cursor:pointer;transition:all .18s;font-size:.86rem;
+}
+.sin:hover{border-color:#c7d2fe;background:var(--indigo-lt)}
+.sin.active{border-color:var(--indigo);box-shadow:0 4px 14px rgba(99,102,241,.16)}
+.sin b{display:block;font-size:.9rem;margin-bottom:2px}
+.sin span{color:var(--muted)}
+.sin.active span{color:var(--text)}
+.sin:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<h1>Типичная таблица преподавателя — глазами человека и машины</h1>
+<p class="sub">Переключите взгляд и кликайте по «грехам» справа — подсветятся проблемные ячейки.</p>
+
+<div class="mode">
+  <button type="button" class="mode-btn active" data-mode="human">Глазами человека 👩‍🏫</button>
+  <button type="button" class="mode-btn" data-mode="machine">Глазами машины 🤖</button>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="table-wrap" id="table-wrap">
+      <table>
+        <tr><td colspan="4" class="merged sin-merge" id="merged-cell">Успеваемость группы К-21 за Октябрь</td></tr>
+        <tr>
+          <th class="hdr">Студент</th><th class="hdr">КР №1</th><th class="hdr">Посещ. 01.10</th><th class="hdr">Посещ. 08.10</th>
+        </tr>
+        <tr><td class="fio sin-fio">Иванова А. П.</td><td class="sin-grade">4 (хор.)</td><td>+</td><td class="sin-attend">н</td></tr>
+        <tr><td class="fio sin-fio">Петров С. И.</td><td>5, молодец!</td><td class="sin-attend">н/б</td><td>+</td></tr>
+        <tr><td class="fio sin-fio">Сидорова М. К.</td><td class="sin-grade">зачет</td><td>+</td><td class="sin-attend">болел</td></tr>
+        <tr><td class="fio sin-fio">Кузнецов Д. А.</td><td>3</td><td class="sin-attend">н</td><td>+</td></tr>
+      </table>
+    </div>
+    <div class="verdict human" id="verdict">Человек: «Всё понятно — обычная рабочая таблица, читаю без усилий».</div>
+  </div>
+
+  <div class="sins" id="sins">
+    <button type="button" class="sin" data-sin="merge"><b>«Грех» №1 · Объединённые ячейки 🧱</b><span>Красиво для нас — ошибка структуры для машины: к какому столбцу относится шапка?</span></button>
+    <button type="button" class="sin" data-sin="attend"><b>«Грех» №2 · Разные обозначения 🔀</b><span>«н», «н/б», «болел» — для машины три разных слова, а не один пропуск.</span></button>
+    <button type="button" class="sin" data-sin="grade"><b>«Грех» №3 · Числа с текстом 🍎</b><span>«4 (хор.)» — это текст. Средний балл посчитать невозможно: #ЗНАЧ!</span></button>
+    <button type="button" class="sin" data-sin="fio"><b>«Грех» №4 · Персональные данные 🔒</b><span>ФИО нельзя передавать внешнему сервису — 152-ФЗ требует согласия.</span></button>
+  </div>
+</div>
+
+<script>
+const wrap = document.getElementById("table-wrap");
+const verdict = document.getElementById("verdict");
+const mergedCell = document.getElementById("merged-cell");
+let mode = "human";
+
+const VERDICTS = {
+  human: "Человек: «Всё понятно — обычная рабочая таблица, читаю без усилий».",
+  machine: "Машина: «Ошибка структуры. Три разных статуса посещаемости. #ЗНАЧ! в оценках. Персональные данные — передача запрещена».",
+};
+
+document.querySelectorAll(".mode-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    mode = button.dataset.mode;
+    wrap.classList.toggle("machine", mode === "machine");
+    verdict.className = `verdict ${mode === "machine" ? "robot" : "human"}`;
+    verdict.textContent = VERDICTS[mode];
+    mergedCell.textContent = mode === "machine"
+      ? "⚠ Ошибка структуры: не могу сопоставить данные"
+      : "Успеваемость группы К-21 за Октябрь";
+  });
+});
+
+document.querySelectorAll(".sin").forEach((button) => {
+  button.addEventListener("click", () => {
+    const sin = button.dataset.sin;
+    const isActive = button.classList.contains("active");
+    document.querySelectorAll(".sin").forEach((b) => b.classList.remove("active"));
+    wrap.classList.remove("hl-merge", "hl-attend", "hl-grade", "hl-fio");
+    if (!isActive) {
+      button.classList.add("active");
+      wrap.classList.add(`hl-${sin}`);
+    }
+  });
+});
+</script>
+</body>
+</html>

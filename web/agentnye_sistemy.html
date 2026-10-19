@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Агентные системы — визуализации занятия 2</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --cyan-lt:#e0f2fe;
+  --text:#0f172a;
+  --muted:#64748b;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth;background:#f0f2f7}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(99,102,241,.18),transparent 30%),
+    radial-gradient(circle at 82% 8%,rgba(14,165,233,.16),transparent 34%),
+    linear-gradient(180deg,#f8fafc 0%,#eef2ff 36%,#f8fafc 100%);
+  color:var(--text);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,.06);
+  display:flex;align-items:center;padding:0 20px;z-index:900;
+  gap:2px;overflow-x:auto;scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none}
+.nav-back,.nav-link{
+  padding:5px 10px;border-radius:6px;font-size:.76rem;font-weight:700;
+  color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;
+}
+.nav-back:hover,.nav-link:hover,.nav-link.active{color:var(--indigo);background:var(--indigo-lt)}
+.nav-logo{font-weight:900;font-size:.93rem;color:var(--indigo-dk);white-space:nowrap;margin:0 10px 0 4px}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+
+.hero{
+  min-height:74vh;
+  padding:calc(var(--nav-h) + 64px) 24px 72px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(120deg,rgba(67,56,202,.12),transparent 48%),
+    radial-gradient(ellipse at 50% 78%,rgba(14,165,233,.18),transparent 54%);
+}
+.hero-inner{position:relative;z-index:1;max-width:980px;width:100%}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
+  background:#fff;border:1px solid #c7d2fe;border-radius:100px;
+  color:var(--indigo);font-size:.8rem;font-weight:800;margin-bottom:24px;
+  box-shadow:0 8px 24px rgba(99,102,241,.12);
+}
+.hero h1{
+  font-size:clamp(2.45rem,6vw,5rem);font-weight:900;line-height:1.06;
+  letter-spacing:-1.5px;margin-bottom:18px;
+}
+.hero h1 em{font-style:normal;color:var(--indigo)}
+.hero-sub{max-width:720px;margin:0 auto 34px;color:var(--muted);font-size:1.04rem}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:42px}
+.cta{
+  display:inline-flex;align-items:center;gap:9px;padding:12px 22px;border-radius:100px;
+  font-size:.93rem;font-weight:800;text-decoration:none;transition:transform .15s,box-shadow .2s,background .2s;
+}
+.cta-primary{background:var(--indigo);color:#fff;box-shadow:0 8px 28px rgba(99,102,241,.32)}
+.cta-primary:hover{background:var(--indigo-dk);transform:translateY(-2px);box-shadow:0 12px 34px rgba(99,102,241,.42)}
+.cta-secondary{background:#fff;color:var(--indigo);border:1px solid #c7d2fe}
+.cta-secondary:hover{background:var(--indigo-lt);transform:translateY(-2px)}
+.hero-preview{
+  width:100vw;margin-left:calc(50% - 50vw);border-radius:0;overflow:hidden;
+  background:#fff;border:1px solid rgba(99,102,241,.18);
+  box-shadow:0 26px 80px rgba(99,102,241,.2),0 1px 0 rgba(255,255,255,.8) inset;
+}
+.hero-preview img{width:100%;display:block;cursor:zoom-in}
+.hero-slide{
+  width:100%;max-width:1080px;margin:0 auto 30px;border-radius:20px;overflow:hidden;
+  background:#fff;border:1px solid rgba(99,102,241,.18);
+  box-shadow:0 30px 90px rgba(99,102,241,.24),0 1px 0 rgba(255,255,255,.8) inset;
+}
+.hero-slide img{width:100%;display:block;cursor:zoom-in}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.page{max-width:none;margin:0;padding:64px 0 84px}
+.section{padding:48px 0 64px;border-top:1px solid rgba(226,232,240,.9)}
+.section:first-child{border-top:none;padding-top:0}
+.section-head{
+  display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;
+  max-width:1220px;margin:0 auto 24px;padding:0 24px;
+}
+.num{
+  width:50px;height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:1.25rem;font-weight:900;box-shadow:0 12px 26px rgba(15,23,42,.12);
+}
+.n1{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.n2{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.n3{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+.n4{background:linear-gradient(135deg,#10b981,#34d399)}
+.n5{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.n6{background:linear-gradient(135deg,#ef4444,#f87171)}
+.section h2{font-size:clamp(1.55rem,3vw,2.3rem);font-weight:900;letter-spacing:-.4px;line-height:1.18;margin-bottom:8px}
+.section p{color:var(--muted);max-width:760px}
+
+.grid{display:flex;flex-direction:column;gap:18px;max-width:1080px;margin:0 auto;padding:0 24px}
+.card{
+  background:rgba(255,255,255,.96);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 6px 28px rgba(15,23,42,.06);transition:box-shadow .2s,border-color .2s;
+}
+.card:hover{box-shadow:0 14px 40px rgba(99,102,241,.12);border-color:#c7d2fe}
+.card-bar{display:flex;align-items:center;gap:10px;padding:12px 24px;background:#f8fafc;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px;flex-shrink:0}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febb2c}.dg{background:#27c840}
+.card-kicker{font-size:.7rem;font-weight:900;color:var(--indigo);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
+.card-title{font-size:.84rem;font-weight:800;color:var(--muted)}
+.shot{display:block;width:100%;padding:0;border:0;background:#e2e8f0;cursor:zoom-in}
+.shot img{width:100%;display:block;height:auto}
+
+#lightbox{
+  position:fixed;inset:0;background:rgba(2,6,23,.94);z-index:3000;
+  display:none;flex-direction:column;align-items:stretch;justify-content:stretch;
+}
+#lightbox.open{display:flex}
+#lb-bar{
+  display:flex;align-items:center;padding:10px 16px;gap:12px;flex-shrink:0;
+  background:rgba(0,0,0,.42);border-bottom:1px solid rgba(255,255,255,.08);
+}
+#lb-title{font-size:.78rem;font-weight:700;color:rgba(255,255,255,.65);flex:1}
+#lb-hint{font-size:.72rem;color:rgba(255,255,255,.38);white-space:nowrap}
+#lb-close{
+  width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.82);font-size:1.15rem;cursor:pointer;
+}
+#lb-close:hover{background:rgba(255,255,255,.2)}
+#lb-download-btn{
+  height:34px;padding:0 14px;border-radius:8px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.85);font-size:.76rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:6px;text-decoration:none;flex-shrink:0
+}
+#lb-download-btn:hover{background:rgba(255,255,255,.2)}
+#lb-wrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none}
+#lb-wrap.grabbing{cursor:grabbing}
+#lb-img{transform-origin:center center;max-width:none;max-height:none;pointer-events:none;display:block;will-change:transform}
+
+.f{opacity:0;transform:translateY(20px);transition:opacity .58s ease,transform .58s ease}
+.f.in{opacity:1;transform:none}
+.continuation{
+  max-width:1080px;margin:16px auto 0;padding:0 24px 74px;
+}
+.continuation-card{
+  position:relative;overflow:hidden;padding:38px;border-radius:24px;
+  background:linear-gradient(135deg,#312e81 0%,#4338ca 52%,#0e7490 100%);
+  color:#fff;box-shadow:0 24px 60px rgba(67,56,202,.28);
+}
+.continuation-card::after{
+  content:'';position:absolute;width:260px;height:260px;right:-90px;top:-110px;
+  border:1px solid rgba(255,255,255,.22);border-radius:50%;
+  box-shadow:0 0 0 35px rgba(255,255,255,.04),0 0 0 75px rgba(255,255,255,.025);
+}
+.continuation-card>*{position:relative;z-index:1}
+.continuation-card small{font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#a5f3fc}
+.continuation-card h2{max-width:700px;font-size:clamp(1.65rem,3.5vw,2.6rem);line-height:1.08;margin:8px 0 12px}
+.continuation-card p{max-width:760px;color:#dbeafe;margin-bottom:22px}
+footer{padding:42px 24px;text-align:center;color:var(--muted);font-size:.84rem;border-top:1px solid var(--border);background:white}
+
+@media(max-width:820px){
+  .section-head{grid-template-columns:1fr;gap:12px}
+  .hero{min-height:68vh}
+}
+@media(max-width:620px){
+  #lb-hint{display:none}
+  .hero h1{letter-spacing:-.8px}
+  .section-head{padding:0 16px}
+  .card-bar{padding-left:16px;padding-right:16px}
+}
+</style>
+</head>
+<body>
+<div id="lightbox">
+  <div id="lb-bar">
+    <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+    <span id="lb-title"></span>
+    <span id="lb-hint">Прокрутка — масштаб · перетащи для перемещения · ESC — закрыть</span>
+    <a id="lb-download-btn" download aria-label="Скачать изображение">⬇ Скачать</a>
+    <button id="lb-close" onclick="closeLb()">✕</button>
+  </div>
+  <div id="lb-wrap"><img id="lb-img" src="" alt=""></div>
+</div>
+
+<nav>
+  <a class="nav-back" href="../oglavlenie.html">← Оглавление</a>
+  <a class="nav-back" href="../index.html">← Лендинг</a>
+  <div class="nav-sep"></div>
+  <span class="nav-logo">Агентные системы</span>
+  <div class="nav-sep"></div>
+  <a class="nav-link" href="#b1">Tool Use</a>
+  <a class="nav-link" href="#b2">Кодинг-агенты</a>
+  <a class="nav-link" href="#b3">MCP</a>
+  <a class="nav-link" href="#b4">RAG</a>
+  <a class="nav-link" href="#b5">Мультимодальность</a>
+  <a class="nav-link" href="#b6">2026</a>
+  <div class="nav-sep"></div>
+  <a class="nav-link" href="instrumenty_mcp_skills.html">Практика: MCP + Skills →</a>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <h1 class="sr-only">От «мозга в банке» к деятелю — агенты, мультимодальность и современный ландшафт ИИ</h1>
+    <div class="hero-slide f">
+      <img src="../png/zanyatie2_agentnye_sistemy/00_zaglavnyy_slayd.webp" alt="От «мозга в банке» к деятелю — агенты, мультимодальность и современный ландшафт ИИ" onclick="openLb(this.src,'От «мозга в банке» к деятелю')">
+    </div>
+    <div class="hero-actions">
+      <a class="cta cta-primary" href="#b1">Смотреть визуализации →</a>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <section class="section" id="b1">
+    <div class="section-head f">
+      <div class="num n1">1</div>
+      <div>
+        <h2>От ответа к действию</h2>
+        <p>Tool Use и ReAct превращают оракула, который только говорит, в систему, которая ставит шаги, вызывает инструменты и проверяет результат.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">1.1</span><span class="card-title">Стеклянный потолок текстовой модели</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/01_01_steklyannyy_potolok_textovoy_modeli.webp','1.1 Стеклянный потолок текстовой модели')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/01_01_steklyannyy_potolok_textovoy_modeli.webp" alt="Стеклянный потолок текстовой модели"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">1.2</span><span class="card-title">Function Calling</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/01_02_function_calling.webp','1.2 Function Calling')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/01_02_function_calling.webp" alt="Function Calling"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">1.3</span><span class="card-title">Цикл агента: ReAct</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/01_03_react_cycle.webp','1.3 Цикл агента: ReAct')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/01_03_react_cycle.webp" alt="Цикл агента ReAct"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">1.4</span><span class="card-title">Что такое агент</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/01_04_chto_takoe_agent.webp','1.4 Что такое агент')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/01_04_chto_takoe_agent.webp" alt="Что такое агент"></button></article>
+    </div>
+  </section>
+
+  <section class="section" id="b2">
+    <div class="section-head f">
+      <div class="num n2">2</div>
+      <div>
+        <h2>Агенты-программисты</h2>
+        <p>Код стал первым зрелым полигоном для агентов: его можно запускать, тестировать и итеративно исправлять по объективной обратной связи.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">2.1</span><span class="card-title">Код как первый полигон</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/02_01_kod_pervyy_poligon.webp','2.1 Код как первый полигон')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/02_01_kod_pervyy_poligon.webp" alt="Код как первый полигон"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">2.2</span><span class="card-title">Как работает кодинг-агент</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/02_02_kak_rabotaet_koding_agent.webp','2.2 Как работает кодинг-агент')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/02_02_kak_rabotaet_koding_agent.webp" alt="Как работает кодинг-агент"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">2.3</span><span class="card-title">Лестница автономности</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/02_03_lestnitsa_avtonomnosti.webp','2.3 Лестница автономности')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/02_03_lestnitsa_avtonomnosti.webp" alt="Лестница автономности"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">2.4</span><span class="card-title">Тень автономности</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/02_04_ten_avtonomnosti.webp','2.4 Тень автономности')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/02_04_ten_avtonomnosti.webp" alt="Тень автономности"></button></article>
+    </div>
+  </section>
+
+  <section class="section" id="b3">
+    <div class="section-head f">
+      <div class="num n3">3</div>
+      <div>
+        <h2>MCP: универсальная розетка для ИИ</h2>
+        <p>Стандартизация подключения инструментов снимает проблему множества ручных интеграций и делает агентность массовой.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">3.1</span><span class="card-title">Зоопарк интеграций</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/03_01_zoopark_integratsiy.webp','3.1 Зоопарк интеграций')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/03_01_zoopark_integratsiy.webp" alt="Зоопарк интеграций"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">3.2</span><span class="card-title">MCP как USB-C для ИИ</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/03_02_mcp_usb_c_dlya_ii.webp','3.2 MCP как USB-C для ИИ')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/03_02_mcp_usb_c_dlya_ii.webp" alt="MCP как USB-C для ИИ"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">3.3</span><span class="card-title">MCP-клиенты и серверы</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/03_03_mcp_klienty_servery.webp','3.3 MCP-клиенты и серверы')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/03_03_mcp_klienty_servery.webp" alt="MCP-клиенты и серверы"></button></article>
+    </div>
+  </section>
+
+  <section class="section" id="b4">
+    <div class="section-head f">
+      <div class="num n4">4</div>
+      <div>
+        <h2>Память и знания: RAG</h2>
+        <p>RAG даёт модели открытую книгу и долговременную память: нужные фрагменты находятся по смыслу и возвращаются в контекст.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">4.1</span><span class="card-title">Замороженный мозг</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/04_01_problema_zamorozhennogo_mozga.webp','4.1 Замороженный мозг')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/04_01_problema_zamorozhennogo_mozga.webp" alt="Замороженный мозг"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">4.2</span><span class="card-title">RAG как открытая книга</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/04_02_rag_otkrytaya_kniga.webp','4.2 RAG как открытая книга')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/04_02_rag_otkrytaya_kniga.webp" alt="RAG как открытая книга"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">4.3</span><span class="card-title">Поиск по смыслу</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/04_03_poisk_po_smyslu.webp','4.3 Поиск по смыслу')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/04_03_poisk_po_smyslu.webp" alt="Поиск по смыслу"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">4.4</span><span class="card-title">Память агента и контекст</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/04_04_pamyat_agenta_i_kontekst.webp','4.4 Память агента и контекст')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/04_04_pamyat_agenta_i_kontekst.webp" alt="Память агента и контекст"></button></article>
+    </div>
+  </section>
+
+  <section class="section" id="b5">
+    <div class="section-head f">
+      <div class="num n5">5</div>
+      <div>
+        <h2>Мультимодальность</h2>
+        <p>Модель получает органы чувств: изображения, звук и голос становятся частью общего потока, а Computer Use соединяет зрение с действиями.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">5.1</span><span class="card-title">Мир не только текст</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/05_01_mir_ne_tolko_text.webp','5.1 Мир не только текст')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/05_01_mir_ne_tolko_text.webp" alt="Мир не только текст"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">5.2</span><span class="card-title">Одна карта смыслов</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/05_02_odna_karta_smyslov.webp','5.2 Одна карта смыслов')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/05_02_odna_karta_smyslov.webp" alt="Одна карта смыслов"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">5.3</span><span class="card-title">Зрение, слух и голос</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/05_03_zrenie_sluh_golos.webp','5.3 Зрение, слух и голос')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/05_03_zrenie_sluh_golos.webp" alt="Зрение, слух и голос"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">5.4</span><span class="card-title">Нативная мультимодальность</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/05_04_nativnaya_multimodalnost.webp','5.4 Нативная мультимодальность')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/05_04_nativnaya_multimodalnost.webp" alt="Нативная мультимодальность"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">5.5</span><span class="card-title">Не только понимать, но и творить</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/05_05_ne_tolko_ponimat_no_i_tvorit.webp','5.5 Не только понимать, но и творить')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/05_05_ne_tolko_ponimat_no_i_tvorit.webp" alt="Не только понимать, но и творить"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">5.6</span><span class="card-title">Computer Use</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/05_06_computer_use.webp','5.6 Computer Use')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/05_06_computer_use.webp" alt="Computer Use"></button></article>
+    </div>
+  </section>
+
+  <section class="section" id="b6">
+    <div class="section-head f">
+      <div class="num n6">6</div>
+      <div>
+        <h2>Где мы стоим сегодня</h2>
+        <p>Финальная рамка занятия: локальные модели возвращают ИИ на личные устройства, агентность приближает разговор об AGI, а автономность усиливает вопросы безопасности.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">6.1</span><span class="card-title">ИИ возвращается домой</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/06_01_ii_vozvraschaetsya_domoy.webp','6.1 ИИ возвращается домой')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/06_01_ii_vozvraschaetsya_domoy.webp" alt="ИИ возвращается домой"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">6.2</span><span class="card-title">Что такое AGI</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/06_02_chto_takoe_agi.webp','6.2 Что такое AGI')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/06_02_chto_takoe_agi.webp" alt="Что такое AGI"></button></article>
+      <article class="card f"><div class="card-bar"><div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div><span class="card-kicker">6.3</span><span class="card-title">Большие вопросы</span></div><button class="shot" onclick="openLb('../png/zanyatie2_agentnye_sistemy/06_03_bolshie_voprosy.webp','6.3 Большие вопросы')"><img loading="lazy" decoding="async" src="../png/zanyatie2_agentnye_sistemy/06_03_bolshie_voprosy.webp" alt="Большие вопросы"></button></article>
+    </div>
+  </section>
+
+  <aside class="continuation f" aria-label="Продолжение занятия">
+    <div class="continuation-card">
+      <small>Практическая часть</small>
+      <h2>Теперь соберём полезный образовательный стек</h2>
+      <p>Разберём структуру собственного MCP-сервера и Agent Skill, а затем выберем готовые инструменты, интеграции и сценарии для колледжа или кружка по ИИ.</p>
+      <a class="cta cta-secondary" href="instrumenty_mcp_skills.html">Открыть практику: инструменты, MCP и Skills →</a>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <p>Семинар «Агентные системы» · Клуб Образование · 2026</p>
+  <p style="margin-top:6px"><a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="color:#6366f1;font-weight:700;text-decoration:none">iivobrazovanii.club</a></p>
+</footer>
+
+<script>
+const lbEl = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbWrap = document.getElementById('lb-wrap');
+const lbTitle = document.getElementById('lb-title');
+const lbDownloadBtn = document.getElementById('lb-download-btn');
+function brandedFilename(url){
+  const name = url.split('/').pop().split('?')[0];
+  return `iivobrazovanii-club_${name}`;
+}
+let lb = {scale:1,tx:0,ty:0,drag:false,moved:false,sx:0,sy:0,stx:0,sty:0};
+
+function applyLb(){lbImg.style.transform = `translate(${lb.tx}px,${lb.ty}px) scale(${lb.scale})`}
+function openLb(src,title){
+  lbImg.src = src;
+  lbTitle.textContent = title || '';
+  lbDownloadBtn.href = src.replace(/\.webp$/i, ".png");
+  lbDownloadBtn.download = brandedFilename(src.replace(/\.webp$/i, ".png"));
+  lb = {scale:1,tx:0,ty:0,drag:false,moved:false,sx:0,sy:0,stx:0,sty:0};
+  applyLb();
+  lbEl.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLb(){
+  lbEl.classList.remove('open');
+  document.body.style.overflow = '';
+}
+lbWrap.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const rect = lbWrap.getBoundingClientRect();
+  const cx = e.clientX - rect.left - rect.width / 2;
+  const cy = e.clientY - rect.top - rect.height / 2;
+  const factor = e.deltaY < 0 ? 1.12 : 0.893;
+  const newScale = Math.max(.25,Math.min(12,lb.scale * factor));
+  const ratio = newScale / lb.scale;
+  lb.tx = cx - (cx - lb.tx) * ratio;
+  lb.ty = cy - (cy - lb.ty) * ratio;
+  lb.scale = newScale;
+  applyLb();
+},{passive:false});
+lbWrap.addEventListener('mousedown',e=>{
+  lb.drag = true;lb.moved = false;lb.sx = e.clientX;lb.sy = e.clientY;lb.stx = lb.tx;lb.sty = lb.ty;
+  lbWrap.classList.add('grabbing');e.preventDefault();
+});
+document.addEventListener('mousemove',e=>{
+  if(!lb.drag)return;
+  const dx = e.clientX - lb.sx;
+  const dy = e.clientY - lb.sy;
+  if(Math.abs(dx) > 3 || Math.abs(dy) > 3) lb.moved = true;
+  lb.tx = lb.stx + dx;lb.ty = lb.sty + dy;applyLb();
+});
+document.addEventListener('mouseup',()=>{lb.drag = false;lbWrap.classList.remove('grabbing')});
+lbWrap.addEventListener('dblclick',()=>{lb.scale = 1;lb.tx = 0;lb.ty = 0;applyLb()});
+lbWrap.addEventListener('click',e=>{if(lb.moved){lb.moved = false;return} if(e.target === lbWrap) closeLb()});
+document.addEventListener('keydown',e=>{if(e.key === 'Escape') closeLb()});
+
+const io = new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.06,rootMargin:'0px 0px -28px 0px'});
+document.querySelectorAll('.f').forEach(el=>io.observe(el));
+
+const navLinks = document.querySelectorAll('.nav-link');
+const setActive = id => navLinks.forEach(l=>l.classList.toggle('active',l.getAttribute('href') === '#' + id));
+const secObs = new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)setActive(e.target.id)}),{threshold:.26});
+document.querySelectorAll('section[id]').forEach(s=>secObs.observe(s));
+</script>
+</body>
+</html>

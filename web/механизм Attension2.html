@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трансформер: Механизм восприятия и контекста</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg: #fdfcfb;
+            --primary: #4f46e5;
+            --accent: #f59e0b;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --memory-bg: #e0f2fe;
+            --query-bg: #fdf2f8;
+            --output-bg: #d1fae5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .header {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; color: #0f172a; }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .memory-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .memory-slot {
+            background: var(--memory-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border: 2px solid #bae6fd;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .pos-tag {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            background: #ffffff;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .word-box {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            position: relative;
+        }
+
+        .perception-section {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+        }
+
+        .queries, .outputs {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .query-card {
+            background: var(--query-bg);
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid #fbcfe8;
+        }
+
+        .query-text { font-size: 1.1rem; font-weight: 700; color: #9d174d; }
+        .query-target { font-size: 0.85rem; color: #db2777; font-family: monospace; margin-top: 5px; }
+
+        .output-card {
+            background: var(--output-bg);
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid #6ee7b7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .out-label { font-size: 1rem; font-weight: bold; color: #065f46; }
+
+        .out-word-container {
+            width: 150px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            border: 1px dashed #6ee7b7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .out-word {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #065f46;
+            transition: color 0.1s;
+        }
+
+        #svg-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .explanation {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #334155;
+            border-left: 5px solid var(--primary);
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<svg id="svg-canvas">
+    <path id="path-a" d="" stroke="#fbcfe8" stroke-width="3" fill="none" stroke-dasharray="10 5" opacity="0"></path>
+    <path id="path-b" d="" stroke="#fbcfe8" stroke-width="3" fill="none" stroke-dasharray="10 5" opacity="0"></path>
+</svg>
+
+<div class="container">
+    <div class="header">
+        <h1>Трансформер: Позиция и Восприятие</h1>
+        <div class="controls">
+            <button id="btn1" class="active" onclick="setPhrase(1)">Фраза 1: «Собака укусила человека»</button>
+            <button id="btn2" onclick="setPhrase(2)">Фраза 2: «Человек укусил собаку»</button>
+        </div>
+    </div>
+
+    <div class="memory-section">
+        <div class="memory-slot" id="slot-1">
+            <div class="pos-tag">Метка: Поз 1</div>
+            <div class="word-box" id="word-1">Собака</div>
+        </div>
+        <div class="memory-slot" id="slot-2">
+            <div class="pos-tag">Метка: Поз 2</div>
+            <div class="word-box" id="word-2">укусила</div>
+        </div>
+        <div class="memory-slot" id="slot-3">
+            <div class="pos-tag">Метка: Поз 3</div>
+            <div class="word-box" id="word-3">человека</div>
+        </div>
+    </div>
+
+    <div class="perception-section">
+        <div class="queries">
+            <div class="query-card" id="query-a">
+                <div class="query-text">Кто агрессор?</div>
+                <div class="query-target">Ищу слово с меткой [Поз 1]</div>
+            </div>
+            <div class="query-card" id="query-b">
+                <div class="query-text">Кого укусили?</div>
+                <div class="query-target">Ищу слово с меткой [Поз 3]</div>
+            </div>
+        </div>
+
+        <div class="outputs">
+            <div class="output-card">
+                <div class="out-label">Агрессор:</div>
+                <div class="out-word-container"><div class="out-word" id="out-a">?</div></div>
+            </div>
+            <div class="output-card">
+                <div class="out-label">Жертва:</div>
+                <div class="out-word-container"><div class="out-word" id="out-b">?</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="explanation" id="explanation">
+        Модель Внимания сканирует память. Она ищет слово, к которому прикреплена метка Позиции 1 (подлежащее). В этой фразе это Собака.
+    </div>
+</div>
+
+<script>
+    const phrases = {
+        1: { words: ['Собака', 'укусила', 'человека'], explain: "Фраза 1: Модель Внимания ищет метку Позиции 1 и находит там СОБАКУ. Ответ сформирован верно." },
+        2: { words: ['Человек', 'укусил', 'собаку'],   explain: "Фраза 2: Слова те же, но метка Позиции 1 теперь у ЧЕЛОВЕКА. Модель понимает, что роли поменялись." }
+    };
+
+    const outA     = document.getElementById('out-a');
+    const outB     = document.getElementById('out-b');
+    const explainEl = document.getElementById('explanation');
+    const svgCanvas = document.getElementById('svg-canvas');
+    const pathA    = document.getElementById('path-a');
+    const pathB    = document.getElementById('path-b');
+
+    function resizeSvg() {
+        svgCanvas.setAttribute('width',  window.innerWidth);
+        svgCanvas.setAttribute('height', window.innerHeight);
+    }
+    window.addEventListener('resize', resizeSvg);
+    resizeSvg();
+
+    function drawCurve(path, startEl, endEl) {
+        const s = startEl.getBoundingClientRect();
+        const e = endEl.getBoundingClientRect();
+        const sx = s.left + s.width  / 2 + window.scrollX;
+        const sy = s.top  + s.height / 2 + window.scrollY;
+        const ex = e.left + e.width  / 2 + window.scrollX;
+        const ey = e.top  + e.height / 2 + window.scrollY;
+        const cx = (sx + ex) / 2 + 50;
+        const cy = (sy + ey) / 2 - 50;
+        path.setAttribute('d', `M ${sx} ${sy} Q ${cx} ${cy}, ${ex} ${ey}`);
+    }
+
+    async function setPhrase(id) {
+        document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn' + id).classList.add('active');
+
+        const data = phrases[id];
+
+        outA.textContent = '?';
+        outB.textContent = '?';
+        outA.style.color = '#065f46';
+        outB.style.color = '#065f46';
+        explainEl.textContent = '...сканирование памяти...';
+        explainEl.style.borderLeftColor = 'var(--primary)';
+
+        anime({ targets: '#path-a, #path-b', opacity: 0, duration: 200 });
+        await new Promise(r => setTimeout(r, 200));
+
+        document.getElementById('word-1').textContent = data.words[0];
+        document.getElementById('word-2').textContent = data.words[1];
+        document.getElementById('word-3').textContent = data.words[2];
+
+        anime({
+            targets: '.word-box',
+            scale: [1, 1.2, 1],
+            opacity: [0, 1],
+            delay: anime.stagger(100),
+            easing: 'easeOutExpo'
+        });
+        await new Promise(r => setTimeout(r, 600));
+
+        drawCurve(pathA, document.getElementById('query-a'), document.getElementById('slot-1'));
+        drawCurve(pathB, document.getElementById('query-b'), document.getElementById('slot-3'));
+
+        anime({
+            targets: '#path-a, #path-b',
+            opacity: [0, 1],
+            strokeDashoffset: [1000, 0],
+            duration: 1000,
+            easing: 'easeInOutSine'
+        });
+        await new Promise(r => setTimeout(r, 800));
+
+        const w1Rect  = document.getElementById('word-1').getBoundingClientRect();
+        const w3Rect  = document.getElementById('word-3').getBoundingClientRect();
+        const outARect = outA.getBoundingClientRect();
+        const outBRect = outB.getBoundingClientRect();
+
+        animateWordTransfer(data.words[0], w1Rect,  outARect, outA);
+        animateWordTransfer(data.words[2], w3Rect,  outBRect, outB);
+        await new Promise(r => setTimeout(r, 800));
+
+        explainEl.textContent = data.explain;
+        explainEl.style.borderLeftColor = '#6ee7b7';
+    }
+
+    function animateWordTransfer(text, startRect, endRect, targetEl) {
+        const ghost = document.createElement('div');
+        ghost.textContent = text;
+        ghost.style.cssText = `
+            position: fixed;
+            left: ${startRect.left + startRect.width / 2}px;
+            top:  ${startRect.top  + startRect.height / 2}px;
+            font: 800 1.2rem sans-serif;
+            color: #065f46;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1000;
+        `;
+        document.body.appendChild(ghost);
+
+        anime({
+            targets: ghost,
+            left:    endRect.left + endRect.width  / 2,
+            top:     endRect.top  + endRect.height / 2,
+            scale:   [1, 1.3, 1],
+            opacity: [1, 0.2],
+            duration: 800,
+            easing: 'easeInOutQuad',
+            complete: () => {
+                ghost.remove();
+                targetEl.textContent = text;
+                anime({ targets: targetEl, scale: [1, 1.2, 1], duration: 200 });
+            }
+        });
+    }
+
+    setTimeout(() => setPhrase(1), 500);
+</script>
+
+</body>
+</html>

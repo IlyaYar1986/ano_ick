@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QKV: Анимация и Математика</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --q: #3b82f6;
+            --k: #10b981;
+            --v: #8b5cf6;
+            --res: #f59e0b;
+            --text: #1e293b;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .container { width: 100%; max-width: 900px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0; }
+        
+        .header { background: #1e293b; color: white; padding: 20px; text-align: center; }
+        h1 { margin: 0; font-size: 1.4rem; }
+        
+        .controls { display: flex; justify-content: center; gap: 10px; padding: 15px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-next { background: var(--q); color: white; }
+        .btn-reset { background: #cbd5e1; color: #334155; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        .sentence { display: flex; justify-content: center; gap: 40px; padding: 20px; font-size: 1.3rem; font-weight: bold; color: #475569; }
+        .word { padding: 5px 15px; border-radius: 8px; }
+        .target { background: var(--q); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+
+        .workspace { position: relative; height: 450px; background: #fff; overflow: hidden; display: flex; justify-content: space-around; padding-top: 20px; }
+        
+        .column { display: flex; flex-direction: column; align-items: center; width: 30%; position: relative; gap: 15px; }
+
+        .block { padding: 10px 15px; border-radius: 8px; font-weight: bold; font-family: monospace; font-size: 1rem; color: white; text-align: center; opacity: 0; transform: scale(0.5); box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 120px; transition: transform 0.3s; }
+        .q-block { background: var(--q); border: 2px solid #2563eb; }
+        .k-block { background: var(--k); border: 2px solid #059669; }
+        .v-block { background: var(--v); border: 2px solid #7c3aed; position: absolute; top: 250px; }
+
+        .math-box { font-family: monospace; font-size: 1rem; font-weight: bold; color: #ef4444; background: #fee2e2; padding: 5px 10px; border-radius: 6px; opacity: 0; border: 1px solid #fca5a5; text-align: center; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+        .math-box.percent { background: #d1fae5; color: #059669; border-color: #6ee7b7; font-size: 1.2rem; }
+
+        .final-block { position: absolute; left: 50%; top: 85%; transform: translate(-50%, -50%) scale(0); background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; padding: 15px 30px; border-radius: 12px; font-weight: 900; font-family: monospace; font-size: 1.4rem; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); opacity: 0; text-align: center; z-index: 100; }
+
+        .explanation { padding: 25px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 1.1rem; line-height: 1.5; border-left: 5px solid var(--q); min-height: 80px; }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="header"><h1>Внимание: Анимация векторов</h1></div>
+    <div class="controls">
+        <button class="btn-next" onclick="nextStep()" id="btn-next">Следующий шаг</button>
+        <button class="btn-reset" onclick="reset()">Сброс</button>
+    </div>
+
+    <div class="sentence">
+        <div class="word">Пушистая</div>
+        <div class="word target">кошка</div>
+        <div class="word">спит</div>
+    </div>
+
+    <div class="workspace" id="workspace">
+        <div class="column">
+            <div class="block k-block" id="k1">K: [3, 0, 0]</div>
+            <div class="math-box" id="m1"></div>
+            <div class="block v-block" id="v1">V: [10, 0]</div>
+        </div>
+        
+        <div class="column" style="background: rgba(59, 130, 246, 0.05); border-radius: 12px; padding: 10px 0;">
+            <div class="block q-block" id="q2">Q: [2, 1, 0]</div>
+            <div class="block k-block" id="k2">K: [1, 1, 0]</div>
+            <div class="math-box" id="m2"></div>
+            <div class="block v-block" id="v2">V: [0, 10]</div>
+        </div>
+
+        <div class="column">
+            <div class="block k-block" id="k3">K: [0, 1, 1]</div>
+            <div class="math-box" id="m3"></div>
+            <div class="block v-block" id="v3">V: [-10, 0]</div>
+        </div>
+
+        <div class="final-block" id="final">Итог: [5, 3]</div>
+    </div>
+
+    <div class="explanation" id="explanation">
+        <strong>Шаг 0:</strong> Цель — обновить смысл слова «кошка». Обратите внимание: у каждого слова теперь есть конкретные числовые векторы. 
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    const btnNext = document.getElementById('btn-next');
+    const explanation = document.getElementById('explanation');
+
+    const steps = [
+        {
+            text: "<strong>Шаг 0:</strong> Цель — обновить смысл слова «кошка». Обратите внимание: у каждого слова теперь есть конкретные числовые векторы.",
+            color: "#3b82f6",
+            action: () => {}
+        },
+        {
+            text: "<strong>Шаг 1: Генерация векторов.</strong> Запрос «кошки» — это вектор <b>Q: [2, 1, 0]</b>. Все слова также публикуют свои Ключи (K) и Значения (V).",
+            color: "#10b981",
+            action: () => {
+                anime({ targets: '.block', opacity: 1, scale: 1, delay: anime.stagger(150), easing: 'easeOutBack' });
+            }
+        },
+        {
+            text: "<strong>Шаг 2: Скалярное произведение (Q•K).</strong> Запрос [2,1,0] перемножается с каждым Ключом. <i>Например, для «Пушистая»: (2×3)+(1×0)+(0×0) = 6.</i> Получаем сырые баллы.",
+            color: "#ef4444",
+            action: () => {
+                const m1 = document.getElementById('m1'); const m2 = document.getElementById('m2'); const m3 = document.getElementById('m3');
+                m1.innerHTML = "Балл: 6"; m2.innerHTML = "Балл: 3"; m3.innerHTML = "Балл: 1";
+                anime({ targets: '.math-box', opacity: 1, translateY: [20, 0], delay: anime.stagger(200) });
+            }
+        },
+        {
+            text: "<strong>Шаг 3: Softmax (Проценты).</strong> Сырые баллы конвертируются в проценты. 6, 3 и 1 превращаются в 60%, 30% и 10%.",
+            color: "#059669",
+            action: () => {
+                document.querySelectorAll('.math-box').forEach(el => el.classList.add('percent'));
+                document.getElementById('m1').innerHTML = "60%";
+                document.getElementById('m2').innerHTML = "30%";
+                document.getElementById('m3').innerHTML = "10%";
+                anime({ targets: '.math-box', scale: [1.2, 1], duration: 400 });
+            }
+        },
+        {
+            text: "<strong>Шаг 4: Взвешивание Значений (V).</strong> Проценты отсекают часть Значений (V).<br>0.6 × [10, 0] = <b>[6, 0]</b><br>0.3 × [0, 10] = <b>[0, 3]</b><br>0.1 × [-10, 0] = <b>[-1, 0]</b>",
+            color: "#8b5cf6",
+            action: () => {
+                const v1 = document.getElementById('v1'); const v2 = document.getElementById('v2'); const v3 = document.getElementById('v3');
+                
+                // Обновляем текст
+                setTimeout(() => { v1.innerHTML = "V: [6, 0]"; v2.innerHTML = "V: [0, 3]"; v3.innerHTML = "V: [-1, 0]"; }, 300);
+                
+                // Масштабируем визуально
+                anime({ targets: '#v1', scale: 1.1, duration: 600 });
+                anime({ targets: '#v2', scale: 0.9, duration: 600 });
+                anime({ targets: '#v3', scale: 0.7, opacity: 0.6, duration: 600 });
+            }
+        },
+        {
+            text: "<strong>Шаг 5: Слияние (Итог).</strong> Обновленные Значения складываются: [6, 0] + [0, 3] + [-1, 0] = <b>[5, 3]</b>. Слово «кошка» обновило свой смысл, впитав 60% пушистости и 10% сна!",
+            color: "#f59e0b",
+            action: () => {
+                anime({ targets: '.v-block', top: '350px', left: '50%', translateX: '-50%', opacity: 0, duration: 1000, easing: 'easeInOutExpo' });
+                setTimeout(() => {
+                    anime({ targets: '#final', scale: 1, opacity: 1, duration: 800, easing: 'easeOutElastic(1, .8)' });
+                }, 800);
+                btnNext.disabled = true;
+            }
+        }
+    ];
+
+    function nextStep() {
+        step++;
+        if (step < steps.length) {
+            explanation.innerHTML = steps[step].text;
+            explanation.style.borderLeftColor = steps[step].color;
+            steps[step].action();
+        }
+    }
+
+    function reset() {
+        step = 0;
+        btnNext.disabled = false;
+        explanation.innerHTML = steps[0].text;
+        explanation.style.borderLeftColor = steps[0].color;
+        
+        anime.remove('.block, .math-box, #final, .v-block');
+        
+        document.querySelectorAll('.block').forEach(el => { el.style.opacity = 0; el.style.transform = 'scale(0.5)'; });
+        
+        // Сброс V-блоков
+        const v1 = document.getElementById('v1'); const v2 = document.getElementById('v2'); const v3 = document.getElementById('v3');
+        v1.style = "top: 250px;"; v1.innerHTML = "V: [10, 0]";
+        v2.style = "top: 250px;"; v2.innerHTML = "V: [0, 10]";
+        v3.style = "top: 250px;"; v3.innerHTML = "V: [-10, 0]";
+        
+        document.querySelectorAll('.math-box').forEach(el => { el.style.opacity = 0; el.className = 'math-box'; el.innerHTML = ''; });
+        document.getElementById('final').style.opacity = 0;
+        document.getElementById('final').style.transform = 'translate(-50%, -50%) scale(0)';
+    }
+</script>
+
+</body>
+</html>

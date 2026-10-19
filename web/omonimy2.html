@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пошаговый механизм внимания (Self-Attention)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 { margin: 0 0 15px 0; font-size: 1.4rem; }
+
+        .context-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-ctx { background: #334155; color: white; }
+        .btn-ctx.active { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        
+        .process-area { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+
+        .sentence {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .word {
+            padding: 5px 10px;
+            border-radius: 6px;
+            color: #64748b;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .word.active-word {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-action { background: #10b981; color: white; }
+        .btn-action:disabled { background: #94a3b8; cursor: not-allowed; }
+        .btn-reset { background: #e2e8f0; color: #475569; }
+
+        /* График */
+        .graph {
+            position: relative;
+            height: 400px;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .axis-x, .axis-y { position: absolute; background: #cbd5e1; }
+        .axis-x { top: 50%; left: 0; right: 0; height: 2px; }
+        .axis-y { left: 50%; top: 0; bottom: 0; width: 2px; }
+
+        .label {
+            position: absolute;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #94a3b8;
+            padding: 4px;
+            background: rgba(248, 250, 252, 0.8);
+        }
+        .lbl-top { top: 5px; left: 50%; transform: translateX(-50%); }
+        .lbl-bot { bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .lbl-left { left: 5px; top: 50%; transform: translateY(-50%); }
+        .lbl-right { right: 5px; top: 50%; transform: translateY(-50%); }
+
+        .target-point {
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .dot-label {
+            margin-top: 5px;
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .breadcrumb {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fca5a5;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.6;
+        }
+
+        .subtext-area {
+            padding: 20px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            font-size: 1.05rem;
+            color: #334155;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            border-left: 5px solid #3b82f6;
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Обновление вектора (Внимание)</h1>
+        <div class="context-toggle">
+            <button id="btn-c1" class="btn-ctx active" onclick="setContext(1)">Контекст 1 (Рыцарь)</button>
+            <button id="btn-c2" class="btn-ctx" onclick="setContext(2)">Контекст 2 (Вор)</button>
+        </div>
+    </div>
+
+    <div class="process-area">
+        <div class="sentence" id="sentence-container"></div>
+        <div class="controls">
+            <button class="btn-action" id="btn-next" onclick="nextStep()">Следующее слово</button>
+            <button class="btn-reset" onclick="reset()">Сброс</button>
+        </div>
+    </div>
+
+    <div class="graph" id="graph">
+        <div class="axis-x"></div>
+        <div class="axis-y"></div>
+        <div class="label lbl-top">Эпос / Средневековье</div>
+        <div class="label lbl-bot">Современность / Быт</div>
+        <div class="label lbl-left">Механизмы</div>
+        <div class="label lbl-right">Архитектура</div>
+
+        <div class="target-point" id="target">
+            <div class="dot"></div>
+            <div class="dot-label">ЗАМОК</div>
+        </div>
+    </div>
+
+    <div class="subtext-area" id="subtext">
+        Нажмите «Следующее слово», чтобы начать пошаговый анализ предложения.
+    </div>
+</div>
+
+<script>
+    let currentContext = 1;
+    let step = 0;
+
+    const data = {
+        1: {
+            words: ['Рыцарь', 'вошел', 'в', 'старый', 'ЗАМОК'],
+            steps: [
+                { pos: {x: '50%', y: '50%'}, text: "Шаг 0: Базовый усредненный вектор. Модель еще не знает контекста." },
+                { pos: {x: '65%', y: '35%'}, text: "Слово «Рыцарь» тянет вектор в сторону эпоса и средневековья." },
+                { pos: {x: '75%', y: '25%'}, text: "Глагол «вошел» указывает на то, что замок — это некое помещение или здание." },
+                { pos: {x: '75%', y: '25%'}, skip: true, text: "Предлог «в» — служебное слово с минимальным семантическим весом. Пропускаем его: вектор не сдвигается." },
+                { pos: {x: '85%', y: '20%'}, text: "Прилагательное «старый» ещё сильнее закрепляет архитектурный смысл — крепость или башня." },
+                { pos: {x: '90%', y: '10%'}, text: "Финальный вектор сформирован! Теперь модель точно знает, что речь идёт о крепости." }
+            ]
+        },
+        2: {
+            words: ['Вор', 'сломал', 'дверной', 'ЗАМОК'],
+            steps: [
+                { pos: {x: '50%', y: '50%'}, text: "Шаг 0: Базовый усредненный вектор. Модель еще не знает контекста." },
+                { pos: {x: '40%', y: '65%'}, text: "Слово «Вор» тянет контекст в сторону быта, криминала и современных реалий." },
+                { pos: {x: '30%', y: '75%'}, text: "Глагол «сломал» заставляет вектор смещаться к предметам и механизмам." },
+                { pos: {x: '15%', y: '85%'}, text: "Мощнейший сигнал! Слово «дверной» однозначно притягивает вектор в кластер механизмов." },
+                { pos: {x: '10%', y: '95%'}, text: "Финальный вектор сформирован! Смысл определен как механизм запирания." }
+            ]
+        }
+    };
+
+    const sentenceEl = document.getElementById('sentence-container');
+    const targetEl = document.getElementById('target');
+    const subtextEl = document.getElementById('subtext');
+    const btnNext = document.getElementById('btn-next');
+
+    function renderSentence() {
+        sentenceEl.innerHTML = '';
+        data[currentContext].words.forEach((word, index) => {
+            const span = document.createElement('div');
+            span.className = 'word';
+            span.id = `w-${index}`;
+            span.innerText = word;
+            sentenceEl.appendChild(span);
+        });
+    }
+
+    function setContext(ctx) {
+        currentContext = ctx;
+        document.getElementById('btn-c1').classList.toggle('active', ctx === 1);
+        document.getElementById('btn-c2').classList.toggle('active', ctx === 2);
+        reset();
+    }
+
+    function reset() {
+        step = 0;
+        btnNext.disabled = false;
+        renderSentence();
+        
+        // Очистка следов (хлебных крошек)
+        document.querySelectorAll('.breadcrumb').forEach(e => e.remove());
+
+        anime({
+            targets: targetEl,
+            left: '50%',
+            top: '50%',
+            duration: 500,
+            easing: 'easeOutExpo'
+        });
+        subtextEl.innerText = data[currentContext].steps[0].text;
+    }
+
+    function nextStep() {
+        step++;
+        const currentData = data[currentContext];
+
+        if (step > currentData.words.length) return;
+
+        // Подсветка текущего слова (смещение на 1, так как шаг 1 = слово 0)
+        document.querySelectorAll('.word').forEach(w => w.classList.remove('active-word'));
+        if (step <= currentData.words.length) {
+            document.getElementById(`w-${step-1}`).classList.add('active-word');
+        }
+
+        const stepInfo = currentData.steps[step];
+
+        if (!stepInfo.skip) {
+            // Оставляем "след" на предыдущей позиции только при реальном движении
+            const currentLeft = targetEl.style.left || '50%';
+            const currentTop = targetEl.style.top || '50%';
+            if (step > 1) {
+                const crumb = document.createElement('div');
+                crumb.className = 'breadcrumb';
+                crumb.style.left = currentLeft;
+                crumb.style.top = currentTop;
+                document.getElementById('graph').appendChild(crumb);
+            }
+
+            // Анимация точки только если не пропуск
+            anime({
+                targets: targetEl,
+                left: stepInfo.pos.x,
+                top: stepInfo.pos.y,
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+
+        // Обновление текста
+        subtextEl.innerText = stepInfo.text;
+
+        if (step === currentData.words.length) {
+            btnNext.disabled = true;
+        }
+    }
+
+    // Инициализация при загрузке
+    renderSentence();
+</script>
+
+</body>
+</html>

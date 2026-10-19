@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigaChat vs ChatGPT vs Claude — читаем политику конфиденциальности</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --border:#e2e8f0;
+  --indigo:#6366f1;
+  --indigo-dk:#4338ca;
+  --indigo-lt:#eef2ff;
+  --cyan:#0ea5e9;
+  --green:#10b981;
+  --green-lt:#ecfdf5;
+  --amber:#f59e0b;
+  --amber-lt:#fffbeb;
+  --red:#ef4444;
+  --red-lt:#fef2f2;
+  --text:#0f172a;
+  --muted:#64748b;
+}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px;
+}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 16px}
+
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{
+  padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:.88rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.tab:focus-visible{outline:2px solid var(--indigo-dk);outline-offset:2px}
+
+.quote{
+  background:#f8fafc;border-left:3px solid var(--indigo);border-radius:0 10px 10px 0;
+  padding:12px 16px;font-size:.86rem;font-style:italic;color:#334155;margin-bottom:16px;
+}
+.quote cite{display:block;margin-top:6px;font-size:.74rem;font-style:normal;font-weight:700;color:var(--muted)}
+
+.criteria{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.crit{
+  display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-size:.88rem;
+}
+.crit .badge{
+  width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;font-weight:900;flex-shrink:0;color:#fff;
+}
+.crit .badge.ok{background:var(--green)}
+.crit .badge.warn{background:var(--amber)}
+.crit .badge.bad{background:var(--red)}
+.crit .c-text b{display:block;font-size:.88rem}
+.crit .c-text span{color:var(--muted);font-size:.82rem}
+
+.verdict{
+  border-radius:12px;padding:14px 18px;font-weight:800;font-size:.95rem;text-align:center;
+}
+.verdict.ok{background:var(--green-lt);color:#065f46}
+.verdict.bad{background:var(--red-lt);color:#991b1b}
+.svc-link{display:inline-block;margin-top:10px;color:var(--indigo);font-weight:700;text-decoration:underline;text-underline-offset:2px;font-size:.84rem}
+</style>
+</head>
+<body>
+
+<h1>Читаем политику конфиденциальности: GigaChat, ChatGPT, Claude</h1>
+<p class="sub">Один и тот же набор из пяти критериев — три разных сервиса. Переключайте вкладки.</p>
+
+<div class="tabs" role="tablist" aria-label="Выбор сервиса">
+  <button type="button" class="tab active" data-svc="giga" role="tab" aria-selected="true">GigaChat 🇷🇺</button>
+  <button type="button" class="tab" data-svc="gpt" role="tab" aria-selected="false">ChatGPT 🌐</button>
+  <button type="button" class="tab" data-svc="claude" role="tab" aria-selected="false">Claude 🌐</button>
+</div>
+
+<div class="quote" id="quote"></div>
+<div class="criteria" id="criteria"></div>
+<div class="verdict" id="verdict"></div>
+<a class="svc-link" id="svc-link" href="#" target="_blank" rel="noopener">Открыть политику конфиденциальности ↗</a>
+
+<script>
+const DATA = {
+  giga: {
+    quote: "«Данные пользователей хранятся на серверах на территории Российской Федерации» — раздел 4.3 пользовательского соглашения GigaChat.",
+    link: "https://developers.sber.ru/docs/ru/policies/gigachat-agreement/individuals",
+    criteria: [
+      {level: "ok", title: "Хранение данных", text: "Серверы в России — соответствует 152-ФЗ."},
+      {level: "warn", title: "Обучение модели", text: "Обезличенные диалоги могут использоваться — данные нужно анонимизировать до загрузки."},
+      {level: "ok", title: "Корпоративная версия", text: "История не используется для обучения, данные удаляются по запросу."},
+      {level: "warn", title: "Срок хранения", text: "Уточняйте актуальные условия — зависит от версии сервиса."},
+      {level: "ok", title: "Итог по разделу", text: "Для обычных учебных материалов достаточно бесплатной версии."},
+    ],
+    verdict: {level: "ok", text: "✅ Можно для педагогов РФ — в том числе с обезличенными данными студентов"},
+  },
+  gpt: {
+    quote: "«We store and process data in the United States and other countries» — Privacy Policy, раздел Data Storage.",
+    link: "https://openai.com/policies/privacy-policy",
+    criteria: [
+      {level: "bad", title: "Хранение данных", text: "Серверы за рубежом — нарушение 152-ФЗ при загрузке персональных данных граждан РФ."},
+      {level: "warn", title: "Обучение модели", text: "По умолчанию данные используются для обучения; отключается в Settings → Data Controls → «Improve the model for everyone» → OFF."},
+      {level: "warn", title: "Корпоративная версия", text: "Team и Enterprise не используют данные для обучения — но серверы всё равно за рубежом."},
+      {level: "bad", title: "152-ФЗ", text: "Для персональных данных российских граждан использовать нельзя."},
+      {level: "ok", title: "Учебные материалы", text: "Без персональных данных — использовать можно."},
+    ],
+    verdict: {level: "bad", text: "❌ Нельзя для персональных данных граждан РФ — только для материалов без ПДн"},
+  },
+  claude: {
+    quote: "«We store data on servers located in the United States» — Privacy Policy, раздел Data Storage. При этом: «We do not train our generative models on customer data» — Commercial Terms.",
+    link: "https://www.anthropic.com/legal/privacy",
+    criteria: [
+      {level: "bad", title: "Хранение данных", text: "Серверы в США — нарушение 152-ФЗ для персональных данных граждан РФ."},
+      {level: "ok", title: "Обучение модели", text: "Диалоги НЕ используются для обучения моделей — плюс к конфиденциальности."},
+      {level: "ok", title: "Удаление данных", text: "Бесплатная версия — автоудаление через 90 дней; платная — удаление немедленно."},
+      {level: "bad", title: "152-ФЗ", text: "Локация серверов остаётся проблемой независимо от политики удаления."},
+      {level: "ok", title: "Зарубежные кейсы", text: "Хороший вариант для работы на английском языке и без ПДн."},
+    ],
+    verdict: {level: "bad", text: "❌ Нельзя для персональных данных граждан РФ — только для материалов без ПДн"},
+  },
+};
+
+const BADGE_ICON = {ok: "✓", warn: "!", bad: "✕"};
+
+function render(svc) {
+  const data = DATA[svc];
+  document.getElementById("quote").innerHTML = `${data.quote}`;
+  document.getElementById("criteria").innerHTML = data.criteria.map((c) =>
+    `<div class="crit"><span class="badge ${c.level}">${BADGE_ICON[c.level]}</span><span class="c-text"><b>${c.title}</b><span>${c.text}</span></span></div>`
+  ).join("");
+  const verdict = document.getElementById("verdict");
+  verdict.className = `verdict ${data.verdict.level}`;
+  verdict.textContent = data.verdict.text;
+  const link = document.getElementById("svc-link");
+  link.href = data.link;
+}
+
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+    tab.classList.add("active");
+    tab.setAttribute("aria-selected", "true");
+    render(tab.dataset.svc);
+  });
+});
+
+render("giga");
+</script>
+</body>
+</html>

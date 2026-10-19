@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6D Эмбеддинги: Интерактивное пространство</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        body { margin: 0; background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        #container { width: 100vw; height: 100vh; }
+        
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(30, 41, 59, 0.85);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+        
+        h1 { margin: 0 0 15px 0; font-size: 1.3rem; color: #f8fafc; }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label { font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select {
+            padding: 8px;
+            background: #1e293b;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus { border-color: #38bdf8; }
+
+        /* Цвета для осей в UI */
+        #lbl-x { color: #f87171; }
+        #lbl-y { color: #4ade80; }
+        #lbl-z { color: #60a5fa; }
+
+        .vector-info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 1px solid #38bdf8;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+            z-index: 10;
+            min-width: 400px;
+        }
+
+        .vector-title { font-weight: bold; color: #e2e8f0; font-size: 1.1rem; }
+        .coords { font-family: monospace; font-size: 1.2rem; letter-spacing: 1px; }
+        
+        .zero-val {
+            color: #fbbf24; /* Желтый для подсветки нулей */
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+        }
+
+        .zero-note {
+            font-size: 0.85rem;
+            color: #fbbf24;
+            display: none;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .controls-hint {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            z-index: 10;
+        }
+
+        /* Метки слов в 3D */
+        .word-label {
+            position: absolute;
+            padding: 5px 12px;
+            background: rgba(0, 0, 0, 0.78);
+            border-radius: 7px;
+            font-size: 20px;
+            font-weight: 600;
+            pointer-events: none;
+            white-space: nowrap;
+            color: #f1f5f9;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            transform: translate(-50%, -100%);
+            transition: color 0.2s, border-color 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .word-label.active {
+            color: #38bdf8;
+            border-color: #38bdf8;
+            font-weight: 700;
+            background: rgba(15, 23, 42, 0.92);
+        }
+    </style>
+</head>
+<body>
+
+<div id="container"></div>
+
+<div class="ui-panel">
+    <h1>Управление осями (6D)</h1>
+    <div class="controls">
+        <div class="control-group">
+            <label id="lbl-x">Ось X (Горизонталь)</label>
+            <select id="sel-x" onchange="updateScene()"></select>
+        </div>
+        <div class="control-group">
+            <label id="lbl-y">Ось Y (Вертикаль)</label>
+            <select id="sel-y" onchange="updateScene()"></select>
+        </div>
+        <div class="control-group">
+            <label id="lbl-z">Ось Z (Глубина)</label>
+            <select id="sel-z" onchange="updateScene()"></select>
+        </div>
+    </div>
+</div>
+
+<div class="controls-hint">
+    Вращение: ЛКМ<br>
+    Панорама: ПКМ<br>
+    Зум: Колесико мыши
+</div>
+
+<div class="vector-info" id="info">
+    <div class="vector-title" id="vec-title">Полный вектор слова (6 измерений)</div>
+    <div class="coords" id="coords">Выберите сферу кликом</div>
+    <div class="zero-note" id="zero-note">⚠️ Значение 0.0 означает, что данный признак у слова отсутствует (нейтрален).</div>
+</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // 6 Измерений
+    const dimensions = [
+        "Пол (Муж. -1 ↔ Жен. +1)",           // 0
+        "Статус (Обычный -1 ↔ Царь +1)",     // 1
+        "Природа (Дикий -1 ↔ Дом. +1)",      // 2
+        "Размер (Мелкий -1 ↔ Крупный +1)",   // 3
+        "Опасность (Безопасн. -1 ↔ Смерт. +1)", // 4
+        "Вымысел (Реал. -1 ↔ Выдум. +1)"     // 5
+    ];
+
+    // Данные: [Пол, Статус, Природа, Размер, Опасность, Вымысел]
+    const data = [
+        { name: 'Король',   vec: [-0.9,  0.9,  0.2,  0.2,  0.3, -0.9] },
+        { name: 'Королева', vec: [ 0.9,  0.9,  0.2,  0.1,  0.2, -0.9] },
+        { name: 'Мужчина',  vec: [-0.9, -0.2,  0.3,  0.2,  0.1, -0.9] },
+        { name: 'Женщина',  vec: [ 0.9, -0.2,  0.3,  0.1,  0.0, -0.9] },
+        { name: 'Волк',     vec: [-0.2, -0.4, -0.9,  0.4,  0.8, -0.9] },
+        { name: 'Собака',   vec: [ 0.0, -0.4,  0.9,  0.2,  0.2, -0.9] },
+        { name: 'Мышь',     vec: [ 0.0, -0.8, -0.4, -0.9, -0.9, -0.9] },
+        { name: 'Лев',      vec: [-0.6,  0.8, -0.8,  0.8,  0.9, -0.9] },
+        { name: 'Дракон',   vec: [ 0.0,  0.9, -0.9,  1.0,  1.0,  1.0] }, // Пол 0.0
+        { name: 'Робот',    vec: [ 0.0,  0.0,  0.0,  0.4,  0.5, -0.5] }  // Много 0.0
+    ];
+
+    // Инициализация выпадающих списков
+    const selX = document.getElementById('sel-x');
+    const selY = document.getElementById('sel-y');
+    const selZ = document.getElementById('sel-z');
+
+    dimensions.forEach((dim, i) => {
+        selX.add(new Option(dim, i));
+        selY.add(new Option(dim, i));
+        selZ.add(new Option(dim, i));
+    });
+
+    // Значения по умолчанию
+    selX.value = 3; // Размер
+    selY.value = 4; // Опасность
+    selZ.value = 2; // Природа
+
+    // Настройка сцены Three.js
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f172a);
+    
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(2.5, 2, 3.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('container').appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Освещение
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const pointLight = new THREE.PointLight(0xffffff, 2);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
+
+    // Оси и сетка
+    const axesHelper = new THREE.AxesHelper(1.5);
+    axesHelper.material.linewidth = 3;
+    scene.add(axesHelper);
+    
+    const gridHelper = new THREE.GridHelper(4, 10, 0x334155, 0x1e293b);
+    gridHelper.position.y = -1.1;
+    scene.add(gridHelper);
+
+    // Сферы и метки
+    const spheres = [];
+    const labels = [];
+    const geometry = new THREE.SphereGeometry(0.06, 32, 32);
+
+    data.forEach((item, index) => {
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x38bdf8,
+            emissive: 0x0ea5e9,
+            emissiveIntensity: 0.3,
+            shininess: 100
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.userData = { ...item, id: index };
+        scene.add(sphere);
+        spheres.push(sphere);
+
+        const label = document.createElement('div');
+        label.className = 'word-label';
+        label.textContent = item.name;
+        document.body.appendChild(label);
+        labels.push({ element: label, object: sphere });
+    });
+
+    // Функция обновления позиций на основе выбранных осей
+    window.updateScene = function() {
+        const idxX = parseInt(selX.value);
+        const idxY = parseInt(selY.value);
+        const idxZ = parseInt(selZ.value);
+
+        spheres.forEach(sphere => {
+            const vec = sphere.userData.vec;
+            const targetX = vec[idxX];
+            const targetY = vec[idxY];
+            const targetZ = vec[idxZ];
+
+            // Анимация перемещения с помощью Anime.js
+            anime({
+                targets: sphere.position,
+                x: targetX,
+                y: targetY,
+                z: targetZ,
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        });
+    };
+
+    // Первоначальная расстановка
+    updateScene();
+
+    // Клик по сфере (Raycaster)
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    window.addEventListener('click', (event) => {
+        // Игнорируем клики по UI
+        if(event.target.tagName === 'SELECT' || event.target.closest('.ui-panel')) return;
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(spheres);
+
+        // Сброс выделения
+        spheres.forEach(s => {
+            s.material.emissiveIntensity = 0.3;
+            s.scale.set(1, 1, 1);
+        });
+        labels.forEach(l => l.element.classList.remove('active'));
+
+        if (intersects.length > 0) {
+            const obj = intersects[0].object;
+            const d = obj.userData;
+            
+            // Подсветка 3D объекта
+            obj.material.emissiveIntensity = 1;
+            obj.scale.set(1.5, 1.5, 1.5);
+            labels[d.id].element.classList.add('active');
+
+            // Формирование вектора для отображения
+            let hasZero = false;
+            const formattedArray = d.vec.map(val => {
+                if (val === 0.0 || val === 0) {
+                    hasZero = true;
+                    return `<span class="zero-val">0.0</span>`;
+                }
+                return val > 0 ? `+${val}` : val;
+            });
+
+            document.getElementById('vec-title').innerHTML = `<span style="color:#38bdf8">${d.name}</span>`;
+            document.getElementById('coords').innerHTML = `[${formattedArray.join(', ')}]`;
+            document.getElementById('zero-note').style.display = hasZero ? 'block' : 'none';
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Рендер и привязка HTML-меток к 3D-координатам
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        
+        labels.forEach(labelObj => {
+            const pos = labelObj.object.position.clone().project(camera);
+            
+            if (pos.z > 1) {
+                labelObj.element.style.display = 'none';
+                return;
+            }
+            
+            labelObj.element.style.display = 'block';
+            const x = (pos.x + 1) * window.innerWidth / 2;
+            const y = (-pos.y + 1) * window.innerHeight / 2;
+            
+            labelObj.element.style.left = `${x}px`;
+            labelObj.element.style.top = `${y - 15}px`;
+            
+            const scale = Math.max(0.5, 1 - pos.z);
+            labelObj.element.style.transform = `translate(-50%, -100%) scale(${scale})`;
+        });
+
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+</script>
+
+</body>
+</html>

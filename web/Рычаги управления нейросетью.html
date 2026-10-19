@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рычаги управления LLM: Настройки генерации</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        /* Панель управления */
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .control-group {
+            margin-bottom: 25px;
+        }
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .val-badge {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #3498db;
+        }
+        .desc {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        /* Визуализация графика */
+        .chart-container {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 400px;
+        }
+        .bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            gap: 5px;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 5px;
+        }
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .bar {
+            width: 80%;
+            background: #2ecc71;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease, background 0.3s ease;
+            position: relative;
+            min-height: 2px;
+        }
+        .bar.disabled {
+            background: #ecf0f1;
+        }
+        .bar-label {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            word-break: break-word;
+        }
+        .bar-prob {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .disabled-reason {
+            font-size: 10px;
+            color: #e74c3c;
+            text-align: center;
+            height: 12px;
+            margin-top: 2px;
+        }
+
+        /* Кнопки пресетов */
+        .presets {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-logic { background: #eaeded; color: #34495e; }
+        .btn-creative { background: #eaeded; color: #8e44ad; }
+        .btn-reset { background: #eaeded; color: #2ecc71; }
+        .btn:hover { filter: brightness(0.95); }
+
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Визуализация: Температура и Сэмплирование</h1>
+    <div class="subtitle">Контекст: "Я купил себе..." -> Что выберет модель дальше?</div>
+
+    <div class="dashboard">
+        <div class="controls">
+            
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Temperature (T)</span>
+                    <span class="val-badge" id="val-t" style="background: #e67e22;">1.00</span>
+                </div>
+                <input type="range" id="slider-t" min="0.1" max="3.0" step="0.1" value="1.0" oninput="updateChart()">
+                <div class="desc">Сглаживает (высокая) или заостряет (низкая) распределение. При T > 2.0 начинается хаос.</div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Top-K</span>
+                    <span class="val-badge" id="val-k">12</span>
+                </div>
+                <input type="range" id="slider-k" min="1" max="12" step="1" value="12" oninput="updateChart()">
+                <div class="desc">Оставляет только K лучших вариантов. Остальные отбрасываются.</div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Top-P (Nucleus)</span>
+                    <span class="val-badge" id="val-p">1.00</span>
+                </div>
+                <input type="range" id="slider-p" min="0.1" max="1.0" step="0.05" value="1.0" oninput="updateChart()">
+                <div class="desc">Оставляет токены, пока их суммарная вероятность не достигнет P (например, 90%).</div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Min-P</span>
+                    <span class="val-badge" id="val-minp">0.00</span>
+                </div>
+                <input type="range" id="slider-minp" min="0.0" max="0.5" step="0.01" value="0.0" oninput="updateChart()">
+                <div class="desc">Удаляет токены, вероятность которых меньше Х% от лидера.</div>
+            </div>
+
+            <div class="presets">
+                <button class="btn btn-logic" onclick="setPreset(0.1, 12, 1.0, 0)">Код / Факты (T=0.1)</button>
+                <button class="btn btn-creative" onclick="setPreset(1.2, 50, 0.9, 0)">Креатив (T=1.2, P=0.9)</button>
+                <button class="btn btn-reset" onclick="setPreset(1.0, 12, 1.0, 0)">Сброс по умолчанию</button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div style="text-align: center; color: #95a5a6; font-size: 14px; margin-bottom: 10px;">
+                Вероятности после применения фильтров (готовые к сэмплированию)
+            </div>
+            <div class="bars" id="chart-bars">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Базовые логиты для слов кандидатов. 
+    // Представьте, что модель оценила эти слова как продолжение фразы "Я купил себе..."
+    const baseVocab = [
+        { word: "книгу", logit: 6.5 },
+        { word: "машину", logit: 5.8 },
+        { word: "кофе", logit: 4.5 },
+        { word: "ноутбук", logit: 4.0 },
+        { word: "билет", logit: 3.2 },
+        { word: "немного", logit: 2.5 },
+        { word: "проблему", logit: 1.5 },
+        { word: "радость", logit: 0.5 },
+        { word: "сингуляр", logit: -0.5 },
+        { word: "пшрщ", logit: -1.5 },   // мусорный токен
+        { word: "в", logit: -2.0 },      // предлог не в кассу
+        { word: "ы", logit: -3.0 }       // полный бред
+    ];
+
+    function updateChart() {
+        const T = parseFloat(document.getElementById('slider-t').value);
+        const K = parseInt(document.getElementById('slider-k').value);
+        const P = parseFloat(document.getElementById('slider-p').value);
+        const MinP = parseFloat(document.getElementById('slider-minp').value);
+
+        document.getElementById('val-t').innerText = T.toFixed(2);
+        document.getElementById('val-k').innerText = K;
+        document.getElementById('val-p').innerText = P.toFixed(2);
+        document.getElementById('val-minp').innerText = MinP.toFixed(2);
+
+        // 1. Применяем Температуру и Softmax (получаем исходные вероятности)
+        const maxLogit = Math.max(...baseVocab.map(v => v.logit)); // для стабильности вычислений
+        let tokens = baseVocab.map(v => {
+            // Формула: exp(logit / T)
+            const expVal = Math.exp((v.logit - maxLogit) / T);
+            return { word: v.word, exp: expVal, active: true, reason: "" };
+        });
+
+        const sumExp = tokens.reduce((sum, t) => sum + t.exp, 0);
+        tokens.forEach(t => t.prob = t.exp / sumExp);
+
+        // Сортируем по убыванию вероятности
+        tokens.sort((a, b) => b.prob - a.prob);
+
+        // 2. Фильтр Top-K
+        for (let i = K; i < tokens.length; i++) {
+            if (tokens[i].active) {
+                tokens[i].active = false;
+                tokens[i].reason = "Top-K";
+            }
+        }
+
+        // 3. Фильтр Top-P (Nucleus)
+        let cumSum = 0;
+        for (let i = 0; i < tokens.length; i++) {
+            if (tokens[i].active) {
+                cumSum += tokens[i].prob;
+                if (cumSum > P && i > 0) { // Оставляем хотя бы один токен
+                    for (let j = i + 1; j < tokens.length; j++) {
+                        if (tokens[j].active) {
+                            tokens[j].active = false;
+                            tokens[j].reason = "Top-P";
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 4. Фильтр Min-P
+        if (tokens.length > 0 && tokens[0].active) {
+            const maxProb = tokens[0].prob;
+            const threshold = maxProb * MinP;
+            for (let i = 1; i < tokens.length; i++) {
+                if (tokens[i].active && tokens[i].prob < threshold) {
+                    tokens[i].active = false;
+                    tokens[i].reason = "Min-P";
+                }
+            }
+        }
+
+        // 5. Перерасчет вероятностей (Re-normalization) для оставшихся
+        const activeSum = tokens.filter(t => t.active).reduce((sum, t) => sum + t.prob, 0);
+        tokens.forEach(t => {
+            t.finalProb = t.active ? (t.prob / activeSum) : 0;
+        });
+
+        // 6. Отрисовка
+        renderChart(tokens);
+    }
+
+    function renderChart(tokens) {
+        const container = document.getElementById('chart-bars');
+        container.innerHTML = '';
+
+        tokens.forEach(t => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bar-wrapper';
+
+            const probPercent = (t.finalProb * 100).toFixed(1);
+            const originalPercent = (t.prob * 100).toFixed(1); // для тултипа
+            
+            // Высота столбца масштабируется (макс 100% = 300px)
+            const heightPx = t.active ? (t.finalProb * 300) : 0;
+
+            let barHtml = `
+                <div class="bar-prob">${t.active ? probPercent + '%' : ''}</div>
+                <div class="bar ${t.active ? '' : 'disabled'}" style="height: ${heightPx}px;" title="До фильтров: ${originalPercent}%"></div>
+                <div class="bar-label" style="color: ${t.active ? '#2c3e50' : '#bdc3c7'}">${t.word}</div>
+                <div class="disabled-reason">${t.reason}</div>
+            `;
+            wrapper.innerHTML = barHtml;
+            container.appendChild(wrapper);
+        });
+    }
+
+    function setPreset(t, k, p, minp) {
+        document.getElementById('slider-t').value = t;
+        document.getElementById('slider-k').value = k;
+        document.getElementById('slider-p').value = p;
+        document.getElementById('slider-minp').value = minp;
+        updateChart();
+    }
+
+    // Инициализация при загрузке
+    updateChart();
+</script>
+
+</body>
+</html>

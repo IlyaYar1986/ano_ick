@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обучение: SFT vs RL (Process Reward)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .task-box {
+            font-size: 18px;
+            padding: 15px;
+            background: #fff;
+            border: 2px solid #2c3e50;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn {
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-sft { background: #3498db; }
+        .btn-sft:hover { background: #2980b9; }
+        .btn-rl { background: #9b59b6; }
+        .btn-rl:hover { background: #8e44ad; }
+        .btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        .arena {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+        .arena-title { font-weight: bold; color: #7f8c8d; margin-bottom: 20px; text-transform: uppercase; }
+
+        .tree-level { display: flex; gap: 20px; margin-bottom: 30px; justify-content: center; width: 100%; }
+        
+        .node {
+            background: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 2px solid #bdc3c7;
+            position: relative;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
+            text-align: center;
+            font-family: monospace;
+            font-size: 15px;
+            min-width: 120px;
+        }
+        .node.visible { opacity: 1; transform: translateY(0); }
+        .node.root { border-color: #2c3e50; background: #eaeded; font-weight: bold; opacity: 1; transform: none; }
+        .node.pruned { border-color: #e74c3c; background: #fdedec; opacity: 0.6; }
+        .node.active { border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        .node.success { border-color: #2ecc71; background: #e8f8f5; font-weight: bold; }
+
+        .reward-badge {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+            z-index: 5;
+        }
+        .node.visible .reward-badge { transform: translateX(-50%) scale(1); }
+        .badge-bad { background: #e74c3c; }
+        .badge-good { background: #2ecc71; }
+        .badge-final { background: #f39c12; font-size: 13px; bottom: -30px; }
+
+        .score-panel {
+            margin-top: auto;
+            background: #fdf2e9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #f39c12;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: #d35400;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>SFT vs RL: Процесс обучения</h1>
+    <div class="subtitle">Как Process Reward Models (PRM) направляют модель к истине</div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <div class="task-box">3x - 7 = 14</div>
+            <button id="btn-sft" class="btn btn-sft" onclick="runSFT()">Запустить SFT (Копирование)</button>
+            <button id="btn-rl" class="btn btn-rl" onclick="runRL()">Запустить RL (PRM Поиск)</button>
+        </div>
+
+        <div class="arena" id="arena">
+            <div id="arena-title" class="arena-title">Ожидание запуска...</div>
+            <div id="tree-container" style="width: 100%;"></div>
+            <div id="score-panel" class="score-panel">
+                Награда (Reward): <span id="total-score">0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    function resetArena(title) {
+        document.getElementById('arena-title').innerText = title;
+        document.getElementById('tree-container').innerHTML = '';
+        const panel = document.getElementById('score-panel');
+        panel.style.opacity = '0';
+        panel.innerHTML = 'Награда (Reward): <span id="total-score">0</span>';
+        document.getElementById('btn-sft').disabled = true;
+        document.getElementById('btn-rl').disabled = true;
+    }
+
+    function createLevel() {
+        const level = document.createElement('div');
+        level.className = 'tree-level';
+        document.getElementById('tree-container').appendChild(level);
+        return level;
+    }
+
+    function createNode(level, text, type, badgeText, badgeClass) {
+        const node = document.createElement('div');
+        node.className = `node ${type}`;
+        node.innerHTML = `<div>${text}</div>`;
+        if (badgeText) {
+            const badge = document.createElement('div');
+            badge.className = `reward-badge ${badgeClass}`;
+            badge.innerText = badgeText;
+            node.appendChild(badge);
+        }
+        level.appendChild(node);
+        // Запускаем анимацию появления
+        setTimeout(() => node.classList.add('visible'), 50);
+        return node;
+    }
+
+    async function runSFT() {
+        resetArena("SFT: Модель просто повторяет заученные тексты");
+        
+        const l1 = createLevel();
+        createNode(l1, "3x - 7 = 14", "root");
+        await sleep(800);
+
+        const l2 = createLevel();
+        const n1 = createNode(l2, "3x = 14 - 7", "active", "Copy: 3x = A - B", "badge-bad");
+        await sleep(1000);
+        
+        n1.classList.replace('active', 'pruned');
+        const l3 = createLevel();
+        const n2 = createNode(l3, "3x = 7", "active");
+        await sleep(1000);
+
+        n2.classList.replace('active', 'pruned');
+        const l4 = createLevel();
+        createNode(l4, "x = 2.33 (Ошибка)", "pruned", "Провал", "badge-bad");
+        
+        document.getElementById('score-panel').style.opacity = '1';
+        document.getElementById('score-panel').innerHTML = "Результат: Модель ошиблась в знаке, так как в ее данных было много примеров вида 'A+B', и она просто скопировала паттерн.";
+        enableButtons();
+    }
+
+    async function runRL() {
+        resetArena("RL + PRM: Поиск правильного пути через награды");
+        const panel = document.getElementById('score-panel');
+        panel.style.opacity = '1';
+        let totalReward = 0;
+
+        const l1 = createLevel();
+        createNode(l1, "3x - 7 = 14", "root");
+        await sleep(800);
+
+        // Шаг 1: Разветвление
+        const l2 = createLevel();
+        const nBad = createNode(l2, "3x = 14 - 7", "active", "PRM: -1", "badge-bad");
+        const nGood = createNode(l2, "3x = 14 + 7", "active", "PRM: +1", "badge-good");
+        await sleep(1200);
+
+        nBad.classList.replace('active', 'pruned');
+        nGood.classList.replace('active', 'success');
+        totalReward += 1;
+        document.getElementById('total-score').innerText = `+${totalReward}`;
+        await sleep(800);
+
+        // Шаг 2: Вычисление
+        const l3 = createLevel();
+        const nCalc = createNode(l3, "3x = 21", "success", "PRM: +1", "badge-good");
+        totalReward += 1;
+        document.getElementById('total-score').innerText = `+${totalReward}`;
+        await sleep(1000);
+
+        // Шаг 3: Финал
+        const l4 = createLevel();
+        createNode(l4, "x = 7", "success", "Final: +10", "badge-final");
+        totalReward += 10;
+        document.getElementById('total-score').innerText = `+${totalReward}`;
+
+        panel.innerHTML += "<br><span style='color:#27ae60'>Модель нашла верный путь и закрепила его!</span>";
+        enableButtons();
+    }
+
+    function enableButtons() {
+        document.getElementById('btn-sft').disabled = false;
+        document.getElementById('btn-rl').disabled = false;
+    }
+</script>
+
+</body>
+</html>
