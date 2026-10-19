@@ -274,6 +274,14 @@ footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;b
 .audit-start ol{margin:6px 0 0 20px}
 .audit-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .audit-note{font-size:.8rem;color:var(--muted);margin-top:10px}
+#audit-status{font-weight:600}
+#audit-status.ok{color:#0079b0}
+#audit-status.err{color:#b4235a}
+.audit-who{margin-top:18px}
+.audit-who label{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
+.audit-who label span{font-weight:400;color:var(--muted)}
+.audit-who input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:.92rem;background:#fff}
+.audit-who input:focus{outline:2px solid #d6d0f5;border-color:var(--indigo)}
 
 @media(max-width:720px){
   .audit-row{grid-template-columns:1fr}
@@ -858,13 +866,17 @@ footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;b
         <div class="audit-stat me"><b id="st-me">0</b><span>только я</span></div>
       </div>
       <div class="audit-start" id="audit-start"></div>
+      <div class="audit-who">
+        <label for="audit-who">Ваша специальность или дисциплина <span>(необязательно, помогает подстроить примеры)</span></label>
+        <input id="audit-who" type="text" maxlength="120" placeholder="Например: «Сварочное производство» или «Математика»">
+      </div>
       <div class="audit-actions">
         <button class="btn" type="button" id="audit-copy">Скопировать результат</button>
         <button class="btn ghost" type="button" id="audit-dl">Скачать .txt</button>
         <button class="btn ghost" type="button" onclick="window.print()">Распечатать</button>
         <button class="btn ghost" type="button" id="audit-reset">Начать заново</button>
       </div>
-      <p class="audit-note">Ответы сохраняются только в вашем браузере и никуда не отправляются.</p>
+      <p class="audit-note">Ответы анонимно передаются автору курса, чтобы подстроить занятия под ваши задачи. Имя не нужно: браузер получает случайный номер, без ФИО и контактов. <span id="audit-status"></span></p>
     </div>
   </div>
 </section>
@@ -1044,7 +1056,60 @@ function loadAudit() {
 let audit = loadAudit();
 function saveAudit() {
   try { localStorage.setItem(AUDIT_KEY, JSON.stringify(audit)); } catch (e) {}
+  scheduleSend();
 }
+
+/* Анонимная отправка в Google Таблицу автора курса (см. tools/audit_sheet/README.md).
+   Пустой адрес — отправка выключена. */
+const AUDIT_ENDPOINT = '';
+function participantId() {
+  try {
+    let id = localStorage.getItem('ick-audit-pid');
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem('ick-audit-pid', id); }
+    return id;
+  } catch (e) {
+    return window.__auditPid || (window.__auditPid = crypto.randomUUID());
+  }
+}
+function auditPayload() {
+  return JSON.stringify({
+    id: participantId(),
+    who: audit.who || '',
+    tasks: allTasks().filter(t => audit.marks[t.id]).map(t => ({ text: t.text, topic: t.topic, group: t.group, v: audit.marks[t.id] })),
+    custom: audit.custom,
+  });
+}
+let sendTimer = null, dirty = false;
+function setStatus(text, cls) {
+  const el = document.getElementById('audit-status');
+  if (el) { el.textContent = text; el.className = cls || ''; }
+}
+function scheduleSend() {
+  if (!AUDIT_ENDPOINT) return;
+  dirty = true;
+  clearTimeout(sendTimer);
+  setStatus('Сохраняем…');
+  sendTimer = setTimeout(sendAudit, 2000);
+}
+async function sendAudit() {
+  if (!AUDIT_ENDPOINT || !dirty) return;
+  dirty = false;
+  try {
+    // text/plain без заголовков — простой запрос без CORS-предпроверки, которую Apps Script не поддерживает
+    await fetch(AUDIT_ENDPOINT, { method: 'POST', mode: 'no-cors', body: auditPayload() });
+    setStatus('Ответы отправлены ✓', 'ok');
+  } catch (e) {
+    dirty = true;
+    setStatus('Не удалось отправить — проверьте интернет, попробуем ещё раз при следующем изменении.', 'err');
+  }
+}
+/* Если человек закрывает страницу до таймера — отправить сразу */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && dirty && AUDIT_ENDPOINT) {
+    clearTimeout(sendTimer); dirty = false;
+    navigator.sendBeacon(AUDIT_ENDPOINT, new Blob([auditPayload()], { type: 'text/plain' }));
+  }
+});
 function allTasks() {
   const list = [];
   AUDIT_GROUPS.forEach((g, gi) => g.tasks.forEach((t, ti) => list.push({ id: `g${gi}t${ti}`, text: t[0], topic: t[1], group: g.title })));
@@ -1123,9 +1188,13 @@ document.getElementById('audit-dl').addEventListener('click', () => {
 });
 document.getElementById('audit-reset').addEventListener('click', () => {
   if (!confirm('Сбросить все отметки и свои задачи?')) return;
-  audit = { marks: {}, custom: [] }; saveAudit(); renderAudit();
+  audit = { marks: {}, custom: [], who: audit.who || '' }; saveAudit(); renderAudit();
 });
+const whoInput = document.getElementById('audit-who');
+whoInput.value = audit.who || '';
+whoInput.addEventListener('input', () => { audit.who = whoInput.value.trim().slice(0, 120); saveAudit(); });
 renderAudit();
+if (!AUDIT_ENDPOINT) document.querySelector('.audit-note').textContent = 'Ответы сохраняются только в вашем браузере.';
 
 /* ══════════════════════════════
    SCROLL FADE IN
