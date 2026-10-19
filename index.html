@@ -210,6 +210,103 @@ footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;b
 }
 .nav-link-cta:hover{background:#e6e2fa;box-shadow:0 2px 8px rgba(102,84,217,.2)}
 
+/* ════════════════════════════════════════
+   БЛОКИ ДЛЯ КУРСА ИЦК (8–11)
+════════════════════════════════════════ */
+.n8{background:linear-gradient(135deg,#0090cf,#00abea)}
+.n9{background:linear-gradient(135deg,#2868ab,#0090cf)}
+.n10{background:linear-gradient(135deg,#562d86,#6654d9)}
+.n11{background:linear-gradient(135deg,#464f9a,#2868ab)}
+
+/* ── 8. Что это значит для преподавателя ── */
+.mean-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:20px}
+.mean-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 18px rgba(45,75,162,.05)}
+.mean-tag{align-self:flex-start;padding:3px 10px;border-radius:100px;background:var(--bg);font-size:.72rem;font-weight:600;color:var(--muted)}
+.mean-card h3{font-size:1.12rem;line-height:1.3;color:var(--text)}
+.mean-card p{font-size:.93rem;color:var(--muted);line-height:1.6}
+.mean-do{margin-top:auto;padding:12px 14px;border-radius:12px;background:var(--indigo-lt);font-size:.9rem;line-height:1.55;color:var(--indigo-dark)}
+.mean-do b{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;color:var(--indigo)}
+.callout{margin-top:28px;padding:20px 24px;border-radius:16px;background:var(--card);border:1px solid var(--border);border-left:5px solid var(--indigo-dark);font-size:.98rem;line-height:1.7}
+.callout strong{color:var(--indigo-dark)}
+
+/* ── 9. Тенденции ── */
+.trend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:20px}
+.trend-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.trend-date{align-self:flex-start;padding:3px 10px;border-radius:100px;background:#e6f5fc;color:#0079b0;font-size:.72rem;font-weight:700}
+.trend-card h3{font-size:1.12rem;line-height:1.3}
+.trend-card p{font-size:.93rem;color:var(--muted);line-height:1.6}
+.trend-card .trend-why{font-size:.9rem;color:var(--text)}
+.trend-card .trend-why b{color:var(--indigo)}
+.trend-src{margin-top:auto;font-size:.76rem;color:var(--muted)}
+.trend-src a{color:var(--indigo);text-decoration:none;font-weight:600}
+.trend-src a:hover{text-decoration:underline}
+
+/* ── 10. Практика: аудит задач ── */
+.audit-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:26px;font-size:.85rem;color:var(--muted)}
+.audit-legend span{display:inline-flex;align-items:center;gap:6px}
+.audit-legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.audit-group{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px 20px 12px;margin-bottom:18px}
+.audit-group h3{font-size:1rem;padding:12px 0 8px;color:var(--indigo-dark)}
+.audit-row{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
+.audit-task{font-size:.95rem;line-height:1.45}
+.audit-topic{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:100px;background:var(--bg);font-size:.7rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg button{border:none;background:transparent;padding:7px 12px;font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button:hover{background:#fff}
+.seg button.on[data-v="ai"]{background:#6654d9;color:#fff}
+.seg button.on[data-v="help"]{background:#0090cf;color:#fff}
+.seg button.on[data-v="me"]{background:#6b6f80;color:#fff}
+.audit-add{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.audit-add input{flex:1;min-width:220px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:.92rem;background:#fff}
+.audit-add input:focus{outline:2px solid #d6d0f5;border-color:var(--indigo)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;font:inherit;font-size:.88rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn:hover{background:var(--indigo-dark)}
+.btn.ghost{background:#fff;color:var(--indigo)}
+.btn.ghost:hover{background:var(--indigo-lt)}
+.audit-sum{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px}
+.audit-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.audit-stat{border-radius:12px;padding:14px 16px;background:var(--bg)}
+.audit-stat b{display:block;font-size:2rem;line-height:1.1}
+.audit-stat span{font-size:.82rem;color:var(--muted)}
+.audit-stat.ai b{color:#6654d9}.audit-stat.help b{color:#0090cf}.audit-stat.me b{color:#6b6f80}
+.audit-start{font-size:.95rem;line-height:1.7}
+.audit-start ol{margin:6px 0 0 20px}
+.audit-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.audit-note{font-size:.8rem;color:var(--muted);margin-top:10px}
+
+/* ── 11. Карта курса ── */
+.road-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:10px}
+.road-bar div{height:100%}
+.road-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8rem;color:var(--muted);margin-bottom:28px}
+.road-legend span{display:inline-flex;align-items:center;gap:6px}
+.road-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.road-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.road-mod{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.road-head{padding:16px 20px;color:#fff}
+.road-head small{display:block;font-size:.72rem;font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.7px}
+.road-head h3{font-size:1.08rem;line-height:1.3}
+.road-list{list-style:none;padding:6px 20px 14px}
+.road-list li{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:9px 0;border-top:1px solid var(--border);font-size:.88rem;line-height:1.45}
+.road-list li:first-child{border-top:none}
+.road-date{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.road-h{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.road-list li.now{background:var(--indigo-lt);margin:0 -20px;padding:9px 20px;border-top-color:transparent}
+.road-list li.now .road-date{color:var(--indigo)}
+.road-now{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:100px;background:var(--indigo);color:#fff;font-size:.68rem;font-weight:700;vertical-align:1px}
+
+@media(max-width:720px){
+  .audit-row{grid-template-columns:1fr}
+  .seg{width:100%}.seg button{flex:1;padding:8px 6px}
+  .audit-stats{grid-template-columns:1fr}
+  .road-grid,.trend-grid,.mean-grid{grid-template-columns:1fr}
+}
+@media print{
+  nav,#hero,#intro,#s1,#s2,#s3,#s4,#s5,#s6,#s7,#s8,#s9,#s11,footer,.div,.audit-add,.audit-actions{display:none!important}
+  body{background:#fff}
+  .f{opacity:1!important;transform:none!important}
+}
+
 @media(max-width:720px){.row2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -251,6 +348,10 @@ footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;b
   <a class="nav-link" href="#s5">5. Обучение</a>
   <a class="nav-link" href="#s6">6. Генерация</a>
   <a class="nav-link" href="#s7">7. Эволюция</a>
+  <a class="nav-link" href="#s8">8. Для преподавателя</a>
+  <a class="nav-link" href="#s9">9. Тенденции</a>
+  <a class="nav-link" href="#s10">10. Практика</a>
+  <a class="nav-link" href="#s11">11. Карта курса</a>
   <div class="nav-sep"></div>
   <a class="nav-link-cta" href="web/seminar_25_45.html">Семинар 25 + 45 →</a>
   <a class="nav-link-cta" href="web/agentnye_sistemy.html">Занятие 2: агенты →</a>
@@ -637,6 +738,179 @@ footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;b
   <div style="height:72px"></div>
 </section>
 
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 8 — ЧТО ЭТО ЗНАЧИТ ДЛЯ ПРЕПОДАВАТЕЛЯ ══════════════ -->
+<section id="s8" style="background:rgba(255,255,255,0.90)">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n8">8</div>
+      <h2 class="sec-title">Что это значит для преподавателя</h2>
+      <p class="sec-desc">Каждая механика из блоков 1–7 объясняет конкретную особенность работы с нейросетью. Зная её, проще получить хороший результат и не попасть в ловушку.</p>
+    </div>
+    <div class="mean-grid f">
+      <div class="mean-card">
+        <span class="mean-tag">Блок 1 · Данные</span>
+        <h3>Модель знает мир на дату окончания обучения</h3>
+        <p>Новые ФГОС СПО, приказы и изменения в профстандартах могли появиться уже после того, как модель обучили. Она ответит уверенно, но по старым данным.</p>
+        <div class="mean-do"><b>Что делать</b>Прикладывайте актуальный документ к запросу или включайте поиск в интернете. Спрашивайте: «На какую дату твои сведения?»</div>
+      </div>
+      <div class="mean-card">
+        <span class="mean-tag">Блок 2 · Токены</span>
+        <h3>Лимиты считаются в токенах, а не в страницах</h3>
+        <p>Русский текст дробится на больше токенов, чем английский. Длинная рабочая программа может не поместиться в «память» чата целиком, и модель потеряет начало.</p>
+        <div class="mean-do"><b>Что делать</b>Большие документы давайте частями или загружайте файлом в сервис, который работает с длинными документами. Проверяйте, что модель «видела» весь текст.</div>
+      </div>
+      <div class="mean-card">
+        <span class="mean-tag">Блок 3 · Эмбеддинги</span>
+        <h3>Модель понимает смысл, а не ключевые слова</h3>
+        <p>«Задание для 2 курса» и «задание для студентов-сварщиков 2 курса, которые не любят теорию» — для модели это разные точки в пространстве смыслов.</p>
+        <div class="mean-do"><b>Что делать</b>Описывайте контекст: специальность, курс, уровень группы, формат занятия, что уже пройдено.</div>
+      </div>
+      <div class="mean-card">
+        <span class="mean-tag">Блок 4 · Внимание</span>
+        <h3>В длинном диалоге внимание «размывается»</h3>
+        <p>Модель смотрит на весь разговор сразу. Если в одном чате обсуждали и КТП, и тест, и письмо родителям, старые детали начинают мешать новым.</p>
+        <div class="mean-do"><b>Что делать</b>Одна задача — один чат. Самое важное требование ставьте в начало запроса и повторяйте в конце.</div>
+      </div>
+      <div class="mean-card">
+        <span class="mean-tag">Блок 5 · Обучение</span>
+        <h3>Ассистента учили быть приятным собеседником</h3>
+        <p>После RLHF модель склонна соглашаться с пользователем. Если вы уверенно скажете неверное, она может подыграть, а не поправить.</p>
+        <div class="mean-do"><b>Что делать</b>Просите критику прямо: «Найди 3 слабых места в этом задании» или «Какие ошибки сделает студент, решая его?»</div>
+      </div>
+      <div class="mean-card">
+        <span class="mean-tag">Блок 6 · Генерация</span>
+        <h3>Ответ — это вероятность, поэтому бывают выдумки</h3>
+        <p>Модель подбирает правдоподобное продолжение. Так появляются несуществующие номера ГОСТов и приказов, книги, ссылки и цитаты.</p>
+        <div class="mean-do"><b>Что делать</b>Проверяйте каждый факт, номер и ссылку по первоисточнику. Для точных задач просите: «Если не уверен — так и скажи».</div>
+      </div>
+      <div class="mean-card">
+        <span class="mean-tag">Блок 7 · Рассуждение</span>
+        <h3>Есть быстрый режим и режим размышления</h3>
+        <p>Рассуждающий режим дольше думает и сам себя проверяет. Он нужен не всегда, но заметно лучше справляется со сложными задачами.</p>
+        <div class="mean-do"><b>Что делать</b>Черновик письма или идеи — быстрый режим. ФОС, расчёты, задачи с решением, проверка логики — режим размышления.</div>
+      </div>
+    </div>
+    <div class="callout f">
+      <strong>Главное правило.</strong> Нейросеть делает черновик, а за учебный материал отвечает преподаватель. Не загружайте в чат персональные данные студентов: ФИО, оценки с фамилиями, контакты. Подробно о правилах — в теме 1.3 «Персональные данные и цифровая безопасность».
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 9 — ТЕНДЕНЦИИ ══════════════ -->
+<section id="s9">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n9">9</div>
+      <h2 class="sec-title">Что происходит сейчас: осень 2026</h2>
+      <p class="sec-desc">Нейросети меняются каждые несколько месяцев. Вот главное, что важно знать преподавателю колледжа сегодня, — с датами и источниками.</p>
+    </div>
+    <div class="trend-grid f">
+      <div class="trend-card">
+        <span class="trend-date">9 октября 2026</span>
+        <h3>ИИ входит в стандарты колледжей</h3>
+        <p>Министр просвещения Сергей Кравцов: «в каждой специальности есть модуль» по искусственному интеллекту, использование ИИ уже включено в стандарты. Колледжи начали готовить специалистов в области ИИ.</p>
+        <p class="trend-why"><b>Для вас:</b> студенты будут приходить с навыками работы с ИИ, а работодатели — ждать их от выпускников.</p>
+        <div class="trend-src">Источник: <a href="https://www.vedomosti.ru/society/news/2026/10/09/1235827-kolledzhi-nachali-podgotovku" target="_blank" rel="noopener">Ведомости</a></div>
+      </div>
+      <div class="trend-card">
+        <span class="trend-date">5 октября 2026</span>
+        <h3>Своя нейросеть для образования</h3>
+        <p>Минпросвещения объявило, что займётся созданием специализированной нейросети для системы образования с учётом рисков.</p>
+        <p class="trend-why"><b>Для вас:</b> появятся инструменты, рассчитанные именно на учебный процесс и российские требования.</p>
+        <div class="trend-src">Источник: <a href="https://www.vedomosti.ru/society/news/2026/10/09/1235827-kolledzhi-nachali-podgotovku" target="_blank" rel="noopener">Ведомости</a></div>
+      </div>
+      <div class="trend-card">
+        <span class="trend-date">6 июля 2026</span>
+        <h3>GigaChat 3.5 Ultra — бесплатно и для длинных документов</h3>
+        <p>Новая флагманская модель Сбера доступна бесплатно в ассистенте ГигаЧат. Она быстрее работает с длинными документами — регламентами, отчётами — благодаря «линейному вниманию», модификации механизма из блока 4.</p>
+        <p class="trend-why"><b>Для вас:</b> российский сервис без VPN, в который можно загрузить рабочую программу целиком.</p>
+        <div class="trend-src">Источник: <a href="https://www.vedomosti.ru/technology/news/2026/07/06/1211519-sber-predstavil-novuyu-flagmanskuyu" target="_blank" rel="noopener">Ведомости</a></div>
+      </div>
+      <div class="trend-card">
+        <span class="trend-date">21 сентября 2026</span>
+        <h3>Яндекс открыл свою модель, обученную с нуля</h3>
+        <p>Alice AI Foundation LLM выложена в открытый доступ. Это основа будущей рассуждающей модели, на которой будут работать агентные возможности Алисы AI.</p>
+        <p class="trend-why"><b>Для вас:</b> российские модели развиваются в ту же сторону, что и мировые, — к рассуждению и агентам.</p>
+        <div class="trend-src">Источник: <a href="https://yandex.ru/company/news/21-09-2026-03" target="_blank" rel="noopener">Яндекс</a></div>
+      </div>
+      <div class="trend-card">
+        <span class="trend-date">2026</span>
+        <h3>От чата к агентам</h3>
+        <p>Модели уже не только отвечают, но и действуют: сами ищут информацию, запускают код, обращаются к сервисам и доводят задачу до результата.</p>
+        <p class="trend-why"><b>Для вас:</b> этому посвящены модули 3 и 4 нашего курса — вы соберёте собственных агентов.</p>
+        <div class="trend-src">Источники: <a href="https://www.vedomosti.ru/technology/news/2026/07/06/1211519-sber-predstavil-novuyu-flagmanskuyu" target="_blank" rel="noopener">Ведомости</a>, <a href="https://www.ixbt.com/news/2026/06/25/bolshoe-obnovlenie-iimodelej-jandeksa-alisa-ai-nauchilas-dovodit-dialogi-do-rezultata-i-zapominat-kontekst.html" target="_blank" rel="noopener">iXBT</a></div>
+      </div>
+      <div class="trend-card">
+        <span class="trend-date">2026</span>
+        <h3>Ассистенты научились помнить</h3>
+        <p>ГигаЧат и Алиса AI запоминают факты о пользователе и учитывают их в новых диалогах.</p>
+        <p class="trend-why"><b>Для вас:</b> удобно — не нужно каждый раз объяснять, что вы преподаёте. Но всё, что вы рассказали, сохраняется, поэтому вдвойне осторожно с данными студентов.</p>
+        <div class="trend-src">Источники: <a href="https://www.ixbt.com/news/2026/03/24/masshtabnoe-obnovlenie-sber-perevjol-iipomoshnika-gigachat-na-novuju-flagmanskuju-model-s-dolgosrochnoj-pamjatju.html" target="_blank" rel="noopener">iXBT (ГигаЧат)</a>, <a href="https://www.ixbt.com/news/2026/06/25/bolshoe-obnovlenie-iimodelej-jandeksa-alisa-ai-nauchilas-dovodit-dialogi-do-rezultata-i-zapominat-kontekst.html" target="_blank" rel="noopener">iXBT (Алиса AI)</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 10 — ПРАКТИКА 1.1: АУДИТ ЗАДАЧ ══════════════ -->
+<section id="s10" style="background:rgba(255,255,255,0.90)">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n10">10</div>
+      <h2 class="sec-title">Практика 1.1: аудит моих задач</h2>
+      <p class="sec-desc">Отметьте для каждой задачи, как вы готовы работать с ней вместе с ИИ. Добавьте свои задачи. В конце получится личный план: с чего начать и в каких темах курса это разберём.</p>
+    </div>
+    <div class="audit-legend f">
+      <span><i style="background:#6654d9"></i>Отдать ИИ — черновик делает нейросеть</span>
+      <span><i style="background:#0090cf"></i>Вместе — ИИ помогает, я дорабатываю</span>
+      <span><i style="background:#6b6f80"></i>Только я — здесь ИИ не нужен</span>
+    </div>
+    <div id="audit-list" class="f"></div>
+    <div class="audit-add f">
+      <input id="audit-new" type="text" maxlength="140" placeholder="Своя задача, например: «Подготовка студентов к чемпионату»">
+      <button class="btn ghost" type="button" id="audit-add-btn">+ Добавить задачу</button>
+    </div>
+    <div class="audit-sum f" id="audit-sum">
+      <div class="audit-stats">
+        <div class="audit-stat ai"><b id="st-ai">0</b><span>отдать ИИ</span></div>
+        <div class="audit-stat help"><b id="st-help">0</b><span>делать вместе</span></div>
+        <div class="audit-stat me"><b id="st-me">0</b><span>только я</span></div>
+      </div>
+      <div class="audit-start" id="audit-start"></div>
+      <div class="audit-actions">
+        <button class="btn" type="button" id="audit-copy">Скопировать результат</button>
+        <button class="btn ghost" type="button" id="audit-dl">Скачать .txt</button>
+        <button class="btn ghost" type="button" onclick="window.print()">Распечатать</button>
+        <button class="btn ghost" type="button" id="audit-reset">Начать заново</button>
+      </div>
+      <p class="audit-note">Ответы сохраняются только в вашем браузере и никуда не отправляются.</p>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════ БЛОК 11 — КАРТА КУРСА ══════════════ -->
+<section id="s11">
+  <div class="sec">
+    <div class="sec-head f">
+      <div class="num-badge n11">11</div>
+      <h2 class="sec-title">Карта курса: 55 часов, 19 октября — 12 ноября</h2>
+      <p class="sec-desc">Этот урок — тема 1.1. Дальше: промпты, создание учебных материалов, агенты и итоговая работа.</p>
+    </div>
+    <div class="f">
+      <div class="road-bar" id="road-bar"></div>
+      <div class="road-legend" id="road-legend"></div>
+    </div>
+    <div class="road-grid f" id="road-grid"></div>
+  </div>
+</section>
+
 <footer>
   <div class="footer-line"></div>
   <div class="footer-logos">
@@ -757,6 +1031,192 @@ function closeFs() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeLb(); closeFs(); }
 });
+
+/* ══════════════════════════════
+   ПРАКТИКА 1.1 — АУДИТ ЗАДАЧ
+══════════════════════════════ */
+const AUDIT_KEY = 'ick-audit-v1';
+const AUDIT_GROUPS = [
+  { title: 'Планирование', tasks: [
+    ['Рабочая программа дисциплины или профессионального модуля', '2.2'],
+    ['Календарно-тематический план', '2.2'],
+    ['План занятия, технологическая карта урока', '2.2'],
+  ]},
+  { title: 'Учебные материалы', tasks: [
+    ['Конспект лекции', '2.2'],
+    ['Презентация к занятию', '1.4'],
+    ['Инструкция к практической или лабораторной работе', '2.2'],
+    ['Иллюстрации, схемы, инфографика', '2.4'],
+    ['Учебное видео или аудио', '2.5'],
+  ]},
+  { title: 'Контроль и оценка', tasks: [
+    ['Тесты и контрольные вопросы', '2.3'],
+    ['Задания разного уровня сложности', '2.3'],
+    ['Фонд оценочных средств (ФОС, КОС)', '2.3'],
+    ['Проверка работ и обратная связь студентам', '2.3'],
+    ['Подготовка к демоэкзамену: задания, чек-листы', '2.3'],
+  ]},
+  { title: 'Работа со студентами', tasks: [
+    ['Ответы на типовые вопросы студентов', '3.1'],
+    ['Помощь отстающим, индивидуальные задания', '4.3'],
+    ['Профориентация и карьерные консультации', '3.5'],
+  ]},
+  { title: 'Документы и отчёты', tasks: [
+    ['Отчёты, справки, аналитика', '4.1'],
+    ['Опросы и анкеты', '4.2'],
+    ['Письма, объявления, служебные записки', '2.1'],
+    ['Таблицы: успеваемость, посещаемость, расчёты', '2.1'],
+  ]},
+];
+const LABELS = { ai: 'Отдать ИИ', help: 'Вместе', me: 'Только я' };
+
+function loadAudit() {
+  try { return JSON.parse(localStorage.getItem(AUDIT_KEY)) || { marks: {}, custom: [] }; }
+  catch (e) { return { marks: {}, custom: [] }; }
+}
+let audit = loadAudit();
+function saveAudit() {
+  try { localStorage.setItem(AUDIT_KEY, JSON.stringify(audit)); } catch (e) {}
+}
+function allTasks() {
+  const list = [];
+  AUDIT_GROUPS.forEach((g, gi) => g.tasks.forEach((t, ti) => list.push({ id: `g${gi}t${ti}`, text: t[0], topic: t[1], group: g.title })));
+  audit.custom.forEach((text, ci) => list.push({ id: `c${ci}`, text, topic: '', group: 'Мои задачи' }));
+  return list;
+}
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]); }
+
+function renderAudit() {
+  const byGroup = {};
+  allTasks().forEach(t => (byGroup[t.group] = byGroup[t.group] || []).push(t));
+  document.getElementById('audit-list').innerHTML = Object.entries(byGroup).map(([g, tasks]) => `
+    <div class="audit-group"><h3>${esc(g)}</h3>${tasks.map(t => `
+      <div class="audit-row">
+        <div class="audit-task">${esc(t.text)}${t.topic ? `<span class="audit-topic">тема ${t.topic}</span>` : ''}</div>
+        <div class="seg" data-id="${t.id}">${Object.entries(LABELS).map(([v, l]) =>
+          `<button type="button" data-v="${v}" class="${audit.marks[t.id] === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+      </div>`).join('')}
+    </div>`).join('');
+  renderSummary();
+}
+
+function renderSummary() {
+  const tasks = allTasks();
+  const count = v => tasks.filter(t => audit.marks[t.id] === v).length;
+  document.getElementById('st-ai').textContent = count('ai');
+  document.getElementById('st-help').textContent = count('help');
+  document.getElementById('st-me').textContent = count('me');
+  const start = tasks.filter(t => audit.marks[t.id] === 'ai').concat(tasks.filter(t => audit.marks[t.id] === 'help')).slice(0, 3);
+  document.getElementById('audit-start').innerHTML = start.length
+    ? `<strong>С чего начать:</strong><ol>${start.map(t => `<li>${esc(t.text)}${t.topic ? ` — разберём в теме ${t.topic}` : ''}</li>`).join('')}</ol>`
+    : '<span style="color:var(--muted)">Отметьте задачи выше — здесь появится ваш план.</span>';
+}
+
+function auditText() {
+  const tasks = allTasks();
+  const lines = ['Аудит задач преподавателя — курс «Использование LLM и Агентов в работе преподавателя» (ИЦК, Уфа)', ''];
+  Object.entries(LABELS).forEach(([v, l]) => {
+    const list = tasks.filter(t => audit.marks[t.id] === v);
+    if (!list.length) return;
+    lines.push(`${l} (${list.length}):`);
+    list.forEach(t => lines.push(`  • ${t.text}${t.topic ? ` — тема ${t.topic}` : ''}`));
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+document.getElementById('audit-list').addEventListener('click', e => {
+  const b = e.target.closest('.seg button');
+  if (!b) return;
+  const id = b.parentElement.dataset.id;
+  audit.marks[id] = audit.marks[id] === b.dataset.v ? undefined : b.dataset.v;
+  b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', audit.marks[id] === x.dataset.v));
+  saveAudit(); renderSummary();
+});
+function addCustom() {
+  const inp = document.getElementById('audit-new');
+  const v = inp.value.trim();
+  if (!v) return;
+  audit.custom.push(v); inp.value = '';
+  saveAudit(); renderAudit();
+}
+document.getElementById('audit-add-btn').addEventListener('click', addCustom);
+document.getElementById('audit-new').addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
+document.getElementById('audit-copy').addEventListener('click', async e => {
+  const btn = e.currentTarget, txt = auditText();
+  try { await navigator.clipboard.writeText(txt); }
+  catch (err) { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  btn.textContent = 'Скопировано ✓'; setTimeout(() => (btn.textContent = 'Скопировать результат'), 1800);
+});
+document.getElementById('audit-dl').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([auditText()], { type: 'text/plain;charset=utf-8' }));
+  a.download = 'audit-zadach-prepodavatelya.txt';
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+document.getElementById('audit-reset').addEventListener('click', () => {
+  if (!confirm('Сбросить все отметки и свои задачи?')) return;
+  audit = { marks: {}, custom: [] }; saveAudit(); renderAudit();
+});
+renderAudit();
+
+/* ══════════════════════════════
+   КАРТА КУРСА (по «Программа_для_Уфы.xlsx»)
+══════════════════════════════ */
+const COURSE = [
+  { title: 'Модуль 1. Основы работы с ИИ', color: '#0090cf', items: [
+    ['19.10', '1.1. Введение в ИИ: понятия, история, тенденции. Практика: аудит задач', 2, 'lesson'],
+    ['20.10', '1.2. Основы промпт-инжиниринга для разных модальностей', 2],
+    ['21.10', '1.4. Презентации и инфографика с помощью нейросетей', 4],
+    ['23.10', '1.3. Персональные данные и цифровая безопасность', 3],
+  ]},
+  { title: 'Модуль 2. Создание учебных материалов', color: '#2868ab', items: [
+    ['22.10', '2.1. Сервисы LLM: тексты и таблицы', 2],
+    ['26.10', '2.2. Конспекты, планы, инструкции, учебная программа', 3],
+    ['27.10', '2.3. Задания разного уровня, тесты, автопроверка', 2],
+    ['28.10', '2.4. Генерация и редактирование изображений', 4],
+    ['29.10', '2.5. Аудио и видео', 5],
+  ]},
+  { title: 'Модуль 3. ИИ-агенты', color: '#533389', items: [
+    ['30.10', '3.1. ИИ-агенты: структура, RAG, Skills. Агент-навигатор в Yandex AI Studio', 3],
+    ['02.11', '3.2. Мой первый агент с нуля', 2],
+    ['03.11', '3.3. Агент с базой знаний. Стратсессия «Агенты в моей специальности»', 3],
+    ['04.11', '3.4. Агенты на базе OpenCode: установка и интерфейс', 4],
+    ['05.11', '3.5. Кейсы: «Карьерный навигатор», бот-новостник', 3],
+  ]},
+  { title: 'Модуль 4. Агенты в работе преподавателя', color: '#6654d9', items: [
+    ['06.11', '4.1. Агент для документов и отчётов: «Оценщик проектов»', 2],
+    ['09.11', '4.2. Агент-опросник', 1],
+    ['09.11', '4.3. Агенты для преподавателя и для студента', 2],
+    ['10.11', '4.4. Чат-боты и skill-симулятор в OpenCode', 2],
+  ]},
+  { title: 'Итог', color: '#562d86', items: [
+    ['11.11', 'Презентации на профессиональном уровне с помощью агента', 4],
+    ['12.11', 'Защита итоговой аттестационной работы', 2],
+  ]},
+];
+(function renderRoad() {
+  const total = COURSE.reduce((s, m) => s + m.items.reduce((a, i) => a + i[2], 0), 0);
+  const now = new Date();
+  const today = String(now.getDate()).padStart(2, '0') + '.' + String(now.getMonth() + 1).padStart(2, '0');
+  const inCourse = now.getFullYear() === 2026;
+  const hrs = h => h + ' ч';
+  document.getElementById('road-bar').innerHTML = COURSE.map(m => {
+    const h = m.items.reduce((a, i) => a + i[2], 0);
+    return `<div style="width:${h / total * 100}%;background:${m.color}" title="${m.title}: ${h} ч"></div>`;
+  }).join('');
+  document.getElementById('road-legend').innerHTML = COURSE.map(m =>
+    `<span><i style="background:${m.color}"></i>${m.title.replace(/^Модуль (\d)\..*/, 'Модуль $1')} · ${m.items.reduce((a, i) => a + i[2], 0)} ч</span>`).join('') + `<span><b>Всего: ${total} ак. ч</b></span>`;
+  document.getElementById('road-grid').innerHTML = COURSE.map(m => `
+    <div class="road-mod">
+      <div class="road-head" style="background:${m.color}"><small>${m.items.reduce((a, i) => a + i[2], 0)} ак. ч</small><h3>${m.title}</h3></div>
+      <ul class="road-list">${m.items.map(i => {
+        const isLesson = i[3] === 'lesson', isToday = inCourse && i[0] === today;
+        const badge = isLesson ? '<span class="road-now">этот урок</span>' : isToday ? '<span class="road-now">сегодня</span>' : '';
+        return `<li class="${isLesson || isToday ? 'now' : ''}"><span class="road-date">${i[0]}</span><span>${i[1]}${badge}</span><span class="road-h">${hrs(i[2])}</span></li>`;
+      }).join('')}</ul>
+    </div>`).join('');
+})();
 
 /* ══════════════════════════════
    SCROLL FADE IN
