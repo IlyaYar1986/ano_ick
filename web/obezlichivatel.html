@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Обезличиватель текста перед отправкой в нейросеть</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--border:#e3e3e8;--indigo:#6654d9;--indigo-dk:#562d86;--indigo-lt:#f0eefc;--cyan-lt:#e6f5fc;--green:#15803d;--green-lt:#ecfdf3;--amber-lt:#fff8e6;--red:#b4235a;--red-lt:#fdf0f4;--text:#2c2d30;--muted:#6b6f80}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:700}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:6px}
+textarea,.out{width:100%;min-height:230px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:.9rem;line-height:1.6;background:#fff}
+textarea{resize:vertical}
+.out{background:#f8f9fc;white-space:pre-wrap;word-break:break-word;overflow:auto}
+.out mark{background:var(--green-lt);color:var(--green);font-weight:700;border-radius:4px;padding:0 2px}
+.out mark.warn{background:var(--amber-lt);color:#8a5a00}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.btn{padding:9px 16px;border-radius:10px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;font:inherit;font-weight:600;font-size:.88rem;cursor:pointer}
+.btn:hover{background:var(--indigo-dk)}
+.btn.ghost{background:#fff;color:var(--indigo)}
+.btn.ghost:hover{background:var(--indigo-lt)}
+.report{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.pill{padding:4px 10px;border-radius:100px;background:var(--indigo-lt);color:var(--indigo-dk);font-size:.78rem;font-weight:700}
+.pill.warn{background:var(--amber-lt);color:#8a5a00}
+.note{font-size:.84rem;color:var(--muted);padding:10px 12px;border-radius:10px;background:var(--cyan-lt)}
+.note b{color:#0b5f86}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+@media (max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Обезличиватель: уберите людей из текста перед отправкой в ИИ</h1>
+<p class="sub">Вставьте текст — ФИО заменятся на «Человек 1», «Человек 2», а телефоны, почта, группы, даты и СНИЛС — на пометки. Всё работает прямо в браузере: текст никуда не отправляется.</p>
+<div class="grid">
+  <div>
+    <p class="label">Исходный текст</p>
+    <textarea id="src" aria-label="Исходный текст"></textarea>
+  </div>
+  <div>
+    <p class="label">Можно отправлять в нейросеть</p>
+    <div class="out" id="out" aria-live="polite"></div>
+  </div>
+</div>
+<div class="btns">
+  <button type="button" class="btn" id="run">Обезличить</button>
+  <button type="button" class="btn ghost" id="copy">Скопировать результат</button>
+  <button type="button" class="btn ghost" id="example">Вставить пример</button>
+</div>
+<div class="report" id="report"></div>
+<p class="note"><b>Автоматика ловит не всё.</b> Имя, которое не встретилось рядом с фамилией, прозвище, редкая фамилия или «единственный сварщик в группе» могут остаться. Жёлтым подсвечены слова о здоровье — их замените педагогической формулировкой сами. Перед отправкой прочитайте результат глазами.</p>
+<script>
+const EXAMPLE = `Проверь, пожалуйста, эссе. Автор — Иванов Пётр Сергеевич, группа ТМ-21, дата рождения 14.03.2008. У Петра дисграфия, поэтому много ошибок. Мама, Иванова Елена Викторовна, просила связаться по телефону +7 (917) 123-45-67 или почте elena.ivanova@mail.ru. Иванов обычно сдаёт работы вовремя. Для сравнения — работа Смирновой А. В. из той же группы, СНИЛС 123-456-789 01.`;
+
+/* Слова о здоровье: не заменяем автоматически, а подсвечиваем */
+const HEALTH = ["дисграфи", "дислекси", "диабет", "эпилепси", "аутизм", "сдвг", "депресси", "инвалид", "овз", "диагноз", "астм", "тревожн"];
+const SURNAME_END = "(?:ов|ев|ёв|ин|ын|ий|ой|ский|цкий|ова|ева|ёва|ина|ына|ая|ская|цкая|енко|ук|юк|ич|ко|их|ых)";
+const W = "[А-ЯЁ][а-яё]+";
+
+function anonymize(text) {
+  const people = new Map();     // фамилия + первая буква имени → «Человек N»
+  const bySurname = new Map();  // основа фамилии → первая найденная метка, для отдельных упоминаний
+  const counts = {ФИО: 0, телефон: 0, почта: 0, группа: 0, дата: 0, СНИЛС: 0};
+  const stem = (s) => s.toLowerCase().replace(/ё/g, "е").replace(/(а|я|ой|ым|ого|ому|ом|у|ю|е|ою|ую)$/, "");
+  function label(surname, name) {
+    const key = stem(surname) + "|" + (name ? name[0].toUpperCase() : "");
+    if (!people.has(key)) people.set(key, `Человек ${people.size + 1}`);
+    if (!bySurname.has(stem(surname))) bySurname.set(stem(surname), people.get(key));
+    // полное имя тоже запоминаем, чтобы заменить «у Петра» дальше по тексту
+    if (name && name.length > 2 && !bySurname.has(stem(name))) bySurname.set(stem(name), people.get(key));
+    return people.get(key);
+  }
+  const marks = [];
+  const put = (v) => { marks.push(v); return `\u0000${marks.length - 1}\u0000`; };
+
+  let t = text;
+  t = t.replace(/\b\d{3}-\d{3}-\d{3}[ -]?\d{2}\b/g, () => { counts.СНИЛС++; return put("[СНИЛС]"); });
+  t = t.replace(/(?:\+7|\b8)[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}\b/g, () => { counts.телефон++; return put("[телефон]"); });
+  t = t.replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, () => { counts.почта++; return put("[почта]"); });
+  t = t.replace(/\b\d{1,2}\.\d{1,2}\.\d{4}\b/g, () => { counts.дата++; return put("[дата]"); });
+  t = t.replace(/(?<![А-ЯЁа-яё])[А-ЯЁ]{1,4}-\d{2,3}(?![\dА-ЯЁа-яё])/g, () => { counts.группа++; return put("[группа]"); });
+  // Фамилия Имя Отчество
+  t = t.replace(new RegExp(`(${W})\\s+(${W})\\s+${W}(?:вич|вна|чна|ична)\\p{L}*`, "gu"), (m, s, n) => { counts.ФИО++; return put(label(s, n)); });
+  // Фамилия И. О. и И. О. Фамилия
+  t = t.replace(new RegExp(`(${W})\\s+([А-ЯЁ])\\.\\s?[А-ЯЁ]\\.`, "gu"), (m, s, n) => { counts.ФИО++; return put(label(s, n)); });
+  t = t.replace(new RegExp(`([А-ЯЁ])\\.\\s?[А-ЯЁ]\\.\\s?(${W})`, "gu"), (m, n, s) => { counts.ФИО++; return put(label(s, n)); });
+  // Фамилия Имя по типичным окончаниям фамилий
+  t = t.replace(new RegExp(`(${W}${SURNAME_END})\\s+(${W})(?![а-яё])`, "gu"), (m, s, n) => { counts.ФИО++; return put(label(s, n)); });
+  // Имя Отчество без фамилии
+  t = t.replace(new RegExp(`${W}\\s+${W}(?:вич|вна|чна|ична)\\p{L}*`, "gu"), () => { counts.ФИО++; return put("[имя]"); });
+  // Отдельные упоминания уже найденных фамилий
+  if (bySurname.size) {
+    t = t.replace(new RegExp(`(?<![А-ЯЁа-яё])${W}`, "gu"), (m) => {
+      const key = stem(m);
+      if (bySurname.has(key) && key.length > 3) { counts.ФИО++; return put(bySurname.get(key)); }
+      return m;
+    });
+  }
+  // Экранируем и собираем HTML с подсветкой
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  let html = esc(t).replace(/\u0000(\d+)\u0000/g, (m, k) => `<mark>${esc(marks[k])}</mark>`);
+  let plain = t.replace(/\u0000(\d+)\u0000/g, (m, k) => marks[k]);
+  let health = 0;
+  html = html.replace(/[А-ЯЁа-яё]+/g, (w) => {
+    if (HEALTH.some((h) => w.toLowerCase().startsWith(h))) { health++; return `<mark class="warn">${w}</mark>`; }
+    return w;
+  });
+  return {html, plain, counts, health, people: people.size};
+}
+
+const src = document.getElementById("src");
+const out = document.getElementById("out");
+const report = document.getElementById("report");
+let last = "";
+function run() {
+  const r = anonymize(src.value);
+  out.innerHTML = r.html || '<span style="color:var(--muted)">Здесь появится обезличенный текст.</span>';
+  last = r.plain;
+  const pills = Object.entries(r.counts).filter(([, n]) => n).map(([k, n]) => `<span class="pill">${k}: ${n}</span>`);
+  if (r.people) pills.unshift(`<span class="pill">людей: ${r.people}</span>`);
+  if (r.health) pills.push(`<span class="pill warn">о здоровье: ${r.health} — замените сами</span>`);
+  report.innerHTML = pills.join("");
+}
+document.getElementById("run").addEventListener("click", run);
+document.getElementById("example").addEventListener("click", () => { src.value = EXAMPLE; run(); });
+document.getElementById("copy").addEventListener("click", async (e) => {
+  const b = e.currentTarget;
+  try { await navigator.clipboard.writeText(last); b.textContent = "Скопировано"; }
+  catch { b.textContent = "Выделите текст"; }
+  setTimeout(() => { b.textContent = "Скопировать результат"; }, 1600);
+});
+src.value = EXAMPLE;
+run();
+</script>
+</body>
+</html>

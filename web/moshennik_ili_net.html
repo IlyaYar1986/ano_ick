@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мошенник или нет?</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--border:#e3e3e8;--indigo:#6654d9;--indigo-dk:#562d86;--indigo-lt:#f0eefc;--green:#15803d;--green-lt:#ecfdf3;--red:#b4235a;--red-lt:#fdf0f4;--text:#2c2d30;--muted:#6b6f80}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:700}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 16px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:.84rem;color:var(--muted);font-weight:600}
+.bar{flex:1;height:8px;border-radius:100px;background:var(--indigo-lt);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00abea,#6654d9);transition:width .3s}
+.card{border:1px solid var(--border);border-radius:14px;padding:22px 20px;text-align:center;font-size:clamp(1rem,2.2vw,1.15rem);font-weight:600;min-height:96px;display:flex;align-items:center;justify-content:center;background:#f8f9fc;margin-bottom:14px}
+.buckets{display:grid;gap:10px}
+.bucket{padding:12px 10px;border-radius:12px;border:2px solid;background:#fff;font:inherit;font-weight:700;font-size:.92rem;cursor:pointer;transition:transform .12s,background .15s}
+.bucket:hover:not(:disabled){transform:translateY(-2px)}
+.bucket:disabled{cursor:default;opacity:.55}
+.bucket.right{opacity:1;background:var(--green-lt);border-color:var(--green)!important;color:var(--green)!important}
+.bucket.wrong{opacity:1;background:var(--red-lt)}
+.why{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.9rem;line-height:1.6}
+.why.ok{background:var(--green-lt);color:#14532d}
+.why.no{background:var(--red-lt);color:#7a1838}
+.next{margin-top:12px;padding:9px 18px;border-radius:10px;border:none;background:var(--indigo);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.next:hover{background:var(--indigo-dk)}
+.final{text-align:center;padding:20px 10px}
+.final b{display:block;font-size:2rem;color:var(--indigo-dk)}
+.final p{margin:8px auto 14px;max-width:560px;font-size:.95rem}
+button:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+@media (max-width:560px){.buckets{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<h1>Мошенник или нет?</h1>
+<p class="sub">Голос и видео теперь подделывают за минуты. Решите, можно ли доверять звонку или сообщению.</p>
+<div id="game">
+  <div class="top"><span id="count"></span><span class="bar"><i id="bar"></i></span><span id="score"></span></div>
+  <div class="card" id="card"></div>
+  <div class="buckets" id="buckets"></div>
+  <div class="why" id="why" hidden></div>
+  <button type="button" class="next" id="next" hidden>Дальше →</button>
+</div>
+<div class="final" id="final" hidden>
+  <b id="final-score"></b>
+  <p>Правило: срочность + деньги, коды или секретность = мошенник. Положите трубку и перезвоните сами по известному номеру.</p>
+  <button type="button" class="next" id="again">Пройти ещё раз</button>
+</div>
+<script>
+const BUCKETS = [{"label": "🚩 Мошенник", "color": "#b4235a"}, {"label": "✅ Можно доверять", "color": "#15803d"}];
+const ITEMS = [
+ {
+  "text": "Звонок голосом сына: «Мам, я в аварии, срочно переведи 50 тысяч, папе не говори»",
+  "a": 0,
+  "why": "Срочность, деньги и секретность. Голос можно скопировать по видео из соцсетей. Перезвоните сыну сами."
+ },
+ {
+  "text": "СМС: «Госуслуги: ваш аккаунт взломан, срочно перейдите gosuslugi-help.ru»",
+  "a": 0,
+  "why": "Поддельный адрес. Госуслуги не просят переходить по ссылкам из СМС."
+ },
+ {
+  "text": "Сообщение в Telegram от «директора» с его фото: «С вами свяжется сотрудник ФСБ, никому не говорите»",
+  "a": 0,
+  "why": "Классическая схема с поддельным аккаунтом руководителя. Позвоните директору напрямую."
+ },
+ {
+  "text": "Письмо с адреса IT-службы колледжа: «В субботу плановые работы, ничего делать не нужно»",
+  "a": 1,
+  "why": "Нет ни ссылок, ни просьб, ни срочности — обычное уведомление. Адрес отправителя стоит проверить."
+ },
+ {
+  "text": "Звонок «из банка»: «Назовите код из СМС, чтобы отменить подозрительную операцию»",
+  "a": 0,
+  "why": "Сотрудник банка никогда не спрашивает коды. Положите трубку и позвоните по номеру на карте."
+ },
+ {
+  "text": "Видеозвонок от «замдиректора»: «Срочно оплатите счёт поставщику со своей карты, потом вернём»",
+  "a": 0,
+  "why": "Видео тоже подделывают. Деньги со своей карты по просьбе руководства — повод перезвонить и проверить."
+ },
+ {
+  "text": "Студент со своего обычного аккаунта в чате группы: «Скиньте, пожалуйста, ссылку на методичку»",
+  "a": 1,
+  "why": "Обычная просьба без денег и кодов."
+ },
+ {
+  "text": "Уведомление в приложении Госуслуг о записи к врачу, которую вы сами делали",
+  "a": 1,
+  "why": "Пришло внутри официального приложения и совпадает с вашими действиями."
+ }
+];
+const cardEl = document.getElementById("card");
+const bucketsEl = document.getElementById("buckets");
+const whyEl = document.getElementById("why");
+const nextEl = document.getElementById("next");
+bucketsEl.style.gridTemplateColumns = `repeat(${BUCKETS.length}, 1fr)`;
+let i = 0, right = 0;
+const buttons = BUCKETS.map((b, bi) => {
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "bucket";
+  el.style.borderColor = b.color;
+  el.style.color = b.color;
+  el.textContent = b.label;
+  el.addEventListener("click", () => answer(bi));
+  bucketsEl.appendChild(el);
+  return el;
+});
+function render() {
+  const item = ITEMS[i];
+  cardEl.textContent = item.text;
+  buttons.forEach((b) => { b.disabled = false; b.classList.remove("right", "wrong"); });
+  whyEl.hidden = true; nextEl.hidden = true;
+  document.getElementById("count").textContent = `${i + 1} из ${ITEMS.length}`;
+  document.getElementById("bar").style.width = `${(i / ITEMS.length) * 100}%`;
+  document.getElementById("score").textContent = `Верно: ${right}`;
+}
+function answer(bi) {
+  const item = ITEMS[i];
+  const ok = bi === item.a;
+  if (ok) right += 1;
+  buttons.forEach((b) => { b.disabled = true; });
+  buttons[item.a].classList.add("right");
+  if (!ok) buttons[bi].classList.add("wrong");
+  whyEl.className = "why " + (ok ? "ok" : "no");
+  whyEl.textContent = (ok ? "Верно. " : `Правильно: «${BUCKETS[item.a].label}». `) + item.why;
+  whyEl.hidden = false;
+  nextEl.hidden = false;
+  nextEl.textContent = i + 1 < ITEMS.length ? "Дальше →" : "Итог →";
+  document.getElementById("score").textContent = `Верно: ${right}`;
+  nextEl.focus();
+}
+nextEl.addEventListener("click", () => {
+  i += 1;
+  if (i < ITEMS.length) { render(); return; }
+  document.getElementById("game").hidden = true;
+  document.getElementById("final").hidden = false;
+  document.getElementById("final-score").textContent = `${right} из ${ITEMS.length}`;
+});
+document.getElementById("again").addEventListener("click", () => {
+  i = 0; right = 0;
+  document.getElementById("game").hidden = false;
+  document.getElementById("final").hidden = true;
+  render();
+});
+render();
+</script>
+</body>
+</html>

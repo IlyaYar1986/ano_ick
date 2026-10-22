@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Персональные данные или нет?</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--border:#e3e3e8;--indigo:#6654d9;--indigo-dk:#562d86;--indigo-lt:#f0eefc;--green:#15803d;--green-lt:#ecfdf3;--red:#b4235a;--red-lt:#fdf0f4;--text:#2c2d30;--muted:#6b6f80}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:700}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 16px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:.84rem;color:var(--muted);font-weight:600}
+.bar{flex:1;height:8px;border-radius:100px;background:var(--indigo-lt);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00abea,#6654d9);transition:width .3s}
+.card{border:1px solid var(--border);border-radius:14px;padding:22px 20px;text-align:center;font-size:clamp(1rem,2.2vw,1.15rem);font-weight:600;min-height:96px;display:flex;align-items:center;justify-content:center;background:#f8f9fc;margin-bottom:14px}
+.buckets{display:grid;gap:10px}
+.bucket{padding:12px 10px;border-radius:12px;border:2px solid;background:#fff;font:inherit;font-weight:700;font-size:.92rem;cursor:pointer;transition:transform .12s,background .15s}
+.bucket:hover:not(:disabled){transform:translateY(-2px)}
+.bucket:disabled{cursor:default;opacity:.55}
+.bucket.right{opacity:1;background:var(--green-lt);border-color:var(--green)!important;color:var(--green)!important}
+.bucket.wrong{opacity:1;background:var(--red-lt)}
+.why{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.9rem;line-height:1.6}
+.why.ok{background:var(--green-lt);color:#14532d}
+.why.no{background:var(--red-lt);color:#7a1838}
+.next{margin-top:12px;padding:9px 18px;border-radius:10px;border:none;background:var(--indigo);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.next:hover{background:var(--indigo-dk)}
+.final{text-align:center;padding:20px 10px}
+.final b{display:block;font-size:2rem;color:var(--indigo-dk)}
+.final p{margin:8px auto 14px;max-width:560px;font-size:.95rem}
+button:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+@media (max-width:560px){.buckets{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<h1>Персональные данные или нет?</h1>
+<p class="sub">Разложите сведения по трём корзинам. Персональные данные — всё, по чему можно определить конкретного человека.</p>
+<div id="game">
+  <div class="top"><span id="count"></span><span class="bar"><i id="bar"></i></span><span id="score"></span></div>
+  <div class="card" id="card"></div>
+  <div class="buckets" id="buckets"></div>
+  <div class="why" id="why" hidden></div>
+  <button type="button" class="next" id="next" hidden>Дальше →</button>
+</div>
+<div class="final" id="final" hidden>
+  <b id="final-score"></b>
+  <p>Главное: персональными данными бывает не только ФИО. Если по сведениям можно понять, о ком речь, — это персональные данные, даже без фамилии.</p>
+  <button type="button" class="next" id="again">Пройти ещё раз</button>
+</div>
+<script>
+const BUCKETS = [{"label": "Не персональные", "color": "#0090cf"}, {"label": "Персональные", "color": "#6654d9"}, {"label": "Особые: здоровье, биометрия…", "color": "#b4235a"}];
+const ITEMS = [
+ {
+  "text": "«Иванов Пётр Сергеевич»",
+  "a": 1,
+  "why": "ФИО прямо указывает на человека."
+ },
+ {
+  "text": "«Средний балл группы — 4,1»",
+  "a": 0,
+  "why": "Обобщённая статистика без привязки к людям."
+ },
+ {
+  "text": "«Петрова — 3 за контрольную»",
+  "a": 1,
+  "why": "Оценка с фамилией — сведения о конкретном человеке."
+ },
+ {
+  "text": "«Студент А, 2 курс, сдал эссе»",
+  "a": 0,
+  "why": "Обезличено: понять, кто это, нельзя. Но если в группе один студент 2 курса — уже можно."
+ },
+ {
+  "text": "«Единственная студентка из Казахстана в группе ТМ-21»",
+  "a": 1,
+  "why": "Фамилии нет, но человека легко определить — это персональные данные."
+ },
+ {
+  "text": "«Справка: сахарный диабет»",
+  "a": 2,
+  "why": "Сведения о здоровье — специальная категория, защищены строже всего."
+ },
+ {
+  "text": "«Номер телефона мамы студента»",
+  "a": 1,
+  "why": "Контакт конкретного человека — персональные данные родителя."
+ },
+ {
+  "text": "«Тема курсовой: логистика склада»",
+  "a": 0,
+  "why": "Тема без автора ничего не говорит о человеке."
+ },
+ {
+  "text": "«Запись голоса, по которой система узнаёт студента»",
+  "a": 2,
+  "why": "Голос, по которому устанавливают личность, — биометрия."
+ },
+ {
+  "text": "«Национальность студента»",
+  "a": 2,
+  "why": "Национальная принадлежность — специальная категория."
+ },
+ {
+  "text": "«Фото группы на выпускном»",
+  "a": 1,
+  "why": "Изображение людей — их персональные данные. Публиковать и загружать в сервисы — только с согласия."
+ }
+];
+const cardEl = document.getElementById("card");
+const bucketsEl = document.getElementById("buckets");
+const whyEl = document.getElementById("why");
+const nextEl = document.getElementById("next");
+bucketsEl.style.gridTemplateColumns = `repeat(${BUCKETS.length}, 1fr)`;
+let i = 0, right = 0;
+const buttons = BUCKETS.map((b, bi) => {
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "bucket";
+  el.style.borderColor = b.color;
+  el.style.color = b.color;
+  el.textContent = b.label;
+  el.addEventListener("click", () => answer(bi));
+  bucketsEl.appendChild(el);
+  return el;
+});
+function render() {
+  const item = ITEMS[i];
+  cardEl.textContent = item.text;
+  buttons.forEach((b) => { b.disabled = false; b.classList.remove("right", "wrong"); });
+  whyEl.hidden = true; nextEl.hidden = true;
+  document.getElementById("count").textContent = `${i + 1} из ${ITEMS.length}`;
+  document.getElementById("bar").style.width = `${(i / ITEMS.length) * 100}%`;
+  document.getElementById("score").textContent = `Верно: ${right}`;
+}
+function answer(bi) {
+  const item = ITEMS[i];
+  const ok = bi === item.a;
+  if (ok) right += 1;
+  buttons.forEach((b) => { b.disabled = true; });
+  buttons[item.a].classList.add("right");
+  if (!ok) buttons[bi].classList.add("wrong");
+  whyEl.className = "why " + (ok ? "ok" : "no");
+  whyEl.textContent = (ok ? "Верно. " : `Правильно: «${BUCKETS[item.a].label}». `) + item.why;
+  whyEl.hidden = false;
+  nextEl.hidden = false;
+  nextEl.textContent = i + 1 < ITEMS.length ? "Дальше →" : "Итог →";
+  document.getElementById("score").textContent = `Верно: ${right}`;
+  nextEl.focus();
+}
+nextEl.addEventListener("click", () => {
+  i += 1;
+  if (i < ITEMS.length) { render(); return; }
+  document.getElementById("game").hidden = true;
+  document.getElementById("final").hidden = false;
+  document.getElementById("final-score").textContent = `${right} из ${ITEMS.length}`;
+});
+document.getElementById("again").addEventListener("click", () => {
+  i = 0; right = 0;
+  document.getElementById("game").hidden = false;
+  document.getElementById("final").hidden = true;
+  render();
+});
+render();
+</script>
+</body>
+</html>

@@ -33,3 +33,38 @@ Docs/*
 
 # ── Материалы клуба, не относятся к курсу для ИЦК ──
 Практика_агенты/
+
+# ── Материалы клуба: остаются на диске как примеры для подготовки, на сайт не выкладываются ──
+# На сайте только темы 1.1 (index.html) и 1.3 (web/tema_1_3.html, web/praktika_1_3.html) с их демо и картинками.
+oglavlenie.html
+sdfs.html
+SYSTEM_PROMPT_UROKI.md
+files/
+tests/klub/
+png/logo.png
+png/logo.webp
+png/ChatGPT Image 29 мая 2026 г., *
+png/ChatGPT Image 3 июн. 2026 г., *
+png/bezopasnost_dannyh/
+png/cifrovoy_sled/
+png/ochistka_dannyh/
+png/personalizaciya_tyutorstvo/
+png/zanyatie2_agentnye_sistemy/
+web/1.html
+web/agentnye_sistemy.html
+web/bezopasnost_dannyh.html
+web/cifrovoy_sled.html
+web/dva_studenta.html
+web/etika_sortirovka.html
+web/galereya_patternov.html
+web/gryaznye_dannye.html
+web/ii_vizualizator.html
+web/instrumenty_mcp_skills.html
+web/instrumenty_mcp_skills_konspekt.md
+web/ochistka_dannyh.html
+web/personalizaciya_tyutorstvo.html
+web/qr_voronka.html
+web/seminar_25_45.html
+web/sled_simulyator.html
+web/trenazher_ochistki.html
+web/ответы-участников.html

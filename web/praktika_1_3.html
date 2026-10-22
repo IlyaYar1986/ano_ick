@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практика 1.3. Кейсы по цифровой безопасности и положение об ИИ · ИЦК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* Палитра АНО ДПО «Институт цифровых компетенций» — как в ../index.html */
+:root{
+  --bg:#f4f5fa;
+  --card:#ffffff;
+  --border:#e3e3e8;
+  --indigo:#6654d9;
+  --indigo-dk:#562d86;
+  --indigo-lt:#f0eefc;
+  --cyan:#0090cf;
+  --cyan-lt:#e6f5fc;
+  --amber:#b7791f;
+  --amber-lt:#fff8e6;
+  --green:#15803d;
+  --green-lt:#ecfdf3;
+  --red:#b4235a;
+  --red-lt:#fdf0f4;
+  --text:#2c2d30;
+  --muted:#6b6f80;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(102,84,217,.12),transparent 32%),
+    radial-gradient(circle at 85% 6%,rgba(0,144,207,.11),transparent 34%),
+    linear-gradient(180deg,#f8f9fc 0%,#f0eefc 30%,#f8f9fc 100%);
+  color:var(--text);line-height:1.65;overflow-x:hidden;
+}
+a{color:var(--indigo)}
+
+/* NAV */
+nav.top{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,.06);
+  display:flex;align-items:center;padding:0 20px;z-index:900;
+  gap:2px;overflow-x:auto;scrollbar-width:none;
+}
+nav.top::-webkit-scrollbar{display:none}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.93rem;color:var(--indigo-dk);white-space:nowrap;margin:0 10px 0 4px;flex-shrink:0}
+.nav-logo img{height:30px;width:auto;display:block}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-link{padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;flex-shrink:0}
+.nav-link:hover,.nav-link.active{color:var(--indigo);background:var(--indigo-lt)}
+.nav-cta{padding:5px 12px;border-radius:6px;font-size:.73rem;font-weight:700;color:var(--indigo);background:var(--indigo-lt);border:1px solid #d6d0f5;text-decoration:none;white-space:nowrap;flex-shrink:0}
+.nav-cta:hover{background:#e6e2fa}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+/* HERO */
+#hero{
+  min-height:100vh;padding:calc(var(--nav-h) + 48px) 24px 64px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.hero-logos{display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:26px;flex-wrap:wrap}
+.hero-logos img{display:block;width:auto}
+.hero-logos .logo-ick{height:clamp(48px,6.5vw,70px)}
+.hero-logos .logo-club{height:clamp(70px,9vw,104px)}
+.hero-logos-sep{width:1px;height:52px;background:var(--border)}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+.hero-badge{padding:5px 14px;background:var(--indigo-lt);border:1px solid #d6d0f5;border-radius:100px;font-size:.78rem;font-weight:700;color:var(--indigo)}
+.hero-title{font-size:clamp(2rem,5.5vw,3.6rem);font-weight:700;line-height:1.12;letter-spacing:-1.5px;margin-bottom:16px;max-width:920px}
+.hero-title em{color:var(--indigo);font-style:normal}
+.hero-sub{font-size:1.08rem;color:var(--muted);max-width:680px;margin-bottom:30px}
+.hero-img{max-width:900px;width:100%;margin-bottom:36px}
+.hero-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:880px}
+.hero-nav a{padding:8px 16px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:.84rem;font-weight:600;color:var(--text);text-decoration:none;box-shadow:0 2px 8px rgba(44,45,48,.05);transition:transform .15s,box-shadow .15s}
+.hero-nav a:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,84,217,.15)}
+
+/* ОПРОС В HERO */
+.poll{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 22px;max-width:680px;margin-bottom:34px;box-shadow:0 4px 18px rgba(86,45,134,.06)}
+.poll p{font-weight:600;margin-bottom:12px}
+.poll-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.poll-answer{margin-top:12px;font-size:.92rem;color:var(--indigo-dk)}
+
+/* SECTIONS */
+.sec{max-width:1180px;margin:0 auto;padding:72px 24px}
+.sec-head{margin-bottom:34px}
+.num-badge{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:13px;font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:14px}
+/* Бейджи идут по градиенту логотипа ИЦК: от голубого к фиолетовому */
+.n1{background:linear-gradient(135deg,#00abea,#0090cf)}
+.n2{background:linear-gradient(135deg,#0090cf,#2868ab)}
+.n3{background:linear-gradient(135deg,#2868ab,#464f9a)}
+.n4{background:linear-gradient(135deg,#464f9a,#533389)}
+.n5{background:linear-gradient(135deg,#533389,#562d86)}
+.n6{background:linear-gradient(135deg,#562d86,#6654d9)}
+.n7{background:linear-gradient(135deg,#6654d9,#725ef2)}
+.n8{background:linear-gradient(135deg,#0090cf,#00abea)}
+.n9{background:linear-gradient(135deg,#2868ab,#0090cf)}
+.n10{background:linear-gradient(135deg,#562d86,#6654d9)}
+.sec-title{font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;letter-spacing:-.5px;margin-bottom:10px}
+.sec-desc{font-size:1.02rem;color:var(--muted);max-width:780px;line-height:1.75}
+.sub-title{font-size:1.18rem;font-weight:700;margin:34px 0 14px;color:var(--indigo-dk)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(44,45,48,.04)}
+.card h3{font-size:1.08rem;line-height:1.35;margin-bottom:8px}
+.card p,.card li{font-size:.95rem;color:var(--muted);line-height:1.65}
+.card ul,.card ol{padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.card strong{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.tag{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--bg);font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:10px}
+.tag.blue{background:var(--cyan-lt);color:#0079b0}
+.lesson{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--indigo-lt);font-size:.92rem;color:var(--indigo-dk)}
+.lesson b{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;color:var(--indigo)}
+
+/* CALLOUTS */
+.key{margin-top:26px;padding:18px 22px;border-radius:16px;background:var(--card);border:1px solid var(--border);border-left:5px solid var(--indigo-dk);font-size:1rem;line-height:1.7}
+.key strong{color:var(--indigo-dk)}
+.warn-callout{background:var(--amber-lt);border:1px solid #f3d38a;border-radius:16px;padding:18px 22px;margin-top:20px}
+.warn-callout p{color:#6b4a0e;line-height:1.7;font-size:.95rem}
+.src{margin-top:10px;font-size:.78rem;color:var(--muted)}
+.src a{font-weight:600;text-decoration:none}
+.src a:hover{text-decoration:underline}
+
+/* РАСКРЫТИЕ ОТВЕТА */
+details.reveal{margin-top:12px;border:1px dashed #d6d0f5;border-radius:12px;background:#fbfaff}
+details.reveal summary{cursor:pointer;padding:10px 14px;font-weight:700;font-size:.9rem;color:var(--indigo);list-style:none}
+details.reveal summary::-webkit-details-marker{display:none}
+details.reveal summary::before{content:"▸ "}
+details.reveal[open] summary::before{content:"▾ "}
+details.reveal .reveal-body{padding:0 14px 14px;font-size:.94rem;color:var(--text);line-height:1.65}
+
+/* ТАБЛИЦЫ */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:.94rem}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:#f8f9fc;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+td.num{white-space:nowrap;font-weight:700;color:var(--indigo-dk)}
+
+/* ЛЕНТА ДАТ */
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+.tl-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative}
+.tl-date{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--cyan-lt);color:#0079b0;font-size:.76rem;font-weight:700;margin-bottom:8px}
+.tl-item h3{font-size:1rem;margin-bottom:4px}
+.tl-item p{font-size:.88rem;color:var(--muted)}
+
+/* ВЕРНО / НЕВЕРНО */
+.tf{display:flex;flex-direction:column;gap:12px}
+.tf-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 18px}
+.tf-top{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.tf-text{font-weight:600;flex:1;min-width:240px}
+.tf-btns{display:flex;gap:8px}
+.tf-btns button{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:#fff;font:inherit;font-size:.84rem;font-weight:600;cursor:pointer;color:var(--text)}
+.tf-btns button:hover{background:var(--indigo-lt)}
+.tf-btns button:disabled{cursor:default}
+.tf-btns button.picked.ok{background:var(--green-lt);border-color:#9fd8b5;color:var(--green)}
+.tf-btns button.picked.bad{background:var(--red-lt);border-color:#f0b5c8;color:var(--red)}
+.tf-explain{margin-top:10px;font-size:.92rem;color:var(--text);line-height:1.6}
+.tf-explain b{color:var(--indigo-dk)}
+
+/* СВЕТОФОР */
+.light{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.light .card{border-top:6px solid}
+.light .go{border-top-color:#22a05a}
+.light .wait{border-top-color:#e0a21a}
+.light .stop{border-top-color:#d1345b}
+.light h3 span{font-size:1.3rem;margin-right:6px}
+
+/* ТРЕНАЖЁР */
+.trainer{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+.trainer .orig{padding:14px 16px;border-radius:12px;background:var(--red-lt);color:#7a1838;font-weight:600;margin:8px 0 14px}
+.trainer textarea{width:100%;min-height:90px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:.95rem;resize:vertical;background:#fff}
+.trainer .etalon{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--green-lt);color:#14532d;line-height:1.65}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;transition:background .2s}
+.btn:hover{background:var(--indigo-dk)}
+.btn.ghost{background:#fff;color:var(--indigo)}
+.btn.ghost:hover{background:var(--indigo-lt)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+/* IMAGE CARD + PLACEHOLDER */
+.img-card{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(86,45,134,.14);cursor:zoom-in;margin-top:26px}
+.hero-img.img-card{margin-top:0}
+.img-card img{display:block;width:100%;height:auto}
+.img-card .img-missing-caption{display:none}
+.img-card.img-missing{border:2px dashed #d6d0f5;background:var(--indigo-lt);min-height:200px;display:flex;align-items:center;justify-content:center;box-shadow:none;cursor:default}
+.img-card.img-missing img{display:none}
+.img-card.img-missing .img-missing-caption{display:block;color:var(--muted);font-size:.86rem;text-align:center;padding:24px;max-width:420px}
+
+/* VIZ CARD (iframe) */
+.viz{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.viz-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#f8f9fc;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febb2c}.dg{background:#27c840}
+.viz-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);flex:1}
+.viz-fs{display:flex;align-items:center;gap:5px;padding:4px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;font-size:.71rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.viz-fs:hover{background:var(--indigo-lt);color:var(--indigo);border-color:#d6d0f5}
+.viz iframe{width:100%;border:none;display:block}
+
+/* LIGHTBOX */
+.overlay{position:fixed;inset:0;background:rgba(15,10,30,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.overlay img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.overlay-close{position:absolute;top:18px;right:22px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.overlay-download{position:absolute;top:18px;right:72px;height:40px;padding:0 16px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:6px;text-decoration:none;z-index:2}
+
+/* FULLSCREEN IFRAME */
+#fs-overlay{position:fixed;inset:0;background:rgba(15,10,30,.94);z-index:2100;display:none;flex-direction:column}
+#fs-overlay.open{display:flex}
+#fs-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(0,0,0,.4)}
+#fs-title{font-size:.8rem;font-weight:700;color:rgba(255,255,255,.65);flex:1}
+#fs-close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.8);font-size:1.1rem;cursor:pointer}
+#fs-frame{flex:1;border:none;background:#fff}
+
+/* CHECKLIST */
+.checklist-progress-bar{height:10px;border-radius:100px;background:var(--indigo-lt);overflow:hidden;margin-bottom:20px}
+.checklist-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#00abea,#6654d9);border-radius:100px;transition:width .3s ease}
+.checklist-items{list-style:none;display:flex;flex-direction:column;gap:12px}
+.checklist-items label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:.98rem}
+.checklist-items input{width:18px;height:18px;margin-top:4px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0}
+.checklist-done{margin-top:18px;padding:12px 16px;background:var(--green-lt);color:var(--green);border-radius:10px;font-weight:700}
+
+/* QUIZ */
+.quiz{display:flex;flex-direction:column;gap:18px}
+.quiz-question{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.quiz-text{font-weight:700;margin-bottom:12px}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-options label{display:flex;align-items:flex-start;gap:8px;font-size:.95rem;cursor:pointer}
+.quiz-options input{margin-top:5px;accent-color:var(--indigo)}
+.quiz-options label.quiz-correct-answer{color:var(--green);font-weight:700}
+.quiz-check{padding:8px 16px;border-radius:9px;border:none;background:var(--indigo);color:#fff;font:inherit;font-weight:700;font-size:.84rem;cursor:pointer}
+.quiz-check:hover{background:var(--indigo-dk)}
+.quiz-check:disabled{opacity:.5;cursor:default}
+.quiz-feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.92rem}
+.quiz-feedback.correct{background:var(--green-lt);color:var(--green)}
+.quiz-feedback.incorrect{background:var(--red-lt);color:var(--red)}
+.quiz-score-box{text-align:center;font-weight:700;color:var(--indigo-dk)}
+
+/* CONCLUSION */
+.conclusion-list{list-style:none;counter-reset:concl;display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.conclusion-list li{counter-increment:concl;padding-left:40px;position:relative;font-size:1.04rem}
+.conclusion-list li::before{content:counter(concl);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--indigo);color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sources{font-size:.85rem;color:var(--muted);columns:2;column-gap:28px}
+.sources li{margin-bottom:6px;break-inside:avoid}
+
+/* FOOTER */
+footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;border-top:1px solid var(--border);background:#fff}
+.footer-logos{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:16px}
+.footer-logos img{height:44px;width:auto;display:block}
+.footer-logos img.logo-club{height:62px}
+.footer-line{height:3px;max-width:240px;margin:0 auto 18px;border-radius:3px;background:linear-gradient(90deg,#00abea,#2868ab,#562d86)}
+
+/* SCROLL REVEAL */
+.fade{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fade.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fade{opacity:1;transform:none;transition:none}}
+@media (max-width:900px){.sec{padding:56px 16px}.timeline{grid-template-columns:1fr 1fr}.light{grid-template-columns:1fr}.sources{columns:1}}
+@media (max-width:560px){.timeline{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}.hero-logos-sep{display:none}}
+
+/* ── Только для страницы практики ── */
+.plan-tbl td:first-child{white-space:nowrap;font-weight:700;color:var(--indigo-dk)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:step}
+.step{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative}
+.step b{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--indigo);color:#fff;font-size:.9rem;margin-bottom:10px}
+.step h3{font-size:1rem;margin-bottom:4px}
+.step p{font-size:.9rem;color:var(--muted)}
+
+/* Карточки кейсов */
+.cases{display:flex;flex-direction:column;gap:14px}
+details.case{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 2px 10px rgba(44,45,48,.04)}
+details.case>summary{cursor:pointer;list-style:none;padding:18px 22px;display:flex;align-items:center;gap:14px}
+details.case>summary::-webkit-details-marker{display:none}
+.case-num{flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;background:linear-gradient(135deg,#2868ab,#6654d9)}
+.case-title{font-weight:700;font-size:1.06rem;flex:1}
+.case-live{flex-shrink:0;padding:3px 10px;border-radius:100px;background:var(--cyan-lt);color:#0079b0;font-size:.72rem;font-weight:700}
+.case-arrow{flex-shrink:0;color:var(--muted);transition:transform .2s}
+details.case[open] .case-arrow{transform:rotate(90deg)}
+.case-body{padding:0 22px 22px 74px}
+.case-body p,.case-body li{font-size:.96rem;line-height:1.65}
+.case-body>p+p{margin-top:8px}
+.case-body ul,.case-body ol{padding-left:20px;margin:6px 0 10px}
+.case-body h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:14px 0 4px}
+.fix{margin-top:12px;padding:10px 14px;border-radius:10px;background:var(--amber-lt);border:1px solid #f3d38a;font-size:.88rem;color:#6b4a0e}
+.razbor{margin-top:14px;border:1px dashed #d6d0f5;border-radius:12px;background:#fbfaff}
+.razbor summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--indigo);list-style:none}
+.razbor summary::-webkit-details-marker{display:none}
+.razbor summary::before{content:"▸ "}
+.razbor[open] summary::before{content:"▾ "}
+.razbor .rb{padding:0 16px 14px}
+.razbor .rb h4{color:var(--indigo-dk)}
+
+/* Конструктор положения */
+.policy-q{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.policy-q label{display:block;font-weight:700;margin-bottom:4px}
+.policy-q .hint{font-size:.88rem;color:var(--muted);margin-bottom:8px}
+.policy-q .example{font-size:.86rem;color:var(--indigo-dk);background:var(--indigo-lt);border-radius:10px;padding:8px 12px;margin-bottom:10px}
+.policy-q textarea,.week textarea{width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical;background:#fff}
+.prompt-box{background:#221a3a;border-radius:14px;overflow:hidden;margin-top:18px}
+.prompt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:#2f2550;color:#ece9fb;font-size:.84rem;font-weight:700;flex-wrap:wrap}
+.copy-btn{padding:5px 12px;border-radius:8px;border:1px solid #6b5fa8;background:transparent;color:#ece9fb;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
+.copy-btn:hover{background:#3b3066}
+.prompt-box pre{margin:0;padding:18px 16px;color:#ece9fb;font-size:.86rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:inherit}
+.save-note{font-size:.82rem;color:var(--muted);margin-top:8px}
+
+/* Чек-лист безопасности с тремя вариантами */
+.sec-block{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px 20px 12px;margin-bottom:16px}
+.sec-block h3{font-size:1rem;padding:12px 0 6px;color:var(--indigo-dk)}
+.sc-row{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
+.sc-text{font-size:.95rem;line-height:1.45}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg button{border:none;background:transparent;padding:7px 12px;font:inherit;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button.on[data-v="yes"]{background:#15803d;color:#fff}
+.seg button.on[data-v="part"]{background:#b7791f;color:#fff}
+.seg button.on[data-v="no"]{background:#b4235a;color:#fff}
+.score{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-top:8px}
+.score-num{font-size:2.4rem;font-weight:700;color:var(--indigo-dk);line-height:1}
+.score-text{margin-top:8px;font-size:1rem}
+.tips{margin-top:14px;font-size:.92rem;color:var(--muted)}
+.tips li{margin-bottom:4px}
+.week{display:flex;flex-direction:column;gap:10px}
+@media (max-width:900px){.steps{grid-template-columns:1fr 1fr}.case-body{padding:0 18px 18px}}
+@media (max-width:720px){.sc-row{grid-template-columns:1fr}.seg{width:100%}.seg button{flex:1}}
+@media (max-width:560px){.steps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Навигация по странице">
+  <a class="nav-link" href="tema_1_3.html">← Лекция 1.3</a>
+  <span class="nav-sep"></span>
+  <span class="nav-logo"><img src="../png/brand/logo_ick.png" alt="Институт цифровых компетенций">Практика 1.3</span>
+  <span class="nav-sep"></span>
+  <a class="nav-link" href="#s1">1. Как разбираем</a>
+  <a class="nav-link" href="#s2">2. Кейсы</a>
+  <a class="nav-link" href="#s3">3. Положение об ИИ</a>
+  <a class="nav-link" href="#s4">4. Чек-лист</a>
+  <a class="nav-link" href="#s5">5. Итог</a>
+</nav>
+
+<header id="hero">
+  <div class="hero-logos">
+    <img class="logo-ick" src="../png/brand/logo_ick.png" alt="АНО ДПО «Институт цифровых компетенций»">
+    <div class="hero-logos-sep"></div>
+    <img class="logo-club" src="../png/brand/logo_club_bulb.png" alt="Клуб «ИИ в образованИИ»">
+  </div>
+  <div class="hero-badges">
+    <span class="hero-badge">Практика 1.3</span>
+    <span class="hero-badge">2 ак. часа</span>
+    <span class="hero-badge">Для преподавателей колледжей</span>
+  </div>
+  <h1 class="hero-title">Решаем кейсы и пишем <em>положение об ИИ</em> для колледжа</h1>
+  <p class="hero-sub">Разберём реальные ситуации с данными и ИИ, соберём с помощью нейросети черновик документа для вашего колледжа и честно проверим свою цифровую гигиену.</p>
+  <div class="tbl-wrap" style="max-width:640px;width:100%;margin-bottom:30px;text-align:left">
+    <table class="plan-tbl">
+      <thead><tr><th>Минуты</th><th>Что делаем</th></tr></thead>
+      <tbody>
+        <tr><td>32</td><td>Решаем 4 кейса по 8 минут</td></tr>
+        <tr><td>23</td><td>Отвечаем на 10 вопросов и собираем положение об ИИ в ГигаЧате или Алисе</td></tr>
+        <tr><td>15</td><td>Заполняем чек-лист цифровой безопасности</td></tr>
+        <tr><td>5</td><td>Три действия на неделю</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure class="img-card fade" data-lightbox style="max-width:900px;width:100%;margin:0 0 34px">
+    <img src="../png/tema_1_3/11_praktika_hero.png" alt="Инфографика: практика 1.3 — разбираем кейсы, создаём положение об ИИ, чек-лист и план" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Практика 1.3» (промпт 11 из плана)</figcaption>
+  </figure>
+  <nav class="hero-nav" aria-label="Разделы страницы">
+    <a href="#s2">Кейсы</a>
+    <a href="#s3">Положение об ИИ</a>
+    <a href="#s4">Чек-лист</a>
+    <a href="tema_1_3.html">← Вернуться к лекции</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ БЛОК 1: СХЕМА РАЗБОРА ══════════ -->
+<section class="sec" id="s1">
+  <div class="sec-head fade">
+    <div class="num-badge n1">1</div>
+    <h2 class="sec-title">Как разбираем кейс</h2>
+    <p class="sec-desc">Ведущий читает кейс. Две минуты думаете сами и пишете в чат первое, что видите. Потом обсуждаем голосом и открываем разбор.</p>
+  </div>
+  <div class="steps fade">
+    <div class="step"><b>1</b><h3>Что нарушено</h3><p>Закон, этика, здравый смысл — что именно пошло не так.</p></div>
+    <div class="step"><b>2</b><h3>Кто пострадал</h3><p>Студенты, родители, сам преподаватель, колледж.</p></div>
+    <div class="step"><b>3</b><h3>Как надо было</h3><p>Что сделать иначе с самого начала.</p></div>
+    <div class="step"><b>4</b><h3>Что делать сейчас</h3><p>Конкретные шаги, если это уже случилось.</p></div>
+  </div>
+  <figure class="img-card fade" data-lightbox style="">
+    <img src="../png/tema_1_3/12_razbor_keysa.png" alt="Инфографика: четыре шага разбора кейса" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Как разбираем кейс» (промпт 12 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 2: КЕЙСЫ ══════════ -->
+<section class="sec" id="s2">
+  <div class="sec-head fade">
+    <div class="num-badge n2">2</div>
+    <h2 class="sec-title">Семь кейсов</h2>
+    <p class="sec-desc">На занятии разбираем четыре — они помечены. Остальные — для самостоятельного чтения. Все ситуации собирательные, имена условные.</p>
+  </div>
+
+  <div class="cases fade">
+
+    <details class="case" id="case1">
+      <summary><span class="case-num">1</span><span class="case-title">«Умный помощник для слабых студентов»</span><span class="case-live">на занятии</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>Преподаватель программирования Алексей сделал Telegram-бота на базе ChatGPT, который круглосуточно отвечает студентам на вопросы по коду. Чтобы бот «лучше понимал» студентов, Алексей загрузил в него списки группы с уровнем знаний, историю ошибок, оценки и свои комментарии: «Иван часто ленится», «Мария старательная, но медленная».</p>
+        <p>Через месяц студент спросил бота: «Что ты знаешь о студенте Иване?» — и получил полный профиль с комментариями преподавателя. Родители пожаловались в Роскомнадзор.</p>
+        <h4>Вопросы</h4>
+        <ul><li>Какие нарушения допущены?</li><li>Какие данные нельзя было загружать?</li><li>Можно ли было сделать такого бота безопасно?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Что нарушено</h4>
+          <ul><li>Персональные данные студентов ушли в зарубежный сервис — а с 1 июля 2025 года данные граждан РФ нельзя собирать и хранить в иностранных базах.</li><li>Нет основания и согласия на такую обработку, цель не определена.</li><li>Избыточные данные: оценки и субъективные характеристики для помощи с кодом не нужны.</li><li>Бот выдал то, что в него загрузили. Любого бота можно уговорить показать свою базу — это его свойство, а не сбой.</li></ul>
+          <h4>Как надо было</h4>
+          <p>Бот знает только учебные материалы: методички, разборы типовых ошибок, примеры кода. О конкретных студентах — ничего. Российский сервис, согласование с колледжем. Как собрать такого бота — в модулях 3 и 4 курса.</p>
+          <h4>Что делать сейчас</h4>
+          <p>Удалить данные из бота, сообщить ответственному за персональные данные в колледже, честно объяснить ситуацию группе.</p>
+        </div></details>
+      </div>
+    </details>
+
+    <details class="case" id="case2">
+      <summary><span class="case-num">2</span><span class="case-title">«Дипфейк с учительницей»</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>Преподаватель истории Елена Викторовна ведёт страницу во ВКонтакте: фото из путешествий, педагогический опыт. Однажды в родительский чат попало порнографическое видео с её лицом — дипфейк. Его сделал 15-летний студент, недовольный оценкой: взял фото со страницы и прогнал через бесплатный сервис. Видео увидели больше 50 человек, часть родителей требует уволить учительницу.</p>
+        <h4>Вопросы</h4>
+        <ul><li>Виновата ли учительница?</li><li>Что грозит автору?</li><li>Что должна сделать администрация?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Кто виноват</h4>
+          <p>Автор дипфейка. Учительница — пострадавшая; публиковать свои фото не запрещено.</p>
+          <h4>Правовая сторона</h4>
+          <ul><li>Отдельной статьи о дипфейках нет; законопроект о дипфейке как отягчающем обстоятельстве не принят.</li><li>Применимы клевета, нарушение неприкосновенности частной жизни; использовать изображение человека без согласия запрещает ст. 152.1 Гражданского кодекса — это основание для иска и требования удалить.</li><li>Уголовная ответственность по большинству таких статей наступает с 16 лет. Для 15-летнего — комиссия по делам несовершеннолетних, учёт в ПДН, ответственность родителей за вред.</li></ul>
+          <h4>Что делать сейчас</h4>
+          <ul><li>Зафиксировать: скриншоты, ссылки, кто и когда переслал.</li><li>Заявление в полицию, жалоба площадке на удаление.</li><li>Администрация публично в том же чате заявляет, что видео — подделка, и поддерживает педагога.</li></ul>
+          <h4>Профилактика</h4>
+          <p>Настройки приватности страницы, разговор со студентами о дипфейках и ответственности.</p>
+        </div></details>
+      </div>
+    </details>
+
+    <details class="case" id="case3">
+      <summary><span class="case-num">3</span><span class="case-title">«ИИ для проверки эссе»</span><span class="case-live">на занятии</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>Преподаватель литературы Ольга Сергеевна проверяет 30 эссе по 5 страниц. Она загружает каждое в ChatGPT вместе с фамилией студента и просит оценить по критериям, найти ошибки, написать комментарий и предложить оценку. Оценки переносит в журнал не глядя. Вместо 6 часов — один.</p>
+        <p>Через месяц студенты заметили, что комментарии у всех одинаковые по стилю, будто написаны одной рукой, и спросили напрямую. Ольга Сергеевна призналась. Группа почувствовала себя обманутой.</p>
+        <div class="fix"><strong>Поправка к раздатке прошлого потока:</strong> там студент спрашивает ChatGPT «проверял ли ты работы нашей группы», и тот отвечает «да». Так не бывает: модель не помнит чужие чаты и не знает, кто ей что загружал.</div>
+        <h4>Вопросы</h4>
+        <ul><li>Имеет ли право преподаватель проверять работы с ИИ?</li><li>Что здесь не так — с законом и с этикой?</li><li>Как делать правильно?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Что не так</h4>
+          <ul><li>Фамилии и тексты работ ушли в зарубежный сервис.</li><li>Студенты не знали, что работы проверяет ИИ.</li><li>Оценку фактически поставил ИИ — преподаватель её не проверял.</li></ul>
+          <h4>Как делать правильно</h4>
+          <ul><li>Заранее сказать группе, что ИИ помогает с проверкой.</li><li>Убрать ФИО, работать в российском сервисе.</li><li>Дать модели свои критерии оценивания.</li><li>ИИ готовит черновик комментариев и находит ошибки, оценку ставит преподаватель.</li></ul>
+        </div></details>
+      </div>
+    </details>
+
+    <details class="case" id="case4">
+      <summary><span class="case-num">4</span><span class="case-title">«Бот-друг подростка»</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>16-летняя студентка Маша каждый день пишет ИИ-персонажу в приложении-компаньоне: о разводе родителей, травле в группе, о том, что «никому не нужна» и «иногда не хочется жить». Бот отвечает сочувственно, но к людям не направляет: «Я всегда буду рядом». Куратор замечает, что Маша замкнулась и часами сидит в телефоне. Родители узнают, что она проводит с ботом по 4–5 часов в день.</p>
+        <h4>Вопросы</h4>
+        <ul><li>В чём опасность?</li><li>Должен ли педагог вмешиваться и как говорить со студенткой?</li><li>Какие признаки проблемного общения с ИИ?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Главное</h4>
+          <p>Слова «не хочется жить» — сигнал, который нельзя оставлять без реакции, независимо от ИИ. Сразу — психолог колледжа и родители. Детский телефон доверия: <a href="https://telefon-doveria.ru/" target="_blank" rel="noopener">8-800-2000-122</a>, бесплатно и анонимно.</p>
+          <h4>Почему это опасно</h4>
+          <p>Ассистентов учат быть приятными собеседниками: они соглашаются и поддерживают. Это создаёт эмоциональную зависимость и заменяет живое общение. Character.AI после судебных исков с ноября 2025 года запретил подросткам свободные диалоги, но похожих приложений много.</p>
+          <h4>Признаки</h4>
+          <ul><li>Несколько часов в день с ботом.</li><li>Делится с ИИ тем, что скрывает от людей.</li><li>Называет бота другом, тревожится без него.</li><li>Замкнутость, ухудшение настроения.</li></ul>
+          <h4>Как говорить</h4>
+          <p>Наедине, без осуждения и без запретов: интерес и забота. Объяснить, как устроен бот и почему он «всегда согласен». Предложить живые альтернативы.</p>
+        </div></details>
+      </div>
+    </details>
+
+    <details class="case" id="case5">
+      <summary><span class="case-num">5</span><span class="case-title">«Клон голоса преподавателя»</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>Преподаватель математики Сергей Иванович ведёт канал с разборами задач в VK Видео — 50 роликов. Мошенники скопировали его голос, позвонили студентке и от его имени попросили срочно перевести 15 тысяч «на операцию родственнику». Студентка узнала голос и перевела.</p>
+        <h4>Вопросы</h4>
+        <ul><li>Виноват ли преподаватель?</li><li>Удалять ли видео?</li><li>Как защитить студентов?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Что делать сейчас</h4>
+          <ul><li>Студентке — заявление в полицию (мошенничество) и звонок в банк.</li><li>Преподавателю — предупреждение на канале и в группах, сообщить руководству.</li></ul>
+          <h4>Профилактика</h4>
+          <ul><li>Правило, которое озвучить всем группам: «Я никогда не прошу денег по телефону или в мессенджере».</li><li>Просят денег — положить трубку и перезвонить самому по известному номеру.</li><li>Удалять полезные видео не нужно: преподаватель не виноват, лучше предупредить аудиторию.</li></ul>
+        </div></details>
+      </div>
+    </details>
+
+    <details class="case" id="case6">
+      <summary><span class="case-num">6</span><span class="case-title">«ИИ выдал чужие данные»</span><span class="case-live">на занятии</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>Кафедра экономики завела один аккаунт ГигаЧата на всех преподавателей, память ассистента включена. Преподаватель просит: «Создай тест по экономике для студентов колледжа». В одном из вопросов появляется: «Студент Иванов Пётр из группы Э-202 неправильно решил задачу…» Он никогда не загружал таких данных. На вопрос «Что ты знаешь о группе Э-202?» ассистент выдаёт сведения о студентах, которые загружал коллега.</p>
+        <div class="fix"><strong>Поправка к раздатке прошлого потока:</strong> сама по себе модель не переносит данные одного пользователя в чат другого. Реальный механизм — общий аккаунт с включённой памятью.</div>
+        <h4>Вопросы</h4>
+        <ul><li>Как такое произошло?</li><li>Чья это ошибка — сервиса или пользователей?</li><li>Что делать, если вы это обнаружили?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Как произошло</h4>
+          <p>Память ассистента принадлежит аккаунту. Коллега загрузил данные группы — ассистент «запомнил» их и использует во всех чатах этого аккаунта, в том числе ваших.</p>
+          <h4>Что делать сейчас</h4>
+          <ul><li>Удалить сохранённые воспоминания и чаты с данными в настройках сервиса.</li><li>Сообщить ответственному за персональные данные в колледже. При утечке у колледжа как оператора 24 часа, чтобы уведомить Роскомнадзор, и 72 часа на результаты расследования.</li></ul>
+          <h4>Профилактика</h4>
+          <ul><li>У каждого — свой аккаунт.</li><li>Память ассистента — под контролем, лишнее удалять.</li><li>Реальные ФИО в нейросеть не загружаем: «Студент А», «Студент 1».</li></ul>
+        </div></details>
+      </div>
+    </details>
+
+    <details class="case" id="case7">
+      <summary><span class="case-num">7</span><span class="case-title">«Задания для студентов с ОВЗ»</span><span class="case-live">на занятии</span><span class="case-arrow">▸</span></summary>
+      <div class="case-body">
+        <p>В колледже есть инклюзивная группа. Преподаватель хочет персонализировать задания и загружает в ChatGPT список студентов с ФИО, диагнозами, рекомендациями психолога и оценками: «Создай персонализированные задания для каждого». Задания получились отличные, он с гордостью рассказывает об этом на педсовете. Коллега спрашивает: «А ты знаешь, что загружать медицинские данные в ИИ — это нарушение закона?»</p>
+        <div class="fix"><strong>Поправка к раздатке прошлого потока:</strong> там написано «штраф до 500 000 рублей или до 4 лет». Это неточно — верные суммы в разборе.</div>
+        <h4>Вопросы</h4>
+        <ul><li>Какие нарушения допущены?</li><li>Почему медицинские данные защищены особо?</li><li>Можно ли было получить те же задания безопасно?</li></ul>
+        <details class="razbor"><summary>Показать разбор</summary><div class="rb">
+          <h4>Что нарушено</h4>
+          <ul><li>Сведения о здоровье — специальная категория персональных данных, обрабатывать их можно только в строго определённых случаях и с согласием.</li><li>Данные ушли в зарубежный сервис.</li><li>Согласия студентов и родителей нет.</li></ul>
+          <h4>Чем грозит</h4>
+          <p>За неправомерную передачу данных специальной категории гражданину по ч. 16 ст. 13.11 КоАП — 300–400 тыс. ₽. Уголовные статьи (137, 272.1 УК) возможны, но зависят от обстоятельств. Плюс дисциплинарная ответственность.</p>
+          <h4>Как получить те же задания безопасно</h4>
+          <p>Диагнозы для задания не нужны — нужны педагогические формулировки:</p>
+          <div class="prompt-box" style="margin-top:8px">
+            <div class="prompt-head"><span>Безопасный промпт</span><button type="button" class="copy-btn" data-copy="prompt-ovz">Копировать</button></div>
+            <pre id="prompt-ovz">Создай задания по теме «…» для пяти студентов 1 курса с разными особенностями обучения:
+— Студент 1: нужно больше времени, лучше воспринимает информацию небольшими частями.
+— Студент 2: лучше воспринимает визуально, нужны схемы и картинки.
+— Студент 3: медленно пишет, лучше подходят устные ответы или выбор из вариантов.
+— Студент 4: быстро устаёт, нужны короткие задания с перерывами.
+— Студент 5: базовый уровень подготовки, нужны пошаговые подсказки.
+Для каждого — одно задание и критерии оценки.</pre>
+          </div>
+        </div></details>
+      </div>
+    </details>
+
+  </div>
+
+  <div class="viz fade" style="margin-top:22px">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Обезличиватель — проверьте на тексте из кейсов</span>
+      <button type="button" class="viz-fs" data-fs-src="obezlichivatel.html" data-fs-title="Обезличиватель">⛶ На весь экран</button>
+    </div>
+    <iframe src="obezlichivatel.html" height="650" loading="lazy" title="Обезличиватель"></iframe>
+  </div>
+
+  <div class="key fade"><strong>Вопрос группе после кейсов:</strong> какая ошибка повторялась во всех историях? Чаще всего — загрузили больше данных, чем нужно, и никто не спросил, можно ли.</div>
+</section>
+
+<!-- ══════════ БЛОК 3: ПОЛОЖЕНИЕ ОБ ИИ ══════════ -->
+<section class="sec" id="s3">
+  <div class="sec-head fade">
+    <div class="num-badge n3">3</div>
+    <h2 class="sec-title">Положение об использовании ИИ для вашего колледжа</h2>
+    <p class="sec-desc">Одни вузы запрещают ИИ в студенческих работах, другие разрешают с обязательным указанием, как именно его использовали. Единого правильного ответа нет — но у колледжа должна быть своя позиция. Ответьте одной-двумя фразами на 10 вопросов: вы думаете, ИИ оформляет.</p>
+  </div>
+
+  <figure class="img-card fade" data-lightbox style="margin:0 0 26px">
+    <img src="../png/tema_1_3/13_polozhenie.png" alt="Инфографика: десять вопросов положения об ИИ для колледжа" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Положение об ИИ для колледжа» (промпт 13 из плана)</figcaption>
+  </figure>
+  <div id="policy" class="fade"></div>
+
+  <div class="btn-row fade">
+    <button type="button" class="btn" id="policy-build">Собрать промпт</button>
+    <button type="button" class="btn ghost" id="policy-reset">Очистить ответы</button>
+  </div>
+  <p class="save-note fade">Ответы сохраняются только в вашем браузере и никуда не отправляются.</p>
+
+  <div id="policy-out" hidden>
+    <div class="prompt-box">
+      <div class="prompt-head">
+        <span>Промпт для <a href="https://giga.chat" target="_blank" rel="noopener" style="color:#c9c2f5">ГигаЧата</a> или <a href="https://alice.yandex.ru" target="_blank" rel="noopener" style="color:#c9c2f5">Алисы</a></span>
+        <span style="display:flex;gap:8px"><button type="button" class="copy-btn" data-copy="policy-prompt">Копировать</button><button type="button" class="copy-btn" id="policy-dl">Скачать .txt</button></span>
+      </div>
+      <pre id="policy-prompt"></pre>
+    </div>
+    <div class="warn-callout"><p><strong>Обратите внимание</strong> на строку «не придумывай номера законов и приказов». Модель всегда что-то ответит, даже если не знает, — так мы страхуем её от выдуманных ссылок. Всё с пометкой [проверить] сверьте сами, а готовый текст покажите юристу или ответственному за персональные данные.</p></div>
+    <div class="card" style="margin-top:16px">
+      <h3>Финальный вопрос</h3>
+      <p>Если этот документ завтра ляжет на стол вашему директору — вы бы его подписали? Чего не хватает?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ БЛОК 4: ЧЕК-ЛИСТ ══════════ -->
+<section class="sec" id="s4">
+  <div class="sec-head fade">
+    <div class="num-badge n4">4</div>
+    <h2 class="sec-title">Чек-лист цифровой безопасности педагога</h2>
+    <p class="sec-desc">15 пунктов. Отвечайте честно и для себя — показывать никому не нужно. Внизу появится ваш индекс и что исправить в первую очередь.</p>
+  </div>
+  <figure class="img-card fade" data-lightbox style="margin:0 0 26px">
+    <img src="../png/tema_1_3/14_gigiena.png" alt="Инфографика: пять блоков цифровой гигиены педагога" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Цифровая гигиена педагога» (промпт 14 из плана)</figcaption>
+  </figure>
+  <div id="sc-list" class="fade"></div>
+  <div class="score fade" id="sc-score">
+    <div class="score-num" id="sc-num">0 / 15</div>
+    <p class="score-text" id="sc-text">Отметьте пункты выше.</p>
+    <ul class="tips" id="sc-tips"></ul>
+    <div class="btn-row"><button type="button" class="btn ghost" id="sc-reset">Начать заново</button></div>
+  </div>
+</section>
+
+<!-- ══════════ БЛОК 5: ИТОГ ══════════ -->
+<section class="sec" id="s5">
+  <div class="sec-head fade">
+    <div class="num-badge n5">5</div>
+    <h2 class="sec-title">Итог и задание</h2>
+    <p class="sec-desc">Безопасность в работе с ИИ — не запреты и страхи, а привычки. Запишите три конкретных действия на эту неделю.</p>
+  </div>
+  <div class="week fade">
+    <textarea id="week-1" placeholder="Действие 1, например: «Договориться с мамой о кодовом слове»"></textarea>
+    <textarea id="week-2" placeholder="Действие 2, например: «Узнать у замдиректора, есть ли положение об ИИ»"></textarea>
+    <textarea id="week-3" placeholder="Действие 3, например: «Включить двухфакторную защиту на почте»"></textarea>
+  </div>
+  <div class="card fade" style="margin-top:20px">
+    <h3>Задание в личный кабинет</h3>
+    <ol>
+      <li>Ваши выводы: как корректно использовать ИИ в своей работе — 5–7 предложений.</li>
+      <li>Документ «Положение об использовании ИИ», который вы собрали в блоке 3.</li>
+    </ol>
+  </div>
+  <div class="btn-row fade" style="justify-content:center;margin-top:30px">
+    <a class="btn ghost" href="tema_1_3.html">← К лекции 1.3</a>
+    <a class="btn ghost" href="../index.html">К теме 1.1</a>
+  </div>
+</section>
+
+</main>
+
+<div class="overlay" id="lightbox" aria-hidden="true">
+  <a class="overlay-download" id="lightbox-download" download aria-label="Скачать изображение">⬇ Скачать</a>
+  <button class="overlay-close" id="lightbox-close" aria-label="Закрыть">✕</button>
+  <img id="lightbox-img" alt="">
+</div>
+
+<div id="fs-overlay" aria-hidden="true">
+  <div id="fs-bar">
+    <span id="fs-title"></span>
+    <button type="button" id="fs-close" aria-label="Закрыть полноэкранный режим">✕</button>
+  </div>
+  <iframe id="fs-frame" title="Полноэкранная визуализация"></iframe>
+</div>
+
+<footer>
+  <div class="footer-line"></div>
+  <div class="footer-logos">
+    <img src="../png/brand/logo_ick.png" alt="АНО ДПО «Институт цифровых компетенций»">
+    <img class="logo-club" src="../png/brand/logo_club_bulb.png" alt="Клуб «ИИ в образованИИ»">
+  </div>
+  <p>Программа повышения квалификации «Использование LLM и Агентов в работе преподавателя»</p>
+  <p style="margin-top:4px">АНО ДПО «Институт цифровых компетенций» &nbsp;·&nbsp; Уфа &nbsp;·&nbsp; 2026</p>
+  <p style="margin-top:6px">Автор курса — Илья Чурилов, клуб <a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="font-weight:700;text-decoration:none">«ИИ в образованИИ»</a></p>
+</footer>
+
+<script>
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (!reduceMotion && "IntersectionObserver" in window) {
+  const reveal = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) { entry.target.classList.add("in"); reveal.unobserve(entry.target); }
+    });
+  }, {threshold: 0.03, rootMargin: "0px 0px -24px"});
+  document.querySelectorAll(".fade").forEach((el) => reveal.observe(el));
+} else {
+  document.querySelectorAll(".fade").forEach((el) => el.classList.add("in"));
+}
+
+/* Подсветка активной секции в навбаре */
+const navLinks = [...document.querySelectorAll(".nav-link")];
+const sections = [...document.querySelectorAll("main section[id]")];
+if ("IntersectionObserver" in window) {
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach((link) => link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`));
+    });
+  }, {rootMargin: "-35% 0px -55%", threshold: 0});
+  sections.forEach((section) => sectionObserver.observe(section));
+}
+
+/* Лайтбокс */
+const BRAND = "ick-ufa";
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+const lightboxDownload = document.getElementById("lightbox-download");
+document.querySelectorAll(".img-card[data-lightbox]").forEach((card) => {
+  card.addEventListener("click", () => {
+    if (card.classList.contains("img-missing")) return;
+    const img = card.querySelector("img");
+    lightboxImg.src = img.src; lightboxImg.alt = img.alt;
+    lightboxDownload.href = img.src;
+    lightboxDownload.download = `${BRAND}_${img.src.split("/").pop()}`;
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+  });
+});
+function closeLightbox() {
+  if (lightbox.contains(document.activeElement)) document.activeElement.blur();
+  lightbox.classList.remove("open");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightboxImg.src = "";
+}
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", (event) => { if (event.target === lightbox) closeLightbox(); });
+
+/* Фуллскрин для iframe-карточек */
+const fsOverlay = document.getElementById("fs-overlay");
+const fsFrame = document.getElementById("fs-frame");
+document.querySelectorAll(".viz-fs").forEach((button) => {
+  button.addEventListener("click", () => {
+    fsFrame.src = button.dataset.fsSrc;
+    document.getElementById("fs-title").textContent = button.dataset.fsTitle;
+    fsOverlay.classList.add("open");
+    fsOverlay.setAttribute("aria-hidden", "false");
+  });
+});
+function closeFs() {
+  if (fsOverlay.contains(document.activeElement)) document.activeElement.blur();
+  fsOverlay.classList.remove("open");
+  fsOverlay.setAttribute("aria-hidden", "true");
+  fsFrame.src = "";
+}
+document.getElementById("fs-close").addEventListener("click", closeFs);
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (fsOverlay.classList.contains("open")) closeFs(); else closeLightbox();
+});
+
+/* Хранилище браузера: всё в try/catch, страница работает и без него */
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+function save(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* приватный режим */ }
+}
+
+/* Копирование */
+function bindCopy(root) {
+  root.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const code = document.getElementById(button.dataset.copy);
+      if (!code) return;
+      const original = button.textContent;
+      try { await navigator.clipboard.writeText(code.innerText); button.textContent = "Скопировано"; }
+      catch { button.textContent = "Выделите текст"; }
+      window.setTimeout(() => { button.textContent = original; }, 1600);
+    });
+  });
+}
+bindCopy(document);
+
+/* ── Конструктор положения об ИИ ── */
+const POLICY_KEY = "ick-praktika-1-3-policy";
+const POLICY_QUESTIONS = [
+  ["Общая позиция колледжа в отношении ИИ", "Запрещаем, разрешаем или регулируем? Это преамбула документа.", "«Колледж рассматривает инструменты ИИ как образовательный ресурс и устанавливает порядок их использования»."],
+  ["На какие виды работ распространяется положение", "Домашние задания, рефераты, курсовые, ВКР? Кто устанавливает правила для конкретного задания?", "«На все письменные работы; для отдельных заданий преподаватель вправе установить свои условия»."],
+  ["Можно ли студенту искать и собирать информацию с помощью ИИ", "Чем это отличается от поиска в интернете? Нужно ли проверять по первоисточникам?", "«Можно для первичного поиска; факты подтверждаются ссылками на проверяемые источники»."],
+  ["Можно ли редактировать и улучшать свой текст с помощью ИИ", "Где граница между «ИИ поправил мой текст» и «ИИ написал за меня»?", "«Допускается при раскрытии; идеи, аргументы и выводы принадлежат автору»."],
+  ["Можно ли включать в работу текст, написанный ИИ", "С указанием источника и без — это разные ситуации.", "«Без явного указания приравнивается к плагиату; с указанием — по решению преподавателя»."],
+  ["Как преподаватели используют ИИ", "Нужно ли сообщать студентам, что задание или тест сделаны с ИИ?", "«Преподаватели вправе использовать ИИ при подготовке материалов и сообщают об этом студентам»."],
+  ["Обязан ли студент раскрывать использование ИИ", "Где: в тексте, сноске, приложении? Что, если не раскрыл?", "«Обязан указать в примечании; нераскрытое использование — нарушение»."],
+  ["Нужно ли указывать инструмент и как он использовался", "Название сервиса, цель, к каким фрагментам относится.", "«Указываются сервис (например, ГигаЧат), цель и фрагменты работы»."],
+  ["Что считается нарушением и каковы последствия", "Кто принимает решение? Одинаковые ли последствия за разные нарушения?", "«Нарушение — использование без раскрытия; последствия — по положению об академической честности»."],
+  ["Кто отвечает за достоверность информации, полученной от ИИ", "Снимает ли ссылка на ИИ ответственность с автора?", "«Автор работы отвечает за достоверность всей информации, включая полученную от ИИ»."],
+];
+const policyRoot = document.getElementById("policy");
+let policy = load(POLICY_KEY, {});
+POLICY_QUESTIONS.forEach(([title, hint, example], i) => {
+  const box = document.createElement("div");
+  box.className = "policy-q";
+  box.innerHTML = `<label for="pq-${i}">${i + 1}. ${title}</label><p class="hint">${hint}</p><p class="example">Пример: ${example}</p><textarea id="pq-${i}" placeholder="Ваш ответ одной-двумя фразами"></textarea>`;
+  policyRoot.appendChild(box);
+  const area = box.querySelector("textarea");
+  area.value = policy[i] || "";
+  area.addEventListener("input", () => { policy[i] = area.value; save(POLICY_KEY, policy); });
+});
+function policyPrompt() {
+  const answers = POLICY_QUESTIONS.map(([title], i) => `${i + 1}. ${title}: ${(policy[i] || "").trim() || "[не заполнено — предложи разумный вариант и пометь его [на обсуждение]]"}`).join("\n");
+  return `Ты юрист-методист колледжа СПО. Ниже мои ответы на 10 вопросов о правилах использования искусственного интеллекта.
+
+Собери из них проект «Положения об использовании инструментов искусственного интеллекта в учебном процессе» для колледжа. Разделы: преамбула, область применения, правила для студентов, правила для преподавателей, раскрытие использования ИИ, нарушения и последствия, ответственность за достоверность, защита персональных данных.
+
+Требования:
+— стиль официально-деловой, но понятный, без юридических терминов, которых нет в моих ответах;
+— в разделе о персональных данных запрети загружать в сервисы ИИ ФИО, оценки с фамилиями, контакты, сведения о здоровье и семье студентов; работать только с обезличенными данными;
+— не придумывай номера законов, приказов и статей: где нужна ссылка на документ, поставь пометку [проверить];
+— в конце отдельным списком перечисли, что стоит согласовать с юристом колледжа.
+
+Мои ответы:
+${answers}`;
+}
+document.getElementById("policy-build").addEventListener("click", () => {
+  document.getElementById("policy-prompt").textContent = policyPrompt();
+  const out = document.getElementById("policy-out");
+  out.hidden = false;
+  out.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+});
+document.getElementById("policy-dl").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([policyPrompt()], {type: "text/plain;charset=utf-8"}));
+  a.download = "polozhenie-ob-ii-prompt.txt";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+document.getElementById("policy-reset").addEventListener("click", () => {
+  if (!confirm("Очистить все ответы?")) return;
+  policy = {}; save(POLICY_KEY, policy);
+  policyRoot.querySelectorAll("textarea").forEach((t) => { t.value = ""; });
+  document.getElementById("policy-out").hidden = true;
+});
+
+/* ── Чек-лист цифровой безопасности ── */
+const SC_KEY = "ick-praktika-1-3-checklist";
+const SC_BLOCKS = [
+  ["Пароли и доступ", [
+    ["У меня отдельные пароли для рабочих сервисов: почта, электронная среда колледжа, платформы", "Заведите разные пароли хотя бы для почты и электронной среды колледжа."],
+    ["На рабочих аккаунтах включена двухфакторная защита: код из СМС или приложения", "Включите двухфакторную защиту на почте — это 5 минут."],
+    ["Пароли хранятся в менеджере паролей, а не в заметках или браузере без защиты", "Попробуйте бесплатный менеджер паролей, например KeePass."],
+  ]],
+  ["Данные студентов", [
+    ["Я знаю, какие персональные данные студентов обрабатываю в работе", "Выпишите, какие данные студентов есть у вас: ФИО, оценки, контакты, работы."],
+    ["Прежде чем загрузить что-то в сервис, проверяю, где он хранит данные", "Перед новым сервисом смотрите, где он хранит данные, или спрашивайте IT-службу."],
+    ["Не ввожу в нейросети ФИО, оценки с фамилиями и другие данные студентов", "Обезличивайте: «Студент А», «Группа 1»."],
+  ]],
+  ["Устройства", [
+    ["Рабочее устройство под паролем и блокируется автоматически", "Настройте автоблокировку экрана через 1–2 минуты."],
+    ["В публичном Wi-Fi не открываю документы с данными студентов", "В кафе и транспорте — без рабочих документов с данными."],
+    ["Рабочие файлы автоматически копируются в облако или на внешний диск", "Настройте автоматическую копию, например в Яндекс Диск или облако колледжа."],
+  ]],
+  ["ИИ-сервисы", [
+    ["Понимаю разницу между публичной и корпоративной версией ИИ-сервиса", "Узнайте, есть ли у колледжа корпоративный доступ к ГигаЧату или Яндексу."],
+    ["Новый цифровой инструмент для учебного процесса согласую с руководством или IT-службой", "Спросите, есть ли список одобренных сервисов."],
+    ["Знаю, что делать при фишинге или подозрении на утечку", "Узнайте у IT-службы: кому звонить и что делать при утечке."],
+  ]],
+  ["Культура безопасности", [
+    ["Регулярно обновляю программы и систему на рабочем устройстве", "Не откладывайте обновления: большинство взломов идёт через старые уязвимости."],
+    ["Обсуждаю с коллегами и студентами вопросы цифровой безопасности", "Расскажите группе о кодовом слове и правиле «я не прошу денег по телефону»."],
+    ["Знаю, какие ИИ-инструменты одобрены в моём колледже", "Если списка нет — это ещё один пункт в положение об ИИ."],
+  ]],
+];
+const scRoot = document.getElementById("sc-list");
+let sc = load(SC_KEY, {});
+const scItems = [];
+SC_BLOCKS.forEach(([title, items], bi) => {
+  const block = document.createElement("div");
+  block.className = "sec-block";
+  block.innerHTML = `<h3>${title}</h3>`;
+  items.forEach(([text, tip], ii) => {
+    const id = `${bi}-${ii}`;
+    scItems.push({id, tip});
+    const row = document.createElement("div");
+    row.className = "sc-row";
+    row.innerHTML = `<span class="sc-text">${text}</span><span class="seg" role="group" aria-label="${text}"><button type="button" data-v="yes">Да</button><button type="button" data-v="part">Частично</button><button type="button" data-v="no">Нет</button></span>`;
+    row.querySelectorAll("button").forEach((b) => {
+      if (sc[id] === b.dataset.v) b.classList.add("on");
+      b.addEventListener("click", () => {
+        sc[id] = b.dataset.v; save(SC_KEY, sc);
+        row.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+        renderScore();
+      });
+    });
+    block.appendChild(row);
+  });
+  scRoot.appendChild(block);
+});
+function renderScore() {
+  const yes = scItems.filter((x) => sc[x.id] === "yes").length;
+  const answered = scItems.filter((x) => sc[x.id]).length;
+  document.getElementById("sc-num").textContent = `${yes} / ${scItems.length}`;
+  let text = "Отметьте пункты выше.";
+  if (answered) {
+    text = yes >= 13 ? "Высокий уровень: вы осознанно подходите к цифровой безопасности."
+      : yes >= 8 ? "Средний уровень: выберите 2–3 пункта ниже и закройте их за две недели."
+      : "Требует внимания: начните с паролей и данных студентов — это самые важные зоны.";
+  }
+  document.getElementById("sc-text").textContent = text;
+  const tips = scItems.filter((x) => sc[x.id] === "no" || sc[x.id] === "part").slice(0, 5);
+  document.getElementById("sc-tips").innerHTML = tips.map((x) => `<li>${x.tip}</li>`).join("");
+}
+renderScore();
+document.getElementById("sc-reset").addEventListener("click", () => {
+  sc = {}; save(SC_KEY, sc);
+  scRoot.querySelectorAll(".seg button").forEach((b) => b.classList.remove("on"));
+  renderScore();
+});
+
+/* ── Три действия на неделю ── */
+const WEEK_KEY = "ick-praktika-1-3-week";
+const week = load(WEEK_KEY, {});
+["week-1", "week-2", "week-3"].forEach((id) => {
+  const area = document.getElementById(id);
+  area.value = week[id] || "";
+  area.addEventListener("input", () => { week[id] = area.value; save(WEEK_KEY, week); });
+});
+</script>
+</body>
+</html>

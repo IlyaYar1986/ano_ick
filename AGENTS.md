@@ -8,7 +8,10 @@ This is a copy of `_Клуб Образование/Urok2_LLM`, adapted for the 
 
 - Brand rules: `../../Бренд ИЦК/ДНК_и_стиль_ИЦК.md`. Palette: primary `#562d86`, UI accent `#6654d9`, logo gradient `#00abea → #0090cf → #2868ab → #464f9a → #533389`, text `#2c2d30`, surfaces `#f4f5fa`/`#e3e3e8`. Font: IBM Plex Sans.
 - Two logos everywhere they appear together: customer first (`png/brand/logo_ick.png`), author second (`png/brand/logo_club_bulb.png`, the club bulb with a transparent background).
-- `index.html` is already rebranded. Pages in `web/` and `oglavlenie.html` still carry the original club styling and links.
+- **Only topics 1.1 and 1.3 are published.** The site (GitHub Pages) contains `index.html` (topic 1.1), `web/tema_1_3.html`, `web/praktika_1_3.html` and the demos and images they reference. All other club pages (`oglavlenie.html`, seminar, agents, цифровой след, очистка данных, тьюторство, безопасность 4.4) and their `png/` folders stay on disk only as examples for preparing lessons — they are listed in `.gitignore`; never link to them from published pages and never re-add them. Their old tests live in `tests/klub/` (not run, not published). `tests/check_tema_1_3_pages.py` fails if a published page references a file that is not tracked.
+- When a new topic page is added, add it to `PAGES` in that test and make sure its demos/images are tracked.
+- Teaching materials per topic (speech, конспект, recording, transcript, lecture review, past-stream sources) live outside the repo in `../Темы/<topic>/`, each with a README. Put new topic materials there, not in `Docs/`.
+- Topic 1.3 (personal data, AI law 243-ФЗ): lecture `web/tema_1_3.html` and practice `web/praktika_1_3.html` use the ИЦК styling; plan and image prompts in `../Темы/Тема 1.3 Персональные данные и безопасность/План_страниц_и_промпты_картинок.md`, infographics (14 frames) go to `png/tema_1_3/`, trainers `web/profil_po_zaprosam.html`, `web/pd_ili_net.html`, `web/svetofor_trenazher.html`, `web/obezlichivatel.html`, `web/moshennik_ili_net.html`, test `tests/check_tema_1_3_pages.py`. Legal figures were checked against КоАП/УК on 19.10.2026 — re-verify before reusing.
 
 ## Project overview
 

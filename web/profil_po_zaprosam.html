@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Что ИИ поймёт по вашим запросам</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--border:#e3e3e8;--indigo:#6654d9;--indigo-dk:#562d86;--indigo-lt:#f0eefc;--cyan:#0090cf;--cyan-lt:#e6f5fc;--red:#b4235a;--red-lt:#fdf0f4;--text:#2c2d30;--muted:#6b6f80}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:#fff;color:var(--text);line-height:1.5;padding:20px 22px 24px}
+h1{font-size:clamp(1.05rem,2.4vw,1.35rem);font-weight:700}
+.sub{color:var(--muted);font-size:.88rem;margin:2px 0 16px}
+.wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
+.col-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;flex-direction:column;gap:8px}
+.chip{text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;font:inherit;font-size:.88rem;cursor:pointer;transition:background .15s,border-color .15s;display:flex;gap:8px;align-items:flex-start}
+.chip:hover{background:var(--indigo-lt);border-color:#d6d0f5}
+.chip.sent{background:var(--indigo-lt);border-color:var(--indigo);color:var(--indigo-dk)}
+.chip .t{flex-shrink:0;font-size:.74rem;color:var(--muted);margin-top:2px;min-width:38px}
+.profile{border:1px solid var(--border);border-radius:14px;padding:16px;background:#f8f9fc;min-height:300px}
+.avatar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.avatar b{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#00abea,#6654d9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem}
+.avatar span{font-weight:700}
+.trait{display:flex;gap:8px;padding:8px 10px;border-radius:10px;background:#fff;border:1px solid var(--border);margin-bottom:6px;font-size:.86rem;animation:pop .3s ease}
+.trait i{font-style:normal;font-weight:700;color:var(--indigo-dk);min-width:92px}
+.trait.special{background:var(--red-lt);border-color:#f0b5c8}
+.trait.special i{color:var(--red)}
+.trait em{font-style:normal;font-size:.7rem;font-weight:700;color:var(--red);margin-left:auto;white-space:nowrap}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.empty{color:var(--muted);font-size:.88rem}
+.summary{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--cyan-lt);color:#0b5f86;font-size:.9rem;font-weight:600}
+.reset{margin-top:12px;padding:8px 14px;border-radius:9px;border:1px solid var(--border);background:#fff;font:inherit;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer}
+button:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+@media (max-width:700px){.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Что ИИ поймёт по вашим запросам</h1>
+<p class="sub">Нажимайте на запросы — будто вы отправляете их нейросети в течение недели. Справа собирается профиль, который можно составить только по ним.</p>
+<div class="wrap">
+  <div>
+    <p class="col-title">Ваши запросы за неделю</p>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div>
+    <p class="col-title">Профиль, который о вас складывается</p>
+    <div class="profile">
+      <div class="avatar"><b>?</b><span id="who">Пока ничего не известно</span></div>
+      <div id="traits"><p class="empty">Отправьте первый запрос слева.</p></div>
+      <div class="summary" id="summary" hidden></div>
+    </div>
+    <button type="button" class="reset" id="reset">Начать заново</button>
+  </div>
+</div>
+<script>
+/* Каждый запрос раскрывает один-два факта о человеке. special — сведения, близкие к специальным категориям */
+const QUERIES = [
+  {time: "Пн 18:10", q: "Составь план занятия по математике для 1 курса колледжа", traits: [["Профессия", "преподаватель математики"], ["Работа", "колледж, первый курс"]]},
+  {time: "Пн 19:05", q: "Как мотивировать студентов, которым ничего не надо?", traits: [["Трудности", "сложная группа"]]},
+  {time: "Вт 22:40", q: "Помоги написать отчёт для замдиректора к утру", traits: [["Нагрузка", "отчёты, работает вечером"]]},
+  {time: "Ср 07:15", q: "Как объяснить сыну-подростку дроби, если он не слушает", traits: [["Семья", "сын-подросток"]]},
+  {time: "Ср 23:50", q: "Как справиться с выгоранием и бессонницей?", traits: [["Состояние", "выгорание, плохо спит", true]]},
+  {time: "Чт 12:30", q: "Ипотека для педагогов в Башкортостане — условия", traits: [["Финансы", "думает об ипотеке"], ["Регион", "Башкортостан"]]},
+  {time: "Чт 21:15", q: "Обезболивающее при сильных болях в спине", traits: [["Здоровье", "боли в спине", true]]},
+  {time: "Пт 16:00", q: "Как ответить родителю, который жалуется директору", traits: [["Конфликт", "жалоба от родителя"]]},
+  {time: "Сб 11:20", q: "Вакансии преподавателя математики в Казани", traits: [["Планы", "ищет новую работу, возможно переезд"]]},
+];
+const chipsEl = document.getElementById("chips");
+const traitsEl = document.getElementById("traits");
+const whoEl = document.getElementById("who");
+const summaryEl = document.getElementById("summary");
+let sent = 0;
+const found = [];   // какие стороны жизни уже раскрыты
+QUERIES.forEach((item) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "chip";
+  b.innerHTML = `<span class="t">${item.time}</span><span>${item.q}</span>`;
+  b.addEventListener("click", () => {
+    if (b.classList.contains("sent")) return;
+    b.classList.add("sent");
+    if (!sent) traitsEl.innerHTML = "";
+    sent += 1;
+    item.traits.forEach(([k, v, special]) => {
+      if (!found.includes(k.toLowerCase())) found.push(k.toLowerCase());
+      const div = document.createElement("div");
+      div.className = "trait" + (special ? " special" : "");
+      div.innerHTML = `<i>${k}</i><span>${v}</span>${special ? "<em>особые сведения</em>" : ""}`;
+      traitsEl.appendChild(div);
+    });
+    whoEl.textContent = sent < 3 ? "Кое-что уже понятно…" : "Портрет почти готов";
+    summaryEl.hidden = sent < 3;
+    const list = found.length > 1 ? found.slice(0, -1).join(", ") + " и " + found[found.length - 1] : found[0];
+    summaryEl.textContent = `${sent} ${sent < 5 ? "запроса" : "запросов"} — и уже известны ${list}. А у сервиса тысячи ваших запросов за год.`;
+  });
+  chipsEl.appendChild(b);
+});
+document.getElementById("reset").addEventListener("click", () => {
+  sent = 0;
+  found.length = 0;
+  chipsEl.querySelectorAll(".chip").forEach((c) => c.classList.remove("sent"));
+  traitsEl.innerHTML = '<p class="empty">Отправьте первый запрос слева.</p>';
+  whoEl.textContent = "Пока ничего не известно";
+  summaryEl.hidden = true;
+});
+</script>
+</body>
+</html>

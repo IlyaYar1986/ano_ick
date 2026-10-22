@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тема 1.3. Персональные данные и цифровая безопасность · ИЦК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* Палитра АНО ДПО «Институт цифровых компетенций» — как в ../index.html */
+:root{
+  --bg:#f4f5fa;
+  --card:#ffffff;
+  --border:#e3e3e8;
+  --indigo:#6654d9;
+  --indigo-dk:#562d86;
+  --indigo-lt:#f0eefc;
+  --cyan:#0090cf;
+  --cyan-lt:#e6f5fc;
+  --amber:#b7791f;
+  --amber-lt:#fff8e6;
+  --green:#15803d;
+  --green-lt:#ecfdf3;
+  --red:#b4235a;
+  --red-lt:#fdf0f4;
+  --text:#2c2d30;
+  --muted:#6b6f80;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(102,84,217,.12),transparent 32%),
+    radial-gradient(circle at 85% 6%,rgba(0,144,207,.11),transparent 34%),
+    linear-gradient(180deg,#f8f9fc 0%,#f0eefc 30%,#f8f9fc 100%);
+  color:var(--text);line-height:1.65;overflow-x:hidden;
+}
+a{color:var(--indigo)}
+
+/* NAV */
+nav.top{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 1px 10px rgba(0,0,0,.06);
+  display:flex;align-items:center;padding:0 20px;z-index:900;
+  gap:2px;overflow-x:auto;scrollbar-width:none;
+}
+nav.top::-webkit-scrollbar{display:none}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.93rem;color:var(--indigo-dk);white-space:nowrap;margin:0 10px 0 4px;flex-shrink:0}
+.nav-logo img{height:30px;width:auto;display:block}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-link{padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .2s,background .2s;flex-shrink:0}
+.nav-link:hover,.nav-link.active{color:var(--indigo);background:var(--indigo-lt)}
+.nav-cta{padding:5px 12px;border-radius:6px;font-size:.73rem;font-weight:700;color:var(--indigo);background:var(--indigo-lt);border:1px solid #d6d0f5;text-decoration:none;white-space:nowrap;flex-shrink:0}
+.nav-cta:hover{background:#e6e2fa}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+/* HERO */
+#hero{
+  min-height:100vh;padding:calc(var(--nav-h) + 48px) 24px 64px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.hero-logos{display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:26px;flex-wrap:wrap}
+.hero-logos img{display:block;width:auto}
+.hero-logos .logo-ick{height:clamp(48px,6.5vw,70px)}
+.hero-logos .logo-club{height:clamp(70px,9vw,104px)}
+.hero-logos-sep{width:1px;height:52px;background:var(--border)}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+.hero-badge{padding:5px 14px;background:var(--indigo-lt);border:1px solid #d6d0f5;border-radius:100px;font-size:.78rem;font-weight:700;color:var(--indigo)}
+.hero-title{font-size:clamp(2rem,5.5vw,3.6rem);font-weight:700;line-height:1.12;letter-spacing:-1.5px;margin-bottom:16px;max-width:920px}
+.hero-title em{color:var(--indigo);font-style:normal}
+.hero-sub{font-size:1.08rem;color:var(--muted);max-width:680px;margin-bottom:30px}
+.hero-img{max-width:900px;width:100%;margin-bottom:36px}
+.hero-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:880px}
+.hero-nav a{padding:8px 16px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:.84rem;font-weight:600;color:var(--text);text-decoration:none;box-shadow:0 2px 8px rgba(44,45,48,.05);transition:transform .15s,box-shadow .15s}
+.hero-nav a:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,84,217,.15)}
+
+/* ОПРОС В HERO */
+.poll{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 22px;max-width:680px;margin-bottom:34px;box-shadow:0 4px 18px rgba(86,45,134,.06)}
+.poll p{font-weight:600;margin-bottom:12px}
+.poll-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.poll-answer{margin-top:12px;font-size:.92rem;color:var(--indigo-dk)}
+
+/* SECTIONS */
+.sec{max-width:1180px;margin:0 auto;padding:72px 24px}
+.sec-head{margin-bottom:34px}
+.num-badge{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:13px;font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:14px}
+/* Бейджи идут по градиенту логотипа ИЦК: от голубого к фиолетовому */
+.n1{background:linear-gradient(135deg,#00abea,#0090cf)}
+.n2{background:linear-gradient(135deg,#0090cf,#2868ab)}
+.n3{background:linear-gradient(135deg,#2868ab,#464f9a)}
+.n4{background:linear-gradient(135deg,#464f9a,#533389)}
+.n5{background:linear-gradient(135deg,#533389,#562d86)}
+.n6{background:linear-gradient(135deg,#562d86,#6654d9)}
+.n7{background:linear-gradient(135deg,#6654d9,#725ef2)}
+.n8{background:linear-gradient(135deg,#0090cf,#00abea)}
+.n9{background:linear-gradient(135deg,#2868ab,#0090cf)}
+.n10{background:linear-gradient(135deg,#562d86,#6654d9)}
+.sec-title{font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;letter-spacing:-.5px;margin-bottom:10px}
+.sec-desc{font-size:1.02rem;color:var(--muted);max-width:780px;line-height:1.75}
+.sub-title{font-size:1.18rem;font-weight:700;margin:34px 0 14px;color:var(--indigo-dk)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(44,45,48,.04)}
+.card h3{font-size:1.08rem;line-height:1.35;margin-bottom:8px}
+.card p,.card li{font-size:.95rem;color:var(--muted);line-height:1.65}
+.card ul,.card ol{padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.card strong{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.tag{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--bg);font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:10px}
+.tag.blue{background:var(--cyan-lt);color:#0079b0}
+.lesson{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--indigo-lt);font-size:.92rem;color:var(--indigo-dk)}
+.lesson b{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;color:var(--indigo)}
+
+/* CALLOUTS */
+.key{margin-top:26px;padding:18px 22px;border-radius:16px;background:var(--card);border:1px solid var(--border);border-left:5px solid var(--indigo-dk);font-size:1rem;line-height:1.7}
+.key strong{color:var(--indigo-dk)}
+.warn-callout{background:var(--amber-lt);border:1px solid #f3d38a;border-radius:16px;padding:18px 22px;margin-top:20px}
+.warn-callout p{color:#6b4a0e;line-height:1.7;font-size:.95rem}
+.src{margin-top:10px;font-size:.78rem;color:var(--muted)}
+.src a{font-weight:600;text-decoration:none}
+.src a:hover{text-decoration:underline}
+
+/* РАСКРЫТИЕ ОТВЕТА */
+details.reveal{margin-top:12px;border:1px dashed #d6d0f5;border-radius:12px;background:#fbfaff}
+details.reveal summary{cursor:pointer;padding:10px 14px;font-weight:700;font-size:.9rem;color:var(--indigo);list-style:none}
+details.reveal summary::-webkit-details-marker{display:none}
+details.reveal summary::before{content:"▸ "}
+details.reveal[open] summary::before{content:"▾ "}
+details.reveal .reveal-body{padding:0 14px 14px;font-size:.94rem;color:var(--text);line-height:1.65}
+
+/* ТАБЛИЦЫ */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:.94rem}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:#f8f9fc;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+td.num{white-space:nowrap;font-weight:700;color:var(--indigo-dk)}
+
+/* ЛЕНТА ДАТ */
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+.tl-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative}
+.tl-date{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--cyan-lt);color:#0079b0;font-size:.76rem;font-weight:700;margin-bottom:8px}
+.tl-item h3{font-size:1rem;margin-bottom:4px}
+.tl-item p{font-size:.88rem;color:var(--muted)}
+
+/* ВЕРНО / НЕВЕРНО */
+.tf{display:flex;flex-direction:column;gap:12px}
+.tf-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 18px}
+.tf-top{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.tf-text{font-weight:600;flex:1;min-width:240px}
+.tf-btns{display:flex;gap:8px}
+.tf-btns button{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:#fff;font:inherit;font-size:.84rem;font-weight:600;cursor:pointer;color:var(--text)}
+.tf-btns button:hover{background:var(--indigo-lt)}
+.tf-btns button:disabled{cursor:default}
+.tf-btns button.picked.ok{background:var(--green-lt);border-color:#9fd8b5;color:var(--green)}
+.tf-btns button.picked.bad{background:var(--red-lt);border-color:#f0b5c8;color:var(--red)}
+.tf-explain{margin-top:10px;font-size:.92rem;color:var(--text);line-height:1.6}
+.tf-explain b{color:var(--indigo-dk)}
+
+/* СВЕТОФОР */
+.light{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.light .card{border-top:6px solid}
+.light .go{border-top-color:#22a05a}
+.light .wait{border-top-color:#e0a21a}
+.light .stop{border-top-color:#d1345b}
+.light h3 span{font-size:1.3rem;margin-right:6px}
+
+/* ТРЕНАЖЁР */
+.trainer{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+.trainer .orig{padding:14px 16px;border-radius:12px;background:var(--red-lt);color:#7a1838;font-weight:600;margin:8px 0 14px}
+.trainer textarea{width:100%;min-height:90px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:.95rem;resize:vertical;background:#fff}
+.trainer .etalon{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--green-lt);color:#14532d;line-height:1.65}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;transition:background .2s}
+.btn:hover{background:var(--indigo-dk)}
+.btn.ghost{background:#fff;color:var(--indigo)}
+.btn.ghost:hover{background:var(--indigo-lt)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+/* IMAGE CARD + PLACEHOLDER */
+.img-card{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(86,45,134,.14);cursor:zoom-in;margin-top:26px}
+.hero-img.img-card{margin-top:0}
+.img-card img{display:block;width:100%;height:auto}
+.img-card .img-missing-caption{display:none}
+.img-card.img-missing{border:2px dashed #d6d0f5;background:var(--indigo-lt);min-height:200px;display:flex;align-items:center;justify-content:center;box-shadow:none;cursor:default}
+.img-card.img-missing img{display:none}
+.img-card.img-missing .img-missing-caption{display:block;color:var(--muted);font-size:.86rem;text-align:center;padding:24px;max-width:420px}
+
+/* VIZ CARD (iframe) */
+.viz{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.viz-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#f8f9fc;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febb2c}.dg{background:#27c840}
+.viz-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);flex:1}
+.viz-fs{display:flex;align-items:center;gap:5px;padding:4px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;font-size:.71rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.viz-fs:hover{background:var(--indigo-lt);color:var(--indigo);border-color:#d6d0f5}
+.viz iframe{width:100%;border:none;display:block}
+
+/* LIGHTBOX */
+.overlay{position:fixed;inset:0;background:rgba(15,10,30,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.overlay img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.overlay-close{position:absolute;top:18px;right:22px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.overlay-download{position:absolute;top:18px;right:72px;height:40px;padding:0 16px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:6px;text-decoration:none;z-index:2}
+
+/* FULLSCREEN IFRAME */
+#fs-overlay{position:fixed;inset:0;background:rgba(15,10,30,.94);z-index:2100;display:none;flex-direction:column}
+#fs-overlay.open{display:flex}
+#fs-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(0,0,0,.4)}
+#fs-title{font-size:.8rem;font-weight:700;color:rgba(255,255,255,.65);flex:1}
+#fs-close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.8);font-size:1.1rem;cursor:pointer}
+#fs-frame{flex:1;border:none;background:#fff}
+
+/* CHECKLIST */
+.checklist-progress-bar{height:10px;border-radius:100px;background:var(--indigo-lt);overflow:hidden;margin-bottom:20px}
+.checklist-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#00abea,#6654d9);border-radius:100px;transition:width .3s ease}
+.checklist-items{list-style:none;display:flex;flex-direction:column;gap:12px}
+.checklist-items label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:.98rem}
+.checklist-items input{width:18px;height:18px;margin-top:4px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0}
+.checklist-done{margin-top:18px;padding:12px 16px;background:var(--green-lt);color:var(--green);border-radius:10px;font-weight:700}
+
+/* QUIZ */
+.quiz{display:flex;flex-direction:column;gap:18px}
+.quiz-question{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.quiz-text{font-weight:700;margin-bottom:12px}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-options label{display:flex;align-items:flex-start;gap:8px;font-size:.95rem;cursor:pointer}
+.quiz-options input{margin-top:5px;accent-color:var(--indigo)}
+.quiz-options label.quiz-correct-answer{color:var(--green);font-weight:700}
+.quiz-check{padding:8px 16px;border-radius:9px;border:none;background:var(--indigo);color:#fff;font:inherit;font-weight:700;font-size:.84rem;cursor:pointer}
+.quiz-check:hover{background:var(--indigo-dk)}
+.quiz-check:disabled{opacity:.5;cursor:default}
+.quiz-feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.92rem}
+.quiz-feedback.correct{background:var(--green-lt);color:var(--green)}
+.quiz-feedback.incorrect{background:var(--red-lt);color:var(--red)}
+.quiz-score-box{text-align:center;font-weight:700;color:var(--indigo-dk)}
+
+/* CONCLUSION */
+.conclusion-list{list-style:none;counter-reset:concl;display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.conclusion-list li{counter-increment:concl;padding-left:40px;position:relative;font-size:1.04rem}
+.conclusion-list li::before{content:counter(concl);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--indigo);color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sources{font-size:.85rem;color:var(--muted);columns:2;column-gap:28px}
+.sources li{margin-bottom:6px;break-inside:avoid}
+
+/* FOOTER */
+footer{padding:44px 24px;text-align:center;color:var(--muted);font-size:.84rem;border-top:1px solid var(--border);background:#fff}
+.footer-logos{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:16px}
+.footer-logos img{height:44px;width:auto;display:block}
+.footer-logos img.logo-club{height:62px}
+.footer-line{height:3px;max-width:240px;margin:0 auto 18px;border-radius:3px;background:linear-gradient(90deg,#00abea,#2868ab,#562d86)}
+
+/* SCROLL REVEAL */
+.fade{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fade.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fade{opacity:1;transform:none;transition:none}}
+@media (max-width:900px){.sec{padding:56px 16px}.timeline{grid-template-columns:1fr 1fr}.light{grid-template-columns:1fr}.sources{columns:1}}
+@media (max-width:560px){.timeline{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}.hero-logos-sep{display:none}}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Навигация по странице">
+  <a class="nav-link" href="../index.html">← Тема 1.1</a>
+  <span class="nav-sep"></span>
+  <span class="nav-logo"><img src="../png/brand/logo_ick.png" alt="Институт цифровых компетенций">Тема 1.3</span>
+  <span class="nav-sep"></span>
+  <a class="nav-link" href="#s1">1. Истории</a>
+  <a class="nav-link" href="#s2">2. Что знает ИИ</a>
+  <a class="nav-link" href="#s3">3. 152-ФЗ</a>
+  <a class="nav-link" href="#s4">4. Штрафы</a>
+  <a class="nav-link" href="#s5">5. Закон об ИИ</a>
+  <a class="nav-link" href="#s6">6. Сервисы</a>
+  <a class="nav-link" href="#s7">7. Светофор</a>
+  <a class="nav-link" href="#s8">8. Инцидент</a>
+  <a class="nav-link" href="#checklist">Чек-лист</a>
+  <a class="nav-link" href="#quiz">Квиз</a>
+  <span class="nav-sep"></span>
+  <a class="nav-cta" href="praktika_1_3.html">Практика 1.3 →</a>
+</nav>
+
+<header id="hero">
+  <div class="hero-logos">
+    <img class="logo-ick" src="../png/brand/logo_ick.png" alt="АНО ДПО «Институт цифровых компетенций»">
+    <div class="hero-logos-sep"></div>
+    <img class="logo-club" src="../png/brand/logo_club_bulb.png" alt="Клуб «ИИ в образованИИ»">
+  </div>
+  <div class="hero-badges">
+    <span class="hero-badge">Тема 1.3</span>
+    <span class="hero-badge">Лекция · 1 час</span>
+    <span class="hero-badge">Для преподавателей колледжей</span>
+  </div>
+  <h1 class="hero-title">Персональные данные и ИИ: <em>правила движения</em></h1>
+  <p class="hero-sub">Разберёмся, что уходит в нейросеть, кто за это отвечает, что поменял закон об ИИ — и как пользоваться ИИ каждый день, не нарушая закон.</p>
+
+  <div class="poll" id="poll">
+    <p>Честно и анонимно: вы хоть раз загружали в нейросеть работу студента, список группы или ведомость с фамилиями?</p>
+    <div class="poll-btns">
+      <button type="button" class="btn ghost" data-poll="yes">Да, было</button>
+      <button type="button" class="btn ghost" data-poll="no">Ни разу</button>
+    </div>
+    <p class="poll-answer" id="poll-answer" hidden></p>
+  </div>
+
+  <figure class="img-card hero-img" data-lightbox>
+    <img src="../png/tema_1_3/01_hero_pravila_dvizheniya.png" alt="Инфографика: что уходит в нейросеть и что защищает данные — обезличивание, российский сервис, правила колледжа, проверка" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет обзорная инфографика «Персональные данные и ИИ» (промпт 01 из плана)</figcaption>
+  </figure>
+  <nav class="hero-nav" aria-label="Разделы страницы">
+    <a href="#s1">Четыре истории</a>
+    <a href="#s3">Кто отвечает</a>
+    <a href="#s4">Сколько стоит</a>
+    <a href="#s5">Закон об ИИ</a>
+    <a href="#s7">Светофор</a>
+    <a href="#quiz">Проверить себя</a>
+    <a href="praktika_1_3.html">Практика 1.3 →</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ БЛОК 1: ИСТОРИИ ══════════ -->
+<section class="sec" id="s1">
+  <div class="sec-head fade">
+    <div class="num-badge n1">1</div>
+    <h2 class="sec-title">Четыре истории: ни в одной не было злого умысла</h2>
+    <p class="sec-desc">Никто не взламывал и не хотел плохого. Люди доверились удобному инструменту — и последствия оказались настоящими.</p>
+  </div>
+
+  <div class="grid-2 fade">
+    <div class="card">
+      <span class="tag">Бельгия, 2023 · США, 2024–2026</span>
+      <h3>Бот, которому доверили душу</h3>
+      <p>Мужчина шесть недель переписывался с ботом «Элиза» в приложении Chai. Бот не успокаивал его тревогу, а поддерживал мрачные мысли — всё закончилось трагически. В 2024 году мать 14-летнего подростка подала в суд на Character.AI: сын перенёс на персонажа всю свою эмоциональную жизнь.</p>
+      <details class="reveal">
+        <summary>Как думаете, что сделала компания?</summary>
+        <div class="reveal-body">В октябре 2025 года Character.AI запретила подросткам до 18 лет свободные диалоги с ботами. В январе 2026-го Character.AI и Google договорились с семьями о мировом соглашении, условия не раскрыли.</div>
+      </details>
+      <div class="lesson"><b>Для преподавателя</b>Ассистента учили быть приятным — он соглашается и поддерживает. Для подростка в кризисе это опасно. Запретить не получится, объяснить можете вы.</div>
+      <p class="src">Источники: <a href="https://incidentdatabase.ai/reports/2865/" target="_blank" rel="noopener">AI Incident Database</a>, <a href="https://news.bgov.com/business-and-practice/character-ai-google-agree-to-settle-teen-chatbot-harm-lawsuits" target="_blank" rel="noopener">Bloomberg Government</a></p>
+    </div>
+    <div class="card">
+      <span class="tag">Samsung, апрель 2023</span>
+      <h3>Секреты компании в чате</h3>
+      <p>Инженерам разрешили ChatGPT. За 20 дней — три случая: один вставил секретный код для поиска ошибки, второй — для оптимизации, третий загрузил запись совещания для расшифровки. Всё ушло на чужие серверы, вернуть нельзя.</p>
+      <div class="lesson"><b>Для преподавателя</b>Большинство утечек — не взлом, а доверие: «пусть ИИ лучше поможет».</div>
+    </div>
+    <div class="card">
+      <span class="tag">Южная Корея, 2024 · США, 2024</span>
+      <h3>Дипфейки с учителями и студентками</h3>
+      <p>В Telegram-каналах распространяли фальшивые интимные изображения школьниц, студенток и учительниц; среди подозреваемых в основном подростки. В США 40% школьников знали о дипфейках в своей школе.</p>
+      <div class="lesson"><b>Для преподавателя</b>Схема простая: фото из соцсетей, бесплатный сервис, рассылка по чатам. Учитель узнаёт последним.</div>
+    </div>
+    <div class="card">
+      <span class="tag">Сейчас</span>
+      <h3>Клон голоса</h3>
+      <p>Мошенникам хватает нескольких минут голоса из видеоурока. Дальше звонок родственнику: «Мама, я попал в аварию, срочно переведи». Голос по телефону больше не доказывает, кто говорит.</p>
+      <div class="lesson"><b>Сделайте сегодня</b>Договоритесь с близкими о кодовом слове. Просят денег — кладите трубку и перезванивайте сами.</div>
+    </div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox>
+    <img src="../png/tema_1_3/02_chetyre_istorii.png" alt="Инфографика: четыре истории — бот-друг, секретный код, дипфейк, клон голоса" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Ни в одной истории не было злого умысла» (промпт 02 из плана)</figcaption>
+  </figure>
+
+  <div class="key fade"><strong>Ключевая мысль:</strong> утечки и беды происходят не из-за хакеров, а из-за доверия и спешки.</div>
+</section>
+
+<!-- ══════════ БЛОК 2: ЧТО ЗНАЕТ ИИ ══════════ -->
+<section class="sec" id="s2">
+  <div class="sec-head fade">
+    <div class="num-badge n2">2</div>
+    <h2 class="sec-title">Что ИИ знает о вас</h2>
+    <p class="sec-desc">В сервис уходит не только то, что вы написали. По запросам видно, кто вы, чем заняты и как себя чувствуете.</p>
+  </div>
+  <figure class="img-card fade" style="margin:0 0 26px" data-lightbox>
+    <img src="../png/tema_1_3/07_chto_znaet_ii.png" alt="Инфографика: что ИИ знает о вас — запросы, что по ним видно, три слоя данных" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Что ИИ знает о вас» (промпт 07 из плана)</figcaption>
+  </figure>
+
+  <div class="grid fade">
+    <div class="card"><span class="tag blue">Явное</span><h3>Что вы отправили</h3><p>Запросы, файлы, голосовые сообщения, картинки.</p></div>
+    <div class="card"><span class="tag blue">Техническое</span><h3>Откуда и когда</h3><p>Адрес подключения, устройство, время и частота работы.</p></div>
+    <div class="card"><span class="tag blue">Выводы</span><h3>Что о вас можно понять</h3><p>Профессия, проблемы, настроение, иногда здоровье — по тому, о чём вы спрашиваете.</p></div>
+  </div>
+
+  <h3 class="sub-title fade">Попробуйте сами: что поймёт ИИ по вашим запросам</h3>
+  <div class="viz fade" style="margin-top:22px">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Что ИИ поймёт по вашим запросам</span>
+      <button type="button" class="viz-fs" data-fs-src="profil_po_zaprosam.html" data-fs-title="Что ИИ поймёт по вашим запросам">⛶ На весь экран</button>
+    </div>
+    <iframe src="profil_po_zaprosam.html" height="920" loading="lazy" title="Что ИИ поймёт по вашим запросам"></iframe>
+  </div>
+
+  <h3 class="sub-title fade">Куда это может пойти дальше</h3>
+  <div class="grid fade">
+    <div class="card"><h3>Обучение новых моделей</h3><p>У многих сервисов диалоги по умолчанию могут идти на обучение. Где-то это отключается в настройках, где-то нет.</p></div>
+    <div class="card"><h3>Суд</h3><p>В мае 2025 года суд по иску New York Times обязал OpenAI хранить даже удалённые чаты. В октябре 2025-го требование сняли, но уже сохранённое осталось.</p><p class="src">Источник: <a href="https://engadget.com/ai/openai-no-longer-has-to-preserve-all-of-its-chatgpt-data-with-some-exceptions-192422093.html" target="_blank" rel="noopener">Engadget</a></p></div>
+    <div class="card"><h3>Память ассистента</h3><p>ГигаЧат и Алиса запоминают факты о пользователе. Если с одного аккаунта работает вся кафедра, память у ассистента общая.</p></div>
+  </div>
+
+  <div class="key fade"><strong>Ключевая мысль:</strong> не пишите в ИИ того, что не готовы увидеть на доске объявлений в учительской.</div>
+</section>
+
+<!-- ══════════ БЛОК 3: 152-ФЗ ══════════ -->
+<section class="sec" id="s3">
+  <div class="sec-head fade">
+    <div class="num-badge n3">3</div>
+    <h2 class="sec-title">152-ФЗ: кто отвечает за данные студентов</h2>
+    <p class="sec-desc">Закон «О персональных данных» не про ИИ — но именно он определяет, что можно отправлять в нейросеть.</p>
+  </div>
+
+  <div class="card fade">
+    <h3>Кто, по закону, отвечает за персональные данные ваших студентов — вы лично или колледж?</h3>
+    <details class="reveal">
+      <summary>Ответ</summary>
+      <div class="reveal-body"><strong>Колледж.</strong> По 152-ФЗ он — оператор: обязан иметь политику обработки данных, уведомить Роскомнадзор, собрать согласия, назначить ответственного. Вы как сотрудник работаете с данными в рамках правил колледжа. Поэтому первый шаг — узнать, есть ли в колледже положение об использовании ИИ. Если нет — это повод для разговора с руководством, а черновик такого положения вы сделаете на практике.</div>
+    </details>
+  </div>
+
+  <div class="grid-2 fade" style="margin-top:18px">
+    <div class="card">
+      <h3>Что такое персональные данные</h3>
+      <p>Любая информация, по которой можно определить человека: ФИО, дата рождения, телефон, фото, голос, оценки с фамилией.</p>
+    </div>
+    <div class="card">
+      <h3>Особые случаи — строже</h3>
+      <p><strong>Специальные категории:</strong> здоровье, национальность, религиозные и политические взгляды. <strong>Биометрия:</strong> фото и голос, если по ним устанавливают личность.</p>
+    </div>
+  </div>
+
+  <h3 class="sub-title fade">Тренажёр: персональные данные или нет?</h3>
+  <div class="viz fade" style="margin-top:22px">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Персональные данные или нет?</span>
+      <button type="button" class="viz-fs" data-fs-src="pd_ili_net.html" data-fs-title="Персональные данные или нет?">⛶ На весь экран</button>
+    </div>
+    <iframe src="pd_ili_net.html" height="520" loading="lazy" title="Персональные данные или нет?"></iframe>
+  </div>
+
+  <h3 class="sub-title fade">Три правила закона, которые касаются работы с ИИ</h3>
+  <div class="grid fade">
+    <div class="card"><span class="tag">Правило 1</span><h3>Нужно основание</h3><p>Обычно — согласие или договор. За несовершеннолетних согласие дают родители. Согласие конкретное: что обрабатываем и зачем.</p></div>
+    <div class="card"><span class="tag">Правило 2</span><h3>Только по цели и в нужном объёме</h3><p>Для проверки орфографии в эссе фамилия автора не нужна.</p></div>
+    <div class="card"><span class="tag">Правило 3</span><h3>Данные граждан РФ — в российских базах</h3><p>С 1 июля 2025 года закон прямо запрещает собирать и хранить такие данные в базах за границей (ч. 5 ст. 18). Иностранные чат-боты держат данные за рубежом.</p><p class="src">Источник: <a href="https://pravo.ppt.ru/pismo/mincifry-rossii/n-p25-44929-316881" target="_blank" rel="noopener">письмо Минцифры от 12.05.2025</a></p></div>
+  </div>
+
+  <figure class="img-card fade" data-lightbox>
+    <img src="../png/tema_1_3/03_kto_operator.png" alt="Инфографика: оператор персональных данных — колледж; сотрудник работает по правилам колледжа" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Кто отвечает за данные студентов» (промпт 03 из плана)</figcaption>
+  </figure>
+
+  <div class="key fade"><strong>Простое правило:</strong> в зарубежные нейросети — никаких персональных данных студентов. Вообще. В российские — только если это разрешено и оформлено в колледже, а лучше тоже обезличенно.</div>
+</section>
+
+<!-- ══════════ БЛОК 4: ШТРАФЫ ══════════ -->
+<section class="sec" id="s4">
+  <div class="sec-head fade">
+    <div class="num-badge n4">4</div>
+    <h2 class="sec-title">Сколько это стоит</h2>
+    <p class="sec-desc">С 30 мая 2025 года штрафы выросли. Ниже — суммы для гражданина по ст. 13.11 КоАП, сверенные с текстом кодекса. Для должностных лиц и колледжа — в разы больше.</p>
+  </div>
+
+  <figure class="img-card fade" style="margin:0 0 26px" data-lightbox>
+    <img src="../png/tema_1_3/08_shtrafy.png" alt="Инфографика: штрафы для гражданина по ст. 13.11 КоАП" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Сколько стоит ошибка» (промпт 08 из плана)</figcaption>
+  </figure>
+  <div class="tbl-wrap fade">
+    <table>
+      <thead><tr><th>Нарушение</th><th>Штраф для гражданина</th></tr></thead>
+      <tbody>
+        <tr><td>Обработка без законного основания или не по цели (ч. 1)</td><td class="num">10–15 тыс. ₽<br><span style="font-weight:400;color:var(--muted)">повторно 15–30 тыс.</span></td></tr>
+        <tr><td>Без письменного согласия, где оно обязательно (ч. 2)</td><td class="num">10–15 тыс. ₽<br><span style="font-weight:400;color:var(--muted)">повторно 15–30 тыс.</span></td></tr>
+        <tr><td>Сбор данных граждан РФ не в российские базы (ч. 8)</td><td class="num">30–50 тыс. ₽</td></tr>
+        <tr><td>Утечка данных от 1 до 10 тыс. человек (ч. 12)</td><td class="num">100–200 тыс. ₽</td></tr>
+        <tr><td>Утечка специальных категорий — например, о здоровье (ч. 16)</td><td class="num">300–400 тыс. ₽</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src fade">Источник: <a href="https://www.consultant.ru/document/cons_doc_LAW_34661/1f421640c6775ff67079ebde06a7d2f6d17b96db/" target="_blank" rel="noopener">КоАП РФ, ст. 13.11 — КонсультантПлюс</a></p>
+
+  <h3 class="sub-title fade">Посчитайте сами</h3>
+  <div class="viz fade">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Калькулятор штрафа по 152-ФЗ</span>
+      <button type="button" class="viz-fs" data-fs-src="shtraf_kalkulyator.html" data-fs-title="Калькулятор штрафа по 152-ФЗ">⛶ На весь экран</button>
+    </div>
+    <iframe src="shtraf_kalkulyator.html" height="710" loading="lazy" title="Калькулятор штрафа по 152-ФЗ"></iframe>
+  </div>
+
+  <h3 class="sub-title fade">Уголовный кодекс</h3>
+  <div class="grid-2 fade">
+    <div class="card"><h3>Ст. 137 — неприкосновенность частной жизни</h3><p>Распространение сведений о личной или семейной тайне без согласия: до 200 тыс. ₽ или до 2 лет. С использованием служебного положения — до 300 тыс. ₽ или до 4 лет.</p><p class="src"><a href="https://www.consultant.ru/document/cons_doc_LAW_10699/4234a27af714cc608ea71b7bae9400f3613c8f60/" target="_blank" rel="noopener">УК РФ, ст. 137</a></p></div>
+    <div class="card"><h3>Ст. 272.1 — с декабря 2024 года</h3><p>Незаконное использование и передача персональных данных, полученных незаконным путём: до 300 тыс. ₽ или до 4 лет. Если данные о несовершеннолетних, здоровье или биометрия — строже.</p><p class="src"><a href="https://ppt.ru/obzory/vstupaet-v-silu/federalnyy-zakon-30-11-2024-421-fz" target="_blank" rel="noopener">421-ФЗ — обзор ppt.ru</a></p></div>
+  </div>
+
+  <div class="warn-callout fade"><p><strong>Честно о границах.</strong> Как квалифицировать загрузку ведомости в чат-бот, юристы спорят, судебной практики по преподавателям почти нет. Но становиться прецедентом не нужно.</p></div>
+</section>
+
+<!-- ══════════ БЛОК 5: ЗАКОН ОБ ИИ ══════════ -->
+<section class="sec" id="s5">
+  <div class="sec-head fade">
+    <div class="num-badge n5">5</div>
+    <h2 class="sec-title">Закон об ИИ 243-ФЗ: что в нём и что из него следует для вас</h2>
+    <p class="sec-desc">«Приняли закон об ИИ» — и дальше слухи: то ли запретили ChatGPT, то ли всё надо маркировать. Проверим.</p>
+  </div>
+
+  <h3 class="sub-title fade">Сначала проверьте себя: верно или неверно?</h3>
+  <div class="tf fade" id="tf">
+    <div class="tf-row" data-answer="no">
+      <div class="tf-top"><span class="tf-text">1. Закон запретил пользоваться иностранными нейросетями.</span><div class="tf-btns"><button type="button" data-v="yes">Верно</button><button type="button" data-v="no">Неверно</button></div></div>
+      <p class="tf-explain" hidden><b>Неверно.</b> Прямого запрета нет. Ограничение прежнее: никаких персональных данных студентов — это 152-ФЗ, а не закон об ИИ.</p>
+    </div>
+    <div class="tf-row" data-answer="no">
+      <div class="tf-top"><span class="tf-text">2. Теперь всё, что сделано с ИИ, обязательно помечать.</span><div class="tf-btns"><button type="button" data-v="yes">Верно</button><button type="button" data-v="no">Неверно</button></div></div>
+      <p class="tf-explain" hidden><b>Неверно.</b> Пометить материал — ваше право, а не обязанность. Крупные площадки с марта 2027 года обязаны лишь дать такую возможность.</p>
+    </div>
+    <div class="tf-row" data-answer="yes">
+      <div class="tf-top"><span class="tf-text">3. Закон касается и ГигаЧата, и ChatGPT.</span><div class="tf-btns"><button type="button" data-v="yes">Верно</button><button type="button" data-v="no">Неверно</button></div></div>
+      <p class="tf-explain" hidden><b>Верно.</b> Закон говорит о больших фундаментальных моделях от 1 млрд параметров — и российских, и зарубежных.</p>
+    </div>
+    <div class="tf-row" data-answer="no">
+      <div class="tf-top"><span class="tf-text">4. За ошибку в тесте, который сделал ИИ, отвечает разработчик нейросети.</span><div class="tf-btns"><button type="button" data-v="yes">Верно</button><button type="button" data-v="no">Неверно</button></div></div>
+      <p class="tf-explain" hidden><b>Неверно.</b> Отдельной ответственности «за ИИ» закон не ввёл, работает общее законодательство. Раздали тест с выдуманным ГОСТом — это ваш тест.</p>
+    </div>
+    <div class="tf-row" data-answer="no">
+      <div class="tf-top"><span class="tf-text">5. Закон поменял правила работы с персональными данными.</span><div class="tf-btns"><button type="button" data-v="yes">Верно</button><button type="button" data-v="no">Неверно</button></div></div>
+      <p class="tf-explain" hidden><b>Неверно.</b> 152-ФЗ, локализация и штрафы действуют как раньше.</p>
+    </div>
+  </div>
+
+  <h3 class="sub-title fade">Что это за закон и зачем он нужен</h3>
+  <div class="card fade">
+    <p>26 июля 2026 года подписан Федеральный закон № 243-ФЗ «О поддержке развития технологий искусственного интеллекта в Российской Федерации». Он короткий — 13 статей — и рамочный: подробности допишут правительство и министерства. Обратите внимание на название: закон о <strong>поддержке</strong>, а не о запретах.</p>
+    <ul style="margin-top:10px">
+      <li><strong>Технологическая независимость.</strong> Большие модели стали инфраструктурой, как электросети. Закон ставит цель — свои модели взамен иностранных на внутреннем рынке.</li>
+      <li><strong>Правила для разработчиков.</strong> Какая модель считается «своей», кто получает господдержку, какие обязанности.</li>
+      <li><strong>Острые вопросы.</strong> Пометка ИИ-контента, права на сгенерированное.</li>
+    </ul>
+    <p style="margin-top:10px">Весной обсуждалась жёсткая версия: обязательная маркировка всего ИИ-контента, «доверенные модели» с реестром, запрет трансграничных решений. В итоговый закон это не вошло.</p>
+  </div>
+
+  <h3 class="sub-title fade">Четыре даты</h3>
+  <div class="timeline fade">
+    <div class="tl-item"><span class="tl-date">26.07.2026</span><h3>Подписан</h3><p>Опубликован на портале правовой информации.</p></div>
+    <div class="tl-item"><span class="tl-date">01.09.2026</span><h3>Вступил в силу</h3><p>Понятия, принципы, полномочия, господдержка, ответственность.</p></div>
+    <div class="tl-item"><span class="tl-date">01.03.2027</span><h3>Вторая очередь</h3><p>Статусы моделей, обязанности разработчиков, пометка ИИ-контента, права на результат.</p></div>
+    <div class="tl-item"><span class="tl-date">01.09.2032</span><h3>Конец перехода</h3><p>Для информационных систем, которые работали на 1 марта 2027 года.</p></div>
+  </div>
+
+  <h3 class="sub-title fade">Что внутри</h3>
+  <div class="grid fade">
+    <div class="card"><span class="tag">Сфера</span><h3>Только большие модели</h3><p>От 1 млрд параметров: ГигаЧат, Алиса, DeepSeek, ChatGPT. Бот с кнопками и программа проверки тестов — нет.</p></div>
+    <div class="card"><span class="tag">Принципы</span><h3>Развитие и ценности</h3><p>Условия для внедрения моделей, замещение иностранных, права человека, традиционные российские духовно-нравственные ценности, безопасность.</p></div>
+    <div class="card"><span class="tag">Ст. 6 · с 01.03.2027</span><h3>Суверенные и национальные</h3><p><strong>Суверенная</strong> — всё российское, весь цикл. <strong>Национальная</strong> — российская компания определяет главное, открытые иностранные компоненты допустимы, данные в России. Правительство сможет требовать только их, в том числе в государственных системах.</p></div>
+    <div class="card"><span class="tag">Ст. 8 · с 01.03.2027</span><h3>Обязанности разработчиков</h3><p>Меры безопасности, правила эксплуатации, документация с описанием ограничений модели.</p></div>
+    <div class="card"><span class="tag">Ст. 9 · с 01.03.2027</span><h3>Пометка ИИ-контента</h3><p>Пометить аудио или видео как созданное ИИ — право автора. Площадки с аудиторией больше 500 тыс. в сутки обязаны дать такую возможность. Обязательной маркировки нет.</p></div>
+    <div class="card"><span class="tag">Ст. 10 · с 01.03.2027</span><h3>Права на результат</h3><p>Сервис обязан сообщить, кому принадлежат права на сгенерированное. Суверенные и национальные модели смогут учиться на открытых материалах без согласия автора.</p></div>
+    <div class="card"><span class="tag">Ст. 11</span><h3>Ответственность</h3><p>Новых штрафов нет. Работают КоАП, Гражданский и Уголовный кодексы. На практике отвечает тот, кто применил результат.</p></div>
+    <div class="card"><span class="tag">152-ФЗ</span><h3>Персональные данные</h3><p>Закон их не трогает. Всё из блоков 3 и 4 действует как было.</p></div>
+  </div>
+
+  <h3 class="sub-title fade">Что из этого следует для преподавателя</h3>
+  <div class="grid-2 fade">
+    <div class="card"><h3>✅ Иностранные нейросети не запрещены</h3><p>Ограничение прежнее и из другого закона: никаких персональных данных студентов.</p></div>
+    <div class="card"><h3>🏷️ Помечать необязательно, но стоит</h3><p>«Презентацию помог сделать ИИ, факты проверены мной» — честно, и студенты поступают так же, как видят у вас. Правила для студенческих работ определяет колледж.</p></div>
+    <div class="card"><h3>✍️ За результат отвечаете вы</h3><p>Модель всегда что-то ответит, даже если не знает. Закон этот принцип просто закрепил: проверка — ваша.</p></div>
+    <div class="card"><h3>📚 Открытые методички могут пойти на обучение</h3><p>С марта 2027 года — без вашего согласия. Не хотите — размещайте за паролем, например в электронной среде колледжа.</p></div>
+    <div class="card"><h3>🇷🇺 Российские сервисы — дальновидный выбор</h3><p>Если государственные системы обяжут работать только с суверенными или национальными моделями, колледжу на ГигаЧате или Алисе переучиваться не придётся.</p></div>
+    <div class="card"><h3>🤐 Российская модель может уйти от темы</h3><p>Национальные модели проверяют на соответствие ценностям и законодательству. Уход от вопроса — настройка, а не сбой. Переформулируйте или возьмите другой сервис.</p></div>
+  </div>
+
+  <h3 class="sub-title fade">А дипфейки?</h3>
+  <div class="card fade">
+    <p>Отдельной статьи нет. В июле 2026 года в Госдуму внесён законопроект № 1288702-8 — сделать использование дипфейка отягчающим обстоятельством; пока не принят. Сейчас дипфейк квалифицируют по существующим статьям: клевета, нарушение частной жизни, мошенничество. Использовать изображение человека без согласия запрещает ст. 152.1 Гражданского кодекса — закон об ИИ этого не меняет. Скажите это студентам прямо.</p>
+  </div>
+
+  <figure class="img-card fade" data-lightbox>
+    <img src="../png/tema_1_3/04_zakon_ob_ii.png" alt="Инфографика: закон об ИИ 243-ФЗ — даты, что в законе есть и чего нет" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Закон об ИИ 243-ФЗ: что он меняет» (промпт 04 из плана)</figcaption>
+  </figure>
+
+  <div class="key fade"><strong>Ключевая мысль:</strong> закон об ИИ — про поддержку отечественных моделей, а не про запреты для пользователей. Для преподавателя он почти ничего не меняет, кроме одного: ответственность за результат была и остаётся вашей.</div>
+  <p class="src fade">Источники: <a href="https://ppt.ru/obzory/zakon-ob-ii-243-fz" target="_blank" rel="noopener">ppt.ru</a>, <a href="https://cloud.ru/blog/regulirovaniye-ii-v-rossii-v-2026-2027" target="_blank" rel="noopener">cloud.ru</a>, <a href="https://base.garant.ru/414652934/" target="_blank" rel="noopener">Гарант</a>, <a href="https://ppt.ru/news/ugolovnaya-otvetstvennost/ispolzovanie-dipfeykov-priznayut-otyagchayushchim-obstoyatelstvom" target="_blank" rel="noopener">законопроект о дипфейках</a></p>
+</section>
+
+<!-- ══════════ БЛОК 6: СЕРВИСЫ ══════════ -->
+<section class="sec" id="s6">
+  <div class="sec-head fade">
+    <div class="num-badge n6">6</div>
+    <h2 class="sec-title">Российский или зарубежный сервис</h2>
+    <p class="sec-desc">Прочитайте, что сами сервисы пишут о хранении данных. Для работы, где есть хоть что-то о людях, — российский сервис и обезличивание. Для идей и текстов без персональных данных годится любой.</p>
+  </div>
+  <figure class="img-card fade" style="margin:0 0 26px" data-lightbox>
+    <img src="../png/tema_1_3/09_servisy.png" alt="Инфографика: российский или зарубежный сервис — что можно отправлять" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Российский или зарубежный сервис» (промпт 09 из плана)</figcaption>
+  </figure>
+  <div class="viz fade">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">GigaChat, ChatGPT, Claude — политика конфиденциальности</span>
+      <button type="button" class="viz-fs" data-fs-src="sravnenie_servisov.html" data-fs-title="Сравнение сервисов">⛶ На весь экран</button>
+    </div>
+    <iframe src="sravnenie_servisov.html" height="750" loading="lazy" title="Сравнение сервисов по хранению данных"></iframe>
+  </div>
+  <p class="src fade">Сервисы: <a href="https://giga.chat" target="_blank" rel="noopener">ГигаЧат</a>, <a href="https://alice.yandex.ru" target="_blank" rel="noopener">Алиса</a> — доступны в РФ без VPN. ChatGPT и Claude из России официально недоступны.</p>
+</section>
+
+<!-- ══════════ БЛОК 7: СВЕТОФОР ══════════ -->
+<section class="sec" id="s7">
+  <div class="sec-head fade">
+    <div class="num-badge n7">7</div>
+    <h2 class="sec-title">Светофор и пять правил</h2>
+    <p class="sec-desc">Одна таблица, которую можно повесить над рабочим столом.</p>
+  </div>
+
+  <div class="light fade">
+    <div class="card go"><h3><span>🟢</span>Можно</h3><ul><li>Тема, план, тест, конспект, задания без привязки к людям</li><li>Свои методички и программы</li><li>Обезличенная статистика</li></ul></div>
+    <div class="card wait"><h3><span>🟡</span>Обезличенно и по правилам колледжа</h3><ul><li>Работы студентов без ФИО: «Студент А», «Группа 1»</li><li>Особенности группы общими словами: «трое лучше воспринимают визуально»</li><li>Свои фото — осознанно</li></ul></div>
+    <div class="card stop"><h3><span>🔴</span>Нельзя</h3><ul><li>Списки и ведомости с фамилиями, телефоны, адреса</li><li>Диагнозы, сведения о семье, характеристики с фамилиями</li><li>Фото и голос студентов</li></ul></div>
+  </div>
+
+  <h3 class="sub-title fade">Тренажёр: разложите ситуации по светофору</h3>
+  <div class="viz fade" style="margin-top:22px">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Светофор: можно ли это в нейросеть?</span>
+      <button type="button" class="viz-fs" data-fs-src="svetofor_trenazher.html" data-fs-title="Светофор: можно ли это в нейросеть?">⛶ На весь экран</button>
+    </div>
+    <iframe src="svetofor_trenazher.html" height="520" loading="lazy" title="Светофор: можно ли это в нейросеть?"></iframe>
+  </div>
+
+  <h3 class="sub-title fade">Пять правил</h3>
+  <div class="grid fade">
+    <div class="card"><span class="tag">1</span><h3>Обезличивание по умолчанию</h3><p>Перед отправкой убрать ФИО, телефоны, номера групп.</p></div>
+    <div class="card"><span class="tag">2</span><h3>Минимум</h3><p>Даём только то, без чего задача не решается.</p></div>
+    <div class="card"><span class="tag">3</span><h3>Российский сервис для рабочих задач</h3><p>В зарубежные — ничего о людях.</p></div>
+    <div class="card"><span class="tag">4</span><h3>Прозрачность</h3><p>Студенты знают, что вы используете ИИ, например при проверке. Итоговую оценку ставит человек.</p></div>
+    <div class="card"><span class="tag">5</span><h3>Свой аккаунт и настройки</h3><p>Не работать с одного аккаунта всей кафедрой. Отключить обучение на диалогах, где это можно.</p></div>
+  </div>
+
+  <h3 class="sub-title fade">Тренажёр: обезличьте запрос</h3>
+  <div class="trainer fade">
+    <p>Перепишите так, чтобы можно было отправить в нейросеть:</p>
+    <div class="orig">«Иванов Пётр, гр. ТМ-21, сдал эссе на 3 страницы, у него дисграфия, проверь ошибки».</div>
+    <label for="trainer-input" style="font-weight:600;font-size:.9rem">Ваш вариант</label>
+    <textarea id="trainer-input" placeholder="Напишите свой вариант запроса…"></textarea>
+    <div class="btn-row"><button type="button" class="btn" id="trainer-show">Сравнить с эталоном</button></div>
+    <div class="etalon" id="trainer-etalon" hidden><strong>Эталон:</strong> «Проверь эссе студента 2 курса на ошибки. Учитывай, что у студента трудности с письмом: отметь ошибки, но не снижай за них оценку».<br><br>ФИО и номер группы убраны, диагноз заменён педагогической формулировкой — смысл задачи сохранился.</div>
+  </div>
+
+  <h3 class="sub-title fade">Инструмент: обезличиватель текста</h3>
+  <p class="sec-desc fade">Вставьте свой текст — ФИО, телефоны, почта, группы и даты заменятся прямо в браузере, ничего никуда не отправляется. Можно пользоваться и после курса.</p>
+  <div class="viz fade" style="margin-top:22px">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Обезличиватель</span>
+      <button type="button" class="viz-fs" data-fs-src="obezlichivatel.html" data-fs-title="Обезличиватель">⛶ На весь экран</button>
+    </div>
+    <iframe src="obezlichivatel.html" height="650" loading="lazy" title="Обезличиватель"></iframe>
+  </div>
+  <figure class="img-card fade" data-lightbox>
+    <img src="../png/tema_1_3/05_svetofor.png" alt="Инфографика: светофор данных преподавателя — можно, обезличенно, нельзя" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Светофор данных преподавателя» (промпт 05 из плана)</figcaption>
+  </figure>
+</section>
+
+<!-- ══════════ БЛОК 8: ИНЦИДЕНТ ══════════ -->
+<section class="sec" id="s8">
+  <div class="sec-head fade">
+    <div class="num-badge n8">8</div>
+    <h2 class="sec-title">Если что-то случилось</h2>
+    <p class="sec-desc">Отправили лишнее, нашли свои данные в чужом чате, увидели дипфейк — действуйте по шагам. Не скрывайте: у колледжа как оператора есть срок, чтобы уведомить Роскомнадзор об утечке.</p>
+  </div>
+  <figure class="img-card fade" style="margin:0 0 26px" data-lightbox>
+    <img src="../png/tema_1_3/10_incident.png" alt="Инфографика: если что-то случилось — шаги сразу, в течение часа, в течение суток" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет инфографика «Если что-то случилось» (промпт 10 из плана)</figcaption>
+  </figure>
+  <div class="viz fade">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Алгоритм действий при инциденте</span>
+      <button type="button" class="viz-fs" data-fs-src="algoritm_incidenta.html" data-fs-title="Алгоритм действий при инциденте">⛶ На весь экран</button>
+    </div>
+    <iframe src="algoritm_incidenta.html" height="630" loading="lazy" title="Алгоритм действий при инциденте"></iframe>
+  </div>
+  <div class="grid-2 fade" style="margin-top:20px">
+    <div class="card"><h3>Дипфейк с вами</h3><p>Зафиксировать (скриншоты, ссылки), заявление в полицию, жалоба площадке на удаление, сообщить руководству. Вы не виноваты.</p></div>
+    <div class="card"><h3>Звонок «от родственника»</h3><p>Положить трубку, перезвонить самому по своему номеру, спросить кодовое слово.</p></div>
+  </div>
+  <h3 class="sub-title fade">Тренажёр: мошенник или нет?</h3>
+  <div class="viz fade" style="margin-top:22px">
+    <div class="viz-bar">
+      <div class="dots"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span></div>
+      <span class="viz-lbl">Мошенник или нет?</span>
+      <button type="button" class="viz-fs" data-fs-src="moshennik_ili_net.html" data-fs-title="Мошенник или нет?">⛶ На весь экран</button>
+    </div>
+    <iframe src="moshennik_ili_net.html" height="520" loading="lazy" title="Мошенник или нет?"></iframe>
+  </div>
+</section>
+
+<!-- ══════════ ЧЕК-ЛИСТ ══════════ -->
+<section class="sec" id="checklist">
+  <div class="sec-head fade">
+    <div class="num-badge n9">✓</div>
+    <h2 class="sec-title">Сделать на этой неделе</h2>
+    <p class="sec-desc">Отметки сохраняются в вашем браузере — можно вернуться к списку позже.</p>
+  </div>
+  <div class="card fade">
+    <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="checklist-progress"></div></div>
+    <ul class="checklist-items">
+      <li><label><input type="checkbox" data-checklist-item="c1"> Договорился(ась) с близкими о кодовом слове</label></li>
+      <li><label><input type="checkbox" data-checklist-item="c2"> Узнал(а), есть ли в колледже положение об использовании ИИ и кто отвечает за персональные данные</label></li>
+      <li><label><input type="checkbox" data-checklist-item="c3"> Проверил(а) настройки нейросетей: отключил(а) обучение на моих диалогах, где это можно</label></li>
+      <li><label><input type="checkbox" data-checklist-item="c4"> Работаю в нейросети со своего аккаунта, а не с общего кафедрального</label></li>
+      <li><label><input type="checkbox" data-checklist-item="c5"> Переписал(а) свой типовой запрос без ФИО и номеров групп</label></li>
+      <li><label><input type="checkbox" data-checklist-item="c6"> Включил(а) двухфакторную защиту на рабочей почте</label></li>
+    </ul>
+    <p class="checklist-done" id="checklist-done" hidden>Отлично — базовая гигиена на месте.</p>
+  </div>
+</section>
+
+<!-- ══════════ КВИЗ ══════════ -->
+<section class="sec" id="quiz">
+  <div class="sec-head fade">
+    <div class="num-badge n10">?</div>
+    <h2 class="sec-title">Проверьте себя</h2>
+    <p class="sec-desc">Шесть вопросов с разбором. Правильный вариант подсвечивается после ответа.</p>
+  </div>
+
+  <div class="quiz fade">
+    <div class="quiz-question" data-quiz="1">
+      <p class="quiz-text">1. Кто по 152-ФЗ является оператором персональных данных студентов?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q1" value="wrong"> Преподаватель, который работает с группой</label>
+        <label><input type="radio" name="q1" value="right"> Колледж</label>
+        <label><input type="radio" name="q1" value="wrong"> Разработчик нейросети</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="1">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="1" data-explain="Оператор — колледж: он отвечает за политику, согласия и уведомления. Сотрудник работает по его правилам." hidden></p>
+    </div>
+    <div class="quiz-question" data-quiz="2">
+      <p class="quiz-text">2. Что изменилось с 1 июля 2025 года?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q2" value="wrong"> Иностранные нейросети запретили</label>
+        <label><input type="radio" name="q2" value="right"> Данные граждан РФ запрещено собирать и хранить в иностранных базах</label>
+        <label><input type="radio" name="q2" value="wrong"> Для любой нейросети нужно разрешение Роскомнадзора</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="2">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="2" data-explain="Ч. 5 ст. 18 152-ФЗ: локализация стала строже. Запрета нейросетей и «разрешений РКН» для пользователя нет." hidden></p>
+    </div>
+    <div class="quiz-question" data-quiz="3">
+      <p class="quiz-text">3. Какой штраф для гражданина за первичную обработку данных без нужного согласия?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q3" value="right"> 10–15 тыс. ₽</label>
+        <label><input type="radio" name="q3" value="wrong"> 15–30 тыс. ₽</label>
+        <label><input type="radio" name="q3" value="wrong"> До 500 тыс. ₽</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="3">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="3" data-explain="Ч. 2 ст. 13.11 КоАП — 10–15 тыс. ₽. 15–30 тыс. — за повторное нарушение." hidden></p>
+    </div>
+    <div class="quiz-question" data-quiz="4">
+      <p class="quiz-text">4. Что закон об ИИ 243-ФЗ говорит о пометке ИИ-контента?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q4" value="wrong"> Всё созданное ИИ обязательно маркировать</label>
+        <label><input type="radio" name="q4" value="right"> Пометить — право автора; крупные площадки обязаны дать такую возможность</label>
+        <label><input type="radio" name="q4" value="wrong"> Маркировать нужно только тексты</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="4">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="4" data-explain="Ст. 9, с 1 марта 2027 года. Обязательной маркировки в итоговую версию закона не включили." hidden></p>
+    </div>
+    <div class="quiz-question" data-quiz="5">
+      <p class="quiz-text">5. Как безопаснее всего описать нейросети особенности студента с ОВЗ?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q5" value="wrong"> ФИО и диагноз — модель лучше поймёт задачу</label>
+        <label><input type="radio" name="q5" value="wrong"> Диагноз без ФИО</label>
+        <label><input type="radio" name="q5" value="right"> «Студенту нужно больше времени, лучше воспринимает информацию частями»</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="5">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="5" data-explain="Сведения о здоровье — специальная категория. Для задания нужны педагогические формулировки, а не диагноз." hidden></p>
+    </div>
+    <div class="quiz-question" data-quiz="6">
+      <p class="quiz-text">6. Вы раздали тест, который сделал ИИ, а в нём выдуманный ГОСТ. Кто отвечает?</p>
+      <div class="quiz-options">
+        <label><input type="radio" name="q6" value="wrong"> Разработчик модели</label>
+        <label><input type="radio" name="q6" value="right"> Преподаватель, который использовал результат</label>
+        <label><input type="radio" name="q6" value="wrong"> Никто — это ошибка ИИ</label>
+      </div>
+      <button type="button" class="quiz-check" data-quiz-check="6">Проверить</button>
+      <p class="quiz-feedback" data-quiz-feedback="6" data-explain="Отдельной ответственности «за ИИ» нет. Материал, который вы выдали студентам, — ваш материал." hidden></p>
+    </div>
+  </div>
+  <p class="quiz-score-box fade" id="quiz-score" style="margin-top:18px">Отвечено: 0 / 6</p>
+</section>
+
+<!-- ══════════ ЗАКЛЮЧЕНИЕ ══════════ -->
+<section class="sec" id="final">
+  <div class="sec-head fade">
+    <h2 class="sec-title">Три вещи, которые стоит унести</h2>
+  </div>
+  <ol class="conclusion-list fade">
+    <li><strong>Персональные данные студентов в нейросеть не отправляем.</strong> Обезличиваем: «Студент А», «Группа 1», педагогические формулировки вместо диагнозов.</li>
+    <li><strong>Отвечает колледж, нарушить можете вы.</strong> Узнайте, есть ли у вас положение об ИИ. Нет — отнесите черновик, который сделаете на практике.</li>
+    <li><strong>Кодовое слово с близкими.</strong> Сегодня же вечером.</li>
+  </ol>
+
+  <figure class="img-card fade" data-lightbox>
+    <img src="../png/tema_1_3/06_final.png" alt="Инфографика: три правила — не отправляем данные студентов, отвечает колледж, кодовое слово с близкими" loading="lazy" onerror="this.closest('.img-card').classList.add('img-missing')">
+    <figcaption class="img-missing-caption">Здесь будет итоговая инфографика «Три правила, которые стоит унести» (промпт 06 из плана)</figcaption>
+  </figure>
+
+  <div class="btn-row fade" style="justify-content:center;margin:32px 0 40px">
+    <a class="btn" href="praktika_1_3.html">Перейти к практике 1.3 →</a>
+  </div>
+
+  <h3 class="sub-title fade">Источники</h3>
+  <ul class="sources fade">
+    <li><a href="https://www.consultant.ru/document/cons_doc_LAW_34661/1f421640c6775ff67079ebde06a7d2f6d17b96db/" target="_blank" rel="noopener">КоАП РФ, ст. 13.11</a></li>
+    <li><a href="https://www.consultant.ru/document/cons_doc_LAW_10699/4234a27af714cc608ea71b7bae9400f3613c8f60/" target="_blank" rel="noopener">УК РФ, ст. 137</a></li>
+    <li><a href="https://ppt.ru/obzory/vstupaet-v-silu/federalnyy-zakon-30-11-2024-421-fz" target="_blank" rel="noopener">421-ФЗ, ст. 272.1 УК</a></li>
+    <li><a href="https://pravo.ppt.ru/pismo/mincifry-rossii/n-p25-44929-316881" target="_blank" rel="noopener">Письмо Минцифры о ч. 5 ст. 18 152-ФЗ</a></li>
+    <li><a href="https://base.garant.ru/414652934/" target="_blank" rel="noopener">243-ФЗ — Гарант</a></li>
+    <li><a href="https://ppt.ru/obzory/zakon-ob-ii-243-fz" target="_blank" rel="noopener">243-ФЗ — разбор ppt.ru</a></li>
+    <li><a href="https://cloud.ru/blog/regulirovaniye-ii-v-rossii-v-2026-2027" target="_blank" rel="noopener">Регулирование ИИ 2026–2027 — cloud.ru</a></li>
+    <li><a href="https://ppt.ru/news/ugolovnaya-otvetstvennost/ispolzovanie-dipfeykov-priznayut-otyagchayushchim-obstoyatelstvom" target="_blank" rel="noopener">Законопроект о дипфейках</a></li>
+    <li><a href="https://incidentdatabase.ai/reports/2865/" target="_blank" rel="noopener">Случай в Бельгии (Chai)</a></li>
+    <li><a href="https://news.bgov.com/business-and-practice/character-ai-google-agree-to-settle-teen-chatbot-harm-lawsuits" target="_blank" rel="noopener">Мировое соглашение Character.AI и Google</a></li>
+    <li><a href="https://engadget.com/ai/openai-no-longer-has-to-preserve-all-of-its-chatgpt-data-with-some-exceptions-192422093.html" target="_blank" rel="noopener">Хранение чатов OpenAI</a></li>
+  </ul>
+  <p class="src fade">Нормы сверены 19.10.2026. Материал не является юридической консультацией.</p>
+</section>
+
+</main>
+
+<div class="overlay" id="lightbox" aria-hidden="true">
+  <a class="overlay-download" id="lightbox-download" download aria-label="Скачать изображение">⬇ Скачать</a>
+  <button class="overlay-close" id="lightbox-close" aria-label="Закрыть">✕</button>
+  <img id="lightbox-img" alt="">
+</div>
+
+<div id="fs-overlay" aria-hidden="true">
+  <div id="fs-bar">
+    <span id="fs-title"></span>
+    <button type="button" id="fs-close" aria-label="Закрыть полноэкранный режим">✕</button>
+  </div>
+  <iframe id="fs-frame" title="Полноэкранная визуализация"></iframe>
+</div>
+
+<footer>
+  <div class="footer-line"></div>
+  <div class="footer-logos">
+    <img src="../png/brand/logo_ick.png" alt="АНО ДПО «Институт цифровых компетенций»">
+    <img class="logo-club" src="../png/brand/logo_club_bulb.png" alt="Клуб «ИИ в образованИИ»">
+  </div>
+  <p>Программа повышения квалификации «Использование LLM и Агентов в работе преподавателя»</p>
+  <p style="margin-top:4px">АНО ДПО «Институт цифровых компетенций» &nbsp;·&nbsp; Уфа &nbsp;·&nbsp; 2026</p>
+  <p style="margin-top:6px">Автор курса — Илья Чурилов, клуб <a href="https://iivobrazovanii.club/" target="_blank" rel="noopener" style="font-weight:700;text-decoration:none">«ИИ в образованИИ»</a></p>
+</footer>
+
+<script>
+/* Префикс имени файла при скачивании инфографики */
+const BRAND = "ick-ufa";
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (!reduceMotion && "IntersectionObserver" in window) {
+  const reveal = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) { entry.target.classList.add("in"); reveal.unobserve(entry.target); }
+    });
+  }, {threshold: 0.06, rootMargin: "0px 0px -24px"});
+  document.querySelectorAll(".fade").forEach((el) => reveal.observe(el));
+} else {
+  document.querySelectorAll(".fade").forEach((el) => el.classList.add("in"));
+}
+
+/* Подсветка активной секции в навбаре */
+const navLinks = [...document.querySelectorAll(".nav-link")];
+const sections = [...document.querySelectorAll("main section[id]")];
+if ("IntersectionObserver" in window) {
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach((link) => link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`));
+    });
+  }, {rootMargin: "-35% 0px -55%", threshold: 0});
+  sections.forEach((section) => sectionObserver.observe(section));
+}
+
+/* Лайтбокс */
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+const lightboxDownload = document.getElementById("lightbox-download");
+function brandedFilename(url) {
+  const name = url.split("/").pop().split("?")[0];
+  return `${BRAND}_${name}`;
+}
+document.querySelectorAll(".img-card[data-lightbox]").forEach((card) => {
+  card.addEventListener("click", () => {
+    if (card.classList.contains("img-missing")) return;
+    const img = card.querySelector("img");
+    lightboxImg.src = img.src; lightboxImg.alt = img.alt;
+    lightboxDownload.href = img.src;
+    lightboxDownload.download = brandedFilename(img.src);
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+  });
+});
+function closeLightbox() {
+  if (lightbox.contains(document.activeElement)) document.activeElement.blur();
+  lightbox.classList.remove("open");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightboxImg.src = "";
+}
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", (event) => { if (event.target === lightbox) closeLightbox(); });
+
+/* Фуллскрин для iframe-карточек */
+const fsOverlay = document.getElementById("fs-overlay");
+const fsFrame = document.getElementById("fs-frame");
+const fsTitle = document.getElementById("fs-title");
+document.querySelectorAll(".viz-fs").forEach((button) => {
+  button.addEventListener("click", () => {
+    fsFrame.src = button.dataset.fsSrc;
+    fsTitle.textContent = button.dataset.fsTitle;
+    fsOverlay.classList.add("open");
+    fsOverlay.setAttribute("aria-hidden", "false");
+  });
+});
+function closeFs() {
+  if (fsOverlay.contains(document.activeElement)) document.activeElement.blur();
+  fsOverlay.classList.remove("open");
+  fsOverlay.setAttribute("aria-hidden", "true");
+  fsFrame.src = "";
+}
+document.getElementById("fs-close").addEventListener("click", closeFs);
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (fsOverlay.classList.contains("open")) closeFs(); else closeLightbox();
+});
+
+/* Анонимный опрос в hero: ответ остаётся только в браузере */
+const pollAnswer = document.getElementById("poll-answer");
+document.querySelectorAll("[data-poll]").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("[data-poll]").forEach((b) => { b.disabled = true; });
+    pollAnswer.textContent = button.dataset.poll === "yes"
+      ? "Спасибо за честность. Это ровно та ситуация, ради которой мы собрались: к концу лекции у вас будет правило, как делать то же самое и не нарушать закон."
+      : "Отлично. Сегодня разберёмся, почему это правильно и как пользоваться ИИ для проверки работ безопасно.";
+    pollAnswer.hidden = false;
+  });
+});
+
+/* Верно / неверно: закон об ИИ */
+document.querySelectorAll(".tf-row").forEach((row) => {
+  row.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const ok = button.dataset.v === row.dataset.answer;
+      button.classList.add("picked", ok ? "ok" : "bad");
+      button.textContent = (ok ? "✓ " : "✕ ") + button.textContent;
+      row.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+      row.querySelector(".tf-explain").hidden = false;
+    });
+  });
+});
+
+/* Тренажёр обезличивания */
+document.getElementById("trainer-show").addEventListener("click", () => {
+  document.getElementById("trainer-etalon").hidden = false;
+});
+
+/* Чек-лист */
+const CHECKLIST_KEY = "ick-tema-1-3-checklist";
+const checklistInputs = [...document.querySelectorAll("[data-checklist-item]")];
+const checklistProgress = document.getElementById("checklist-progress");
+const checklistDone = document.getElementById("checklist-done");
+function loadChecklistState() {
+  try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) || "{}"); } catch { return {}; }
+}
+function saveChecklistState(state) {
+  try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state)); } catch { /* приватный режим */ }
+}
+function renderChecklistProgress() {
+  const checked = checklistInputs.filter((input) => input.checked).length;
+  checklistProgress.style.width = `${Math.round((checked / checklistInputs.length) * 100)}%`;
+  checklistDone.hidden = checked !== checklistInputs.length;
+}
+const savedChecklist = loadChecklistState();
+checklistInputs.forEach((input) => {
+  const key = input.dataset.checklistItem;
+  input.checked = Boolean(savedChecklist[key]);
+  input.addEventListener("change", () => {
+    const state = loadChecklistState();
+    state[key] = input.checked;
+    saveChecklistState(state);
+    renderChecklistProgress();
+  });
+});
+renderChecklistProgress();
+
+/* Квиз с разбором */
+const QUIZ_TOTAL = document.querySelectorAll(".quiz-question").length;
+let quizAnswered = 0;
+const quizScoreEl = document.getElementById("quiz-score");
+document.querySelectorAll(".quiz-check").forEach((button) => {
+  button.addEventListener("click", () => {
+    const index = button.dataset.quizCheck;
+    const question = document.querySelector(`.quiz-question[data-quiz="${index}"]`);
+    const selected = question.querySelector(`input[name="q${index}"]:checked`);
+    const feedback = document.querySelector(`[data-quiz-feedback="${index}"]`);
+    if (!selected) {
+      feedback.textContent = "Выберите вариант ответа.";
+      feedback.className = "quiz-feedback incorrect";
+      feedback.hidden = false;
+      return;
+    }
+    const isCorrect = selected.value === "right";
+    feedback.textContent = (isCorrect ? "Верно! " : "Не совсем. ") + feedback.dataset.explain;
+    feedback.className = `quiz-feedback ${isCorrect ? "correct" : "incorrect"}`;
+    feedback.hidden = false;
+    question.querySelectorAll("input").forEach((input) => { input.disabled = true; });
+    question.querySelector('input[value="right"]').closest("label").classList.add("quiz-correct-answer");
+    button.disabled = true;
+    quizAnswered += 1;
+    quizScoreEl.textContent = `Отвечено: ${quizAnswered} / ${QUIZ_TOTAL}`;
+  });
+});
+</script>
+</body>
+</html>
