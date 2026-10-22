@@ -62,8 +62,19 @@ class LecturePageTest(unittest.TestCase):
             self.assertTrue((ROOT / "web" / page).is_file(), page)
 
     def test_two_logos(self):
-        self.assertIn("../png/brand/logo_ick.png", self.parser.img_srcs)
-        self.assertIn("../png/brand/logo_club_bulb.png", self.parser.img_srcs)
+        self.assertIn("../png/brand/logo_ick.webp", self.parser.img_srcs)
+        self.assertIn("../png/brand/logo_club_bulb.webp", self.parser.img_srcs)
+
+    def test_infographics_are_light(self):
+        """Картинки — WebP с мобильной версией; рядом PNG для кнопки «Скачать»."""
+        images = [src for src in self.parser.img_srcs if src.startswith("../png/tema_1_3/")]
+        for src in images:
+            self.assertTrue(src.endswith(".webp"), src)
+            full = (ROOT / "web" / src).resolve()
+            self.assertLess(full.stat().st_size, 400_000, src)
+            self.assertTrue(full.with_name(full.stem + "_960.webp").is_file(), src)
+            self.assertTrue(full.with_suffix(".png").is_file(), src)
+        self.assertEqual(self.html.count("srcset="), len(images))
 
     def test_infographics_have_placeholders(self):
         images = [src for src in self.parser.img_srcs if src.startswith("../png/tema_1_3/")]
@@ -126,6 +137,7 @@ class PublishedSiteTest(unittest.TestCase):
 
     PAGES = ["index.html", "web/tema_1_3.html", "web/praktika_1_3.html"]
     REF = re.compile(r"""(?:src|href|data-fs-src)\s*=\s*["']([^"'#?]+)|open(?:Lb|Fs)\(\s*['"]([^'"]+)""")
+    SRCSET = re.compile(r"""srcset\s*=\s*["']([^"']+)""")
 
     @classmethod
     def setUpClass(cls):
@@ -153,8 +165,12 @@ class PublishedSiteTest(unittest.TestCase):
                 continue
             text = (ROOT / path).read_text(encoding="utf-8")
             base = Path(path).parent
-            for match in self.REF.finditer(text):
-                ref = next(g for g in match.groups() if g)
+            refs = [next(g for g in m.groups() if g) for m in self.REF.finditer(text)]
+            for m in self.SRCSET.finditer(text):
+                refs += [part.strip().split()[0] for part in m.group(1).split(",")]
+            # лайтбокс скачивает PNG вместо WebP
+            refs += [r[:-5] + ".png" for r in refs if r.endswith(".webp") and "/png/" in "/" + r and not r.endswith("_960.webp") and "brand/" not in r]
+            for ref in refs:
                 if re.match(r"^(https?:|mailto:|data:|javascript:|//|\$\{)", ref):
                     continue
                 target = (ROOT / base / urllib.parse.unquote(ref)).resolve()
