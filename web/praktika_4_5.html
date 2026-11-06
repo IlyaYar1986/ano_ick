@@ -1,0 +1,161 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Практика 4.5 · Коллектор статистики через MCP</title><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:78px}body{margin:0;font:17px/1.65 'IBM Plex Sans',system-ui,sans-serif;color:#2c2d30;background:#f4f5fa}a{color:#562d86}nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:22px;overflow:auto;white-space:nowrap;padding:12px max(24px,calc((100vw - 1120px)/2));background:#fff;border-bottom:1px solid #e3e3e8;font-size:14px;font-weight:600}nav a{text-decoration:none}nav img{height:30px}.wrap{max-width:1120px;padding:0 24px;margin:auto}.hero{padding:60px 0}.logos{display:flex;align-items:center;gap:24px;margin-bottom:38px}.logos img:first-child{height:58px}.logos img:last-child{height:76px}.badge{display:inline-block;color:#562d86;background:#eae6fa;border-radius:50px;padding:5px 14px;font-size:.85rem;font-weight:700}h1{font-size:clamp(2.4rem,5.5vw,4.5rem);line-height:1.08;letter-spacing:-.04em;max-width:900px;margin:18px 0}h2{font-size:clamp(1.8rem,3.5vw,2.8rem);line-height:1.15;letter-spacing:-.03em;margin:0 0 16px}h3{line-height:1.3}p{max-width:76ch}.lead{font-size:1.2rem;max-width:700px}.button,button{display:inline-block;background:#562d86;color:white;border:0;border-radius:10px;padding:12px 18px;font:600 1rem 'IBM Plex Sans',sans-serif;text-decoration:none;cursor:pointer}.button:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #0090cf;outline-offset:3px}.route{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #e3e3e8;border-radius:16px;overflow:hidden;background:#fff}.route div{padding:20px;border-right:1px solid #e3e3e8}.route div:last-child{border:0}.route strong{display:block;color:#562d86;font-size:1.45rem}.section{padding:68px 0;border-bottom:1px solid #dfe1e9}.step{display:flex;gap:14px;align-items:center;color:#562d86;font-weight:700;margin-bottom:16px}.num{display:grid;place-items:center;background:#562d86;color:white;border-radius:12px;width:42px;height:42px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.card{background:white;border:1px solid #e3e3e8;border-radius:16px;padding:24px}.notice{background:#fff8e8;border-left:4px solid #d59a2b;padding:17px 20px;border-radius:4px 12px 12px 4px;margin:20px 0}.prompt{background:#252238;color:#f5f3ff;border-radius:16px;padding:24px;margin:20px 0}.prompt pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;margin:0}.prompt button{margin-top:18px;background:white;color:#562d86}.screen{margin:28px 0}.screen img{width:100%;max-height:620px;object-fit:contain;object-position:left;border-radius:12px;background:#292929}.screen figcaption{font-size:.85rem;color:#626677}.tests{display:grid;gap:12px}.test{background:white;border:1px solid #e3e3e8;border-radius:14px;padding:20px}.test p{margin:6px 0}.test button{font-size:.85rem;padding:8px 12px;margin-top:8px}details{margin-top:12px}summary{color:#562d86;font-weight:600;cursor:pointer}.source{font-size:.9rem;color:#626677}footer{background:#29243b;color:white;padding:35px 0}footer a{color:#d5d0ff}@media(max-width:700px){.grid{grid-template-columns:1fr}.route{grid-template-columns:1fr 1fr}.route div:nth-child(2){border-right:0}.route div{border-bottom:1px solid #e3e3e8}.hero{padding:42px 0}.section{padding:48px 0}nav{gap:15px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}</style></head><body id="top">
+<nav><img src="../png/brand/logo_ick.webp" alt="ИЦК"><a href="#setup">Подготовка</a><a href="#data">Данные</a><a href="#rules">Правила</a><a href="#mcp">MCP-сервер</a><a href="#connect">Подключение</a><a href="#analysis">Анализ</a><a href="#verify">Сверка</a><a href="#upgrade">Доработка</a><a href="#finish">Итог</a><a href="#top">В начало</a></nav>
+<main><div class="wrap">
+<header class="hero"><div class="logos"><img src="../png/brand/logo_ick.webp" alt="АНО ДПО «Институт цифровых компетенций»"><img src="../png/brand/logo_club_bulb.webp" alt="Клуб «Образование»"></div><span class="badge">Практика 4.5 · 90 учебных минут · демонстрация</span><h1>Агент, который не считает числа сам</h1><p class="lead">Коллектор статистики успеваемости: языковая модель понимает запрос и оформляет отчёт, а средний балл, пропуски и группу риска считает отдельный инструмент — локальный MCP-сервер. Расчёты можно проверить вручную.</p><p>Нужны: Node.js LTS, OpenCode (пакет <code>opencode-ai</code>, как в практике 3.4), доступ к выбранной модели. Все данные синтетические.</p></header>
+
+<div class="route"><div><strong>1. Данные</strong>обезличенный CSV со столбцом <code>student_id</code></div><div><strong>2. Инструмент</strong>локальный MCP-сервер <code>stat-collector</code></div><div><strong>3. Правила</strong><code>AGENTS.md</code> запрещает модели считать самой</div><div><strong>4. Отчёт</strong><code>outputs/report.md</code> для куратора</div></div>
+
+<section class="section" id="setup"><h2>Подготовьте проект</h2><div class="step"><span class="num">1</span>Проверьте Node.js и OpenCode</div><p>Терминал:</p><div class="prompt"><pre id="s1">node --version
+npm --version
+opencode --version
+opencode mcp list</pre><button data-copy="s1">Скопировать команды</button></div><p>Маршрут занятия — OpenCode 1, пакет <code>opencode-ai</code>. Актуальные команды установки — на <a href="https://opencode.ai/docs/">opencode.ai/docs</a>; сверяйте с установленной версией.</p>
+<div class="step"><span class="num">2</span>Создайте папку проекта</div><div class="prompt"><pre id="s2">mkdir -p opencode-stat-collector/data opencode-stat-collector/mcp/stat-collector opencode-stat-collector/outputs
+cd opencode-stat-collector</pre><button data-copy="s2">Скопировать команды</button></div><p><code>data/</code> — обезличенные таблицы, <code>mcp/stat-collector/</code> — локальный MCP-сервер, <code>outputs/</code> — отчёты.</p>
+<div class="step"><span class="num">3</span>Скачайте эталонный CSV для сверки</div><p><a class="button" href="materialy_4_5/group_stats.csv" download>Скачать group_stats.csv</a></p><p>Он пригодится, если генерация задержится, и для ручной проверки расчётов. Контрольные числа — в разделе «Сверка».</p>
+<div class="notice">В реальных ведомостях есть персональные данные. Здесь используются только синтетические данные со столбцом <code>student_id</code>: без ФИО, телефонов, адресов и медицинских сведений. Если работаете с настоящей таблицей колледжа — обезличьте её до того, как файл попадёт в агента. Облачная модель может получать содержимое файлов.</div></section>
+
+<section class="section" id="data"><h2>Создайте учебные данные</h2><p>Запустите OpenCode в корне проекта и попросите создать CSV. Не скачивайте готовую таблицу: модель должна сама собрать маленький набор, который вы потом проверите глазами.</p><div class="prompt"><pre id="d1">Создай учебный обезличенный CSV-файл data/group_stats.csv для практики по коллектору статистики.
+
+Требования:
+- 12 студентов группы ИС-31;
+- вместо ФИО используй student_id: S001, S002 и так далее;
+- колонки:
+  - student_id
+  - group
+  - avg_grade
+  - failed_subjects
+  - absences_total
+  - absences_unexcused
+  - assignments_missing
+- данные синтетические, без ФИО, телефонов, адресов и других персональных данных;
+- добавь несколько студентов с риском: низкий средний балл, задолженности, много пропусков;
+- один студент должен иметь средний балл ровно 3.5, чтобы проверить границу порога.
+
+После создания файла кратко объясни, какие колонки в нём есть.</pre><button data-copy="d1">Скопировать запрос</button></div><p>Если модель показала таблицу в чате, но файл не создала:</p><div class="prompt"><pre id="d2">Не просто покажи таблицу. Создай файл data/group_stats.csv в проекте.</pre><button data-copy="d2">Скопировать запрос</button></div>
+<div class="tests"><div class="test"><strong>Проверьте файл глазами</strong><p>12 строк; в первой колонке только <code>student_id</code>; все числовые поля — числа; есть студенты с долгами и пропусками; нет ФИО, телефонов и адресов.</p></div></div>
+<div class="notice">Набор намеренно маленький. Если инструмент ошибётся на двенадцати строках, реальной ведомости из сотен строк ему доверять нельзя.</div></section>
+
+<section class="section" id="rules"><h2>Задайте правила проекта</h2><p>Файл <code>AGENTS.md</code> описывает поведение агента в этой папке. Чисел он не считает — он требует, чтобы считал инструмент.</p><div class="prompt"><pre id="r1">Создай AGENTS.md для проекта "Коллектор статистики".
+
+Требования:
+- агент помогает куратору анализировать обезличенную таблицу успеваемости и посещаемости;
+- агент не должен считать показатели сам языковой моделью;
+- для расчётов агент должен использовать MCP-инструмент stat-collector / analyze_group_stats;
+- агент может объяснять результат и оформлять отчёт;
+- агент не должен запрашивать ФИО, телефоны, адреса, медицинские сведения и другие персональные данные;
+- если пользователь даёт реальные персональные данные, агент должен попросить обезличить таблицу;
+- группа риска определяется правилами:
+  - avg_grade < 3.5;
+  - или failed_subjects > 0;
+  - или absences_unexcused >= 6;
+  - или assignments_missing >= 3;
+- итоговый отчёт должен включать: сводку по группе, список группы риска, причины риска, рекомендации куратору.</pre><button data-copy="r1">Скопировать запрос</button></div>
+<div class="tests"><div class="test"><strong>Что проверить в созданном файле</strong><p>Запрет счёта моделью; требование вызвать MCP перед отчётом; правила обезличивания; критерии риска совпадают с колонками CSV.</p></div></div>
+<div class="notice">Каждое правило проверяется по конкретному полю CSV. Порог «ниже 3,5» — строгое неравенство: студент с ровно 3,5 в него не попадает.</div></section>
+
+<section class="section" id="mcp"><h2>Создайте MCP-сервер</h2><p>Локальный сервер читает CSV, считает показатели и возвращает структурированный результат. Он никуда ничего не отправляет.</p><div class="prompt"><pre id="m1">Создай локальный MCP-сервер mcp/stat-collector.
+
+Задача MCP:
+- предоставить инструмент analyze_group_stats;
+- инструмент принимает путь к CSV-файлу, например data/group_stats.csv;
+- инструмент читает CSV;
+- считает:
+  - количество студентов;
+  - средний avg_grade по группе;
+  - суммарные absences_total;
+  - суммарные absences_unexcused;
+  - количество студентов с failed_subjects > 0;
+  - список студентов группы риска;
+- группа риска определяется так:
+  - avg_grade < 3.5;
+  - или failed_subjects > 0;
+  - или absences_unexcused >= 6;
+  - или assignments_missing >= 3;
+- для каждого студента группы риска вернуть student_id и причины риска;
+- результат вернуть как JSON и короткую markdown-сводку;
+- не отправлять данные во внешние API;
+- структуру SDK выбери сам: подойдёт и старый стиль с константами ListToolsRequestSchema и CallToolRequestSchema, и новый со строками "tools/list" и "tools/call". Главное — рабочий запуск и инструмент с именем analyze_group_stats.
+
+Также создай или обнови opencode.json, чтобы OpenCode подключал этот локальный MCP-сервер.
+
+Важно для opencode.json:
+- используй ключ "mcp", а не "mcpServers";
+- для локального сервера укажи "type": "local";
+- "command" должен быть массивом, например ["node", "./mcp/stat-collector/index.js"];
+- не используй поля args, env, disabled, autoApprove — они относятся к формату других MCP-клиентов;
+- добавь "$schema": "https://opencode.ai/config.json";
+- не добавляй настройки моделей и провайдеров в этот файл: в этой практике opencode.json нужен только для подключения MCP.
+
+Сначала объясни план, затем создай файлы.</pre><button data-copy="m1">Скопировать запрос</button></div><p>Если модель показала код, а файлы не создала:</p><div class="prompt"><pre id="m2">Не просто покажи код. Создай файлы MCP-сервера в mcp/stat-collector и обнови opencode.json.</pre><button data-copy="m2">Скопировать запрос</button></div>
+
+<figure class="screen"><img src="../png/praktika_3_4/opencode.png" alt="Интерфейс OpenCode"><figcaption>Интерфейс OpenCode из практики 3.4. Рабочая папка — проект, в котором создаются файлы.</figcaption></figure>
+
+<h3>Как устроен сервер внутри</h3><p>Имя инструмента <code>analyze_group_stats</code> объявляется в списке инструментов отдельно, а логика чтения CSV и расчёта лежит в обработчике вызова. Старые примеры SDK используют константы <code>ListToolsRequestSchema</code> и <code>CallToolRequestSchema</code>, новые — строки <code>tools/list</code> и <code>tools/call</code>. Обе структуры нормальны. Файл может называться <code>index.js</code>, <code>server.js</code> или <code>server.mjs</code> — главное, чтобы команда запуска в <code>opencode.json</code> указывала на фактический файл.</p>
+<details><summary>Правильный и неправильный opencode.json</summary><p>Формат других MCP-клиентов OpenCode не принимает:</p><div class="prompt"><pre id="m3">{
+  "mcpServers": {
+    "stat-collector": {
+      "command": "node",
+      "args": ["./mcp/stat-collector/index.js"]
+    }
+  }
+}</pre><button data-copy="m3">Скопировать неправильный вариант</button></div><p>Такой файл вызывает ошибку <code>Unrecognized key: mcpServers</code>. Правильный формат OpenCode:</p><div class="prompt"><pre id="m4">{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "stat-collector": {
+      "type": "local",
+      "command": ["node", "./mcp/stat-collector/index.js"],
+      "enabled": true
+    }
+  }
+}</pre><button data-copy="m4">Скопировать правильный вариант</button></div><p>Моделей и провайдеров в этом файле нет: модель уже выбрана в настройках OpenCode, а конфигурация проекта добавляет только MCP-сервер.</p></details>
+<div class="tests"><div class="test"><strong>Что проверить</strong><p>Верхний ключ <code>mcp</code>; <code>"type": "local"</code>; <code>"command"</code> массивом; команда указывает на созданный файл; инструмент не отправляет данные во внешние API и читает только указанный CSV.</p></div></div></section>
+
+<section class="section" id="connect"><h2>Проверьте подключение</h2><div class="prompt"><pre id="c1">opencode mcp list</pre><button data-copy="c1">Скопировать команду</button></div><p>В списке должен появиться <code>stat-collector</code>. Если сервер не виден или не запускается, не чините вручную — попросите агента диагностировать:</p><div class="prompt"><pre id="c2">Проверь подключение MCP stat-collector.
+Посмотри opencode.json, команду запуска MCP и ошибки.
+Исправь минимально необходимое.</pre><button data-copy="c2">Скопировать запрос</button></div>
+<div class="notice">Самый частый сбой — конфигурация в формате другого клиента: ключ <code>mcpServers</code> или поле <code>args</code> вместо массива <code>command</code>. Рабочий цикл выглядит так: агент создал инструмент, вы проверили подключение, увидели ошибку, попросили агента исправить.</div></section>
+
+<section class="section" id="analysis"><h2>Попросите агента проанализировать ведомость</h2><p>Перезапустите OpenCode в корне проекта, чтобы он подхватил <code>opencode.json</code>, затем:</p><div class="prompt"><pre id="a1">Проанализируй data/group_stats.csv.
+
+Используй MCP-инструмент stat-collector / analyze_group_stats.
+
+Сформируй отчёт для куратора:
+- сводка по группе;
+- средний балл;
+- пропуски всего;
+- неуважительные пропуски;
+- сколько студентов с задолженностями;
+- список группы риска с причинами;
+- 3 практических действия для куратора.
+
+Не считай показатели сам. Сначала вызови инструмент.
+
+Сохрани отчёт в outputs/report.md.</pre><button data-copy="a1">Скопировать запрос</button></div>
+<div class="tests"><div class="test"><strong>Что ожидать</strong><p>В журнале виден вызов инструмента; агент получает JSON и сводку; отчёт оформлен понятным языком; студентов и числа агент не выдумывает; ФИО не запрашивает.</p></div></div>
+<div class="notice">Если модель посчитала сама, не вызвав инструмент, — это нарушение правил проекта. Такой результат не принимается: перезапустите запрос.</div></section>
+
+<section class="section" id="verify"><h2>Сверьте расчёты вручную</h2><p>Откройте CSV рядом с отчётом и пересчитайте показатели на глазах. Для эталонного CSV контрольные числа такие:</p><div class="tests"><div class="test"><strong>Эталон: group_stats.csv</strong><p>12 студентов; сумма <code>avg_grade</code> 45,6 — средний балл 3,8; пропусков 71, из них неуважительных 37; с задолженностями 3 студента (S003, S009, S012).</p></div><div class="test"><strong>Группа риска — 6 человек</strong><p>S003 (балл и задолженность), S004 (7 неуважительных), S006 (4 несданных), S009 (все четыре условия), S010 (8 неуважительных), S012 (балл, задолженность, несданные).</p></div><div class="test"><strong>Граничный случай</strong><p>У S006 средний балл ровно 3,5. Порог «ниже 3,5» его не задевает — задевают 4 несданных задания.</p></div></div><p>Если числа в отчёте расходятся с вашим подсчётом:</p><div class="prompt"><pre id="v1">Проверь отчёт на соответствие CSV.
+
+Не пересчитывай языковой моделью. Снова вызови MCP-инструмент analyze_group_stats и сравни результат с отчётом.
+Если есть расхождения, исправь отчёт.</pre><button data-copy="v1">Скопировать запрос</button></div>
+<div class="notice">Проверка точности — обязательная часть агента, который работает с числами. Красивый отчёт без проверяемых расчётов не годится. Совпадение — тоже результат, который нужно показать, а не принять на веру.</div></section>
+
+<section class="section" id="upgrade"><h2>Доработайте инструмент</h2><p>Порог риска живёт в коде инструмента, а не в промпте: там его можно проверить. Добавьте уровень риска:</p><div class="prompt"><pre id="u1">Доработай MCP-инструмент analyze_group_stats: добавь поле risk_level со значениями low, medium, high.
+High ставь, если у студента два или более условий риска одновременно.
+Верни risk_level в JSON и в сводке для каждого студента группы риска.</pre><button data-copy="u1">Скопировать запрос</button></div><p>До запуска спрогнозируйте: <code>high</code> получат S003, S009 и S012 (у каждого два и более условий), остальные из группы риска — <code>medium</code>. Затем вызовите инструмент заново и сравните.</p><p>Второй вариант доработки — порог неуважительных пропусков, который куратор сможет менять при вызове:</p><div class="prompt"><pre id="u2">Доработай MCP-инструмент analyze_group_stats: добавь параметр min_unexcused_absences, чтобы куратор мог менять порог неуважительных пропусков.
+По умолчанию 6. Параметр должен влиять только на условие absences_unexcused >= порог.</pre><button data-copy="u2">Скопировать запрос</button></div></section>
+
+<section class="section" id="finish"><h2>Итог: цепочка файлов</h2><p>Проект целиком:</p><div class="prompt"><pre id="f1">opencode-stat-collector/
+  AGENTS.md            правила поведения агента
+  data/
+    group_stats.csv    обезличенные учебные данные
+  mcp/
+    stat-collector/    локальный MCP-сервер с инструментом analyze_group_stats
+  outputs/
+    report.md          отчёт для куратора
+  opencode.json        подключение MCP к OpenCode</pre><button data-copy="f1">Скопировать структуру</button></div><p>Без MCP это был бы разговорный помощник, который рискует ошибиться в числах. С MCP это интерфейс к проверяемому расчётному инструменту: модель понимает запрос и оформляет результат, считать она не должна.</p><div class="grid"><div class="card"><h3>Что менять при смене источника</h3><p>Если источником станет Google Sheets или Excel, заменяется только чтение данных в инструменте. Правила в <code>AGENTS.md</code> и конфигурация остаются прежними.</p></div><div class="card"><h3>Если отчёт нужен ежемесячно</h3><p>Инструмент можно вызывать по расписанию, а отчёты складывать в <code>outputs/</code> с датами. Это уже отдельная настройка запуска, а не новая просьба модели.</p></div></div>
+<div class="notice">Рекомендации куратору остаются черновиком: медицинские, юридические и дисциплинарные выводы принимает человек. Данные — только обезличенные.</div></section>
+</div></main>
+<footer><div class="wrap">ИЦК · Практика для преподавателей СПО<br><a href="#top">В начало</a></div></footer>
+<script>document.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;try{await navigator.clipboard.writeText(document.getElementById(b.dataset.copy).innerText);b.nextElementSibling&&(b.nextElementSibling.textContent='Скопировано');}catch(err){b.nextElementSibling&&(b.nextElementSibling.textContent='Выделите текст и скопируйте вручную.');}});</script></body></html>
