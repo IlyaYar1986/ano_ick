@@ -135,7 +135,7 @@ class PracticePageTest(unittest.TestCase):
 class PublishedSiteTest(unittest.TestCase):
     """На сайт выкладываются только темы 1.1 и 1.3: всё, на что они ссылаются, должно быть в git, а клубных ссылок быть не должно."""
 
-    PAGES = ["index.html", "web/tema_1_3.html", "web/praktika_1_3.html", "web/praktika_3_1.html", "web/praktika_3_2.html", "web/praktika_3_3.html", "web/praktika_3_4.html", "web/praktika_3_5.html", "web/praktika_4_5.html"]
+    PAGES = ["index.html", "web/tema_1_3.html", "web/praktika_1_3.html", "web/praktika_3_1.html", "web/praktika_3_2.html", "web/praktika_3_3.html", "web/praktika_3_4.html", "web/praktika_3_5.html", "web/praktika_4_5.html", "web/praktika_4_1.html"]
     REF = re.compile(r"""(?:src|href|data-fs-src)\s*=\s*["']([^"'#?]+)|open(?:Lb|Fs)\(\s*['"]([^'"]+)""")
     SRCSET = re.compile(r"""srcset\s*=\s*["']([^"']+)""")
 
